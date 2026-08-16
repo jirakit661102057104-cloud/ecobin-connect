@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { DEMO_LOGIN } from '../lib/config';
+import { motion } from 'motion/react';
 import { 
   User, 
   Lock, 

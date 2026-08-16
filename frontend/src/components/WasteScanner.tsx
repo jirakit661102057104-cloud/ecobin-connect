@@ -87,12 +87,7 @@ interface WasteScannerProps {
 export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, openAuthModal }) => {
   const { currentUser, language, addWasteRecord, addGuestWasteRecord, bins, settings, plasticTypes } = useApp();
 
-  const liveBins = (bins.length ? bins : SMART_BIN_LOCATIONS.map((b) => ({
-    bin_id: b.id,
-    bin_name: b.name,
-    status: b.status,
-    capacity_note: b.capacity,
-  }))).filter((b) => b.status !== 'ปิดปรับปรุง');
+  const liveBins = bins.filter((b) => b.status !== 'ปิดปรับปรุง');
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedBin, setSelectedBin] = useState<string>('');
