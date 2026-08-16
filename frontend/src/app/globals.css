@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-jakarta), var(--font-thai), ui-sans-serif, system-ui, sans-serif;
+  --color-eco-50: #f0fdf8;
+  --color-eco-100: #d9f9eb;
+  --color-eco-500: #10b981;
+  --color-eco-600: #059669;
+  --color-eco-800: #065f46;
+  --color-eco-950: #042f24;
+  --radius-4xl: 2rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #0f172a;
+  background-color: #f4f7f5;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(16, 185, 129, 0.18), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(45, 212, 191, 0.14), transparent 46%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(16, 185, 129, 0.08), transparent 50%);
+  background-attachment: fixed;
+  letter-spacing: -0.011em;
+}
+
+::selection {
+  background: #6ee7b7;
+  color: #064e3b;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  border: 2px solid #f4f7f5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.eco-shell {
+  min-height: 100vh;
+  color: #0f172a;
+}
+
+.eco-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 40px -18px rgba(6, 95, 70, 0.22);
+}
+
+.eco-nav {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(22px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 12px 40px -16px rgba(15, 118, 110, 0.28);
+}

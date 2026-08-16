@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ecobin-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ecobin
+      MYSQL_DATABASE: ecobin
+      MYSQL_USER: ecobin
+      MYSQL_PASSWORD: ecobin
+    ports:
+      - "3306:3306"
+    volumes:
+      - ecobin_mysql_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./lookups.sql:/docker-entrypoint-initdb.d/02-lookups.sql:ro
+      - ./views.sql:/docker-entrypoint-initdb.d/03-views.sql:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uecobin", "-pecobin"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: ecobin-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: ecobin
+      PMA_PASSWORD: ecobin
+    ports:
+      - "8081:80"
+
+volumes:
+  ecobin_mysql_data:

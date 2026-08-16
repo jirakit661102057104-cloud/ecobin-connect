@@ -1,0 +1,17 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+infra/.env.prod
+backend/backend.env
+.next
+backend/uploads/*.jpg
+backend/uploads/*.png
+backend/uploads/*.jpeg
+backend/*.exe
+frontend/frontend.env
+*.tsbuildinfo

@@ -1,0 +1,25 @@
+import { API_BASE } from './config';
+
+export function mediaUrl(url: string): string {
+  if (!url) return url;
+  if (url.startsWith('/uploads/')) return `${API_BASE}${url}`;
+  return url;
+}
+
+export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers);
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
+  }
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message = (data as { error?: string }).error || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+  return data as T;
+}

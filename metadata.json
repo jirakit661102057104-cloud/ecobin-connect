@@ -1,0 +1,10 @@
+{
+  "name": "EcoBin Connect - แอปพลิเคชั่นคัดแยกขยะ",
+  "description": "ระบบเว็บแอปพลิเคชันคัดแยกขยะขวดพลาสติก สะสมแต้ม แลกของรางวัล และประมวลผลคาร์บอนฟุตพริ้นท์ตามหลัก 3Rs มหาวิทยาลัยราชภัฏเพชรบูรณ์",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
