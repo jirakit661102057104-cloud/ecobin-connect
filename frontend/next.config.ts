@@ -25,7 +25,6 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL === undefined ? 'http://localhost:8080' : process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_DEMO_LOGIN: process.env.NEXT_PUBLIC_DEMO_LOGIN || 'true',
   },
   output: 'standalone',
