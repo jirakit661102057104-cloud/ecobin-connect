@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "env": {
-    "API_PROXY_TARGET": "https://caps-edward-assessment-appeared.trycloudflare.com"
+    "API_PROXY_TARGET": "https://configure-civilian-representations-vid.trycloudflare.com"
   }
 }
