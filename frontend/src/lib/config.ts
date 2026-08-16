@@ -2,13 +2,20 @@ export const DEMO_LOGIN = process.env.NEXT_PUBLIC_DEMO_LOGIN !== 'false';
 
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
-const explicitApi = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+function isBrowserRemoteHost() {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host !== 'localhost' && host !== '127.0.0.1';
+}
 
-export const API_BASE = explicitApi
-  ? explicitApi
-  : process.env.VERCEL
-    ? ''
-    : 'http://localhost:8080';
+export function apiBase() {
+  if (isBrowserRemoteHost()) return '';
+  const explicit = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  if (explicit) return explicit;
+  return 'http://localhost:8080';
+}
+
+export const API_BASE = apiBase();
 
 export const GUEST_BROWSE_KEY = 'ecobin_guest_browse';
 const GUEST_COOKIE = 'ecobin_guest=1; Path=/; SameSite=Lax; Max-Age=86400';

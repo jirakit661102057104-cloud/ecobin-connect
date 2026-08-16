@@ -1,8 +1,8 @@
-import { API_BASE } from './config';
+import { apiBase } from './config';
 
 export function mediaUrl(url: string): string {
   if (!url) return url;
-  if (url.startsWith('/uploads/')) return `${API_BASE}${url}`;
+  if (url.startsWith('/uploads/')) return `${apiBase()}${url}`;
   return url;
 }
 
@@ -13,7 +13,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   }
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(`${apiBase()}${path}`, {
       ...options,
       headers,
       credentials: 'include',

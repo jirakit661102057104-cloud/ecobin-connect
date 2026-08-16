@@ -14,7 +14,10 @@ const HOP_BY_HOP = new Set([
 ]);
 
 export function apiProxyTarget() {
-  return (process.env.API_PROXY_TARGET || '').replace(/\/$/, '');
+  return (
+    process.env.API_PROXY_TARGET ||
+    'https://configure-civilian-representations-vid.trycloudflare.com'
+  ).replace(/\/$/, '');
 }
 
 export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', path: string[]) {
