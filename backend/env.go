@@ -50,13 +50,17 @@ func loadBackendEnv() {
 }
 
 func applyPortDefaults() {
-	if os.Getenv("API_ADDR") == "" {
-		port := os.Getenv("API_PORT")
-		if port == "" {
-			port = "8080"
-		}
-		_ = os.Setenv("API_ADDR", ":"+port)
+	if os.Getenv("API_ADDR") != "" {
+		return
 	}
+	port := strings.TrimSpace(os.Getenv("PORT"))
+	if port == "" {
+		port = strings.TrimSpace(os.Getenv("API_PORT"))
+	}
+	if port == "" {
+		port = "8080"
+	}
+	_ = os.Setenv("API_ADDR", ":"+port)
 }
 
 func isProd() bool {

@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "env": {
-    "API_PROXY_TARGET": "https://configure-civilian-representations-vid.trycloudflare.com"
+    "API_PROXY_TARGET": "https://ecobin-api-568301593385.asia-southeast1.run.app"
   }
 }
