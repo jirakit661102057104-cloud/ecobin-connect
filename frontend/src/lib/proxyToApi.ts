@@ -13,11 +13,11 @@ const HOP_BY_HOP = new Set([
   'content-length',
 ]);
 
+const DEFAULT_API =
+  'https://ecobin-api-568301593385.asia-southeast1.run.app';
+
 export function apiProxyTarget() {
-  return (
-    process.env.API_PROXY_TARGET ||
-    'https://configure-civilian-representations-vid.trycloudflare.com'
-  ).replace(/\/$/, '');
+  return (process.env.API_PROXY_TARGET || DEFAULT_API).replace(/\/$/, '');
 }
 
 export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', path: string[]) {
@@ -35,7 +35,10 @@ export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', pa
   const dest = `${base}/${prefix}/${path.map(encodeURIComponent).join('/')}${req.nextUrl.search}`;
   const headers = new Headers();
   req.headers.forEach((value, key) => {
-    if (!HOP_BY_HOP.has(key.toLowerCase())) headers.set(key, value);
+    const lower = key.toLowerCase();
+    if (HOP_BY_HOP.has(lower)) return;
+    if (lower.startsWith('x-forwarded-') || lower === 'x-vercel-id' || lower === 'x-real-ip') return;
+    headers.set(key, value);
   });
 
   const init: RequestInit = {
