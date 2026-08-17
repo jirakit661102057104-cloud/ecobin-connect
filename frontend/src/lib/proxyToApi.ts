@@ -16,8 +16,17 @@ const HOP_BY_HOP = new Set([
 const DEFAULT_API =
   'https://ecobin-api-568301593385.asia-southeast1.run.app';
 
+function isUsableApiTarget(url: string) {
+  if (!url) return false;
+  if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
+  if (url.includes('trycloudflare.com')) return false;
+  return /^https:\/\//.test(url);
+}
+
 export function apiProxyTarget() {
-  return (process.env.API_PROXY_TARGET || DEFAULT_API).replace(/\/$/, '');
+  const fromEnv = (process.env.API_PROXY_TARGET || '').replace(/\/$/, '');
+  if (isUsableApiTarget(fromEnv)) return fromEnv;
+  return DEFAULT_API;
 }
 
 export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', path: string[]) {
