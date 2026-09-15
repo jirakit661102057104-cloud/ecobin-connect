@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -94,7 +95,51 @@ func splitPersonName(full string) (first, last string) {
 	return parts[0], strings.Join(parts[1:], " ")
 }
 
+func truncateRunes(s string, max int) string {
+	if max <= 0 || s == "" {
+		return s
+	}
+	r := []rune(s)
+	if len(r) <= max {
+		return s
+	}
+	return string(r[:max])
+}
+
+func (s *Store) getUserByEmailAny(email string) (*User, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	return s.scanUserRow(s.db.QueryRow(`SELECT `+userSelectCols+` FROM users WHERE LOWER(email)=? ORDER BY (delete_at IS NULL) DESC, created_at DESC LIMIT 1`, email))
+}
+
+func (s *Store) getUserByGoogleSubAny(sub string) (*User, error) {
+	sub = strings.TrimSpace(sub)
+	return s.scanUserRow(s.db.QueryRow(`SELECT `+userSelectCols+` FROM users WHERE google_sub=? ORDER BY (delete_at IS NULL) DESC, created_at DESC LIMIT 1`, sub))
+}
+
+func (s *Server) restoreGoogleUser(u *User, sub, name, picture string) (*User, error) {
+	first, last := splitPersonName(name)
+	avatar := truncateRunes(picture, 480)
+	if avatar == "" {
+		avatar = u.AvatarURL
+	}
+	_, err := s.store.db.Exec(`UPDATE users SET
+		delete_at=NULL, delete_by=NULL,
+		google_sub=?, auth_provider='google',
+		avatar_url=COALESCE(NULLIF(?, ''), avatar_url),
+		full_name=IF(TRIM(full_name)='', ?, full_name),
+		first_name=IF(TRIM(IFNULL(first_name,''))='', ?, first_name),
+		last_name=IF(TRIM(IFNULL(last_name,''))='', ?, last_name)
+		WHERE user_id=?`,
+		sub, avatar, name, first, last, u.UserID)
+	if err != nil {
+		return nil, err
+	}
+	return s.store.getUserByID(u.UserID)
+}
+
 func (s *Server) insertMember(fullName, studentID, email, phone, provider, googleSub, avatar, passwordHash string) (*User, error) {
+	email = strings.ToLower(strings.TrimSpace(email))
+	avatar = truncateRunes(strings.TrimSpace(avatar), 480)
 	if avatar == "" {
 		avatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80"
 	}
@@ -105,7 +150,17 @@ func (s *Server) insertMember(fullName, studentID, email, phone, provider, googl
 	if strings.TrimSpace(fullName) == "" {
 		fullName = strings.TrimSpace(first + " " + last)
 	}
+	if fullName == "" {
+		fullName = strings.Split(email, "@")[0]
+		first, last = splitPersonName(fullName)
+	}
 	id := newID("USR")
+	if studentID == "" {
+		studentID = newID("G")
+	}
+	if len(studentID) > 32 {
+		studentID = studentID[:32]
+	}
 	var phoneArg any
 	if phone == "" {
 		phoneArg = nil
@@ -203,14 +258,42 @@ func (s *Server) handleGoogleAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	email = strings.ToLower(strings.TrimSpace(email))
+	name = strings.TrimSpace(name)
+	picture = truncateRunes(strings.TrimSpace(picture), 480)
+	sub = strings.TrimSpace(sub)
+
 	if u, err := s.store.getUserByGoogleSub(sub); err == nil {
 		s.finishAuth(w, u, 200)
 		return
 	}
 	if u, err := s.store.getUserByEmail(email); err == nil {
-		_, _ = s.store.db.Exec(`UPDATE users SET google_sub=?, auth_provider=IF(auth_provider='email','google',auth_provider) WHERE user_id=? AND delete_at IS NULL`, sub, u.UserID)
+		_, _ = s.store.db.Exec(`UPDATE users SET google_sub=?, auth_provider=IF(auth_provider='email','google',auth_provider),
+			avatar_url=COALESCE(NULLIF(?, ''), avatar_url) WHERE user_id=? AND delete_at IS NULL`, sub, picture, u.UserID)
 		u.AuthProvider = "google"
 		s.finishAuth(w, u, 200)
+		return
+	}
+
+	// Soft-deleted account with same Google/email — restore instead of failing UNIQUE.
+	if u, err := s.store.getUserByGoogleSubAny(sub); err == nil {
+		restored, rerr := s.restoreGoogleUser(u, sub, name, picture)
+		if rerr != nil {
+			log.Printf("google restore by sub failed: %v", rerr)
+			writeJSON(w, 409, map[string]string{"error": "ไม่สามารถกู้คืนบัญชี Google ได้"})
+			return
+		}
+		s.finishAuth(w, restored, 200)
+		return
+	}
+	if u, err := s.store.getUserByEmailAny(email); err == nil {
+		restored, rerr := s.restoreGoogleUser(u, sub, name, picture)
+		if rerr != nil {
+			log.Printf("google restore by email failed: %v", rerr)
+			writeJSON(w, 409, map[string]string{"error": "ไม่สามารถกู้คืนบัญชี Google ได้"})
+			return
+		}
+		s.finishAuth(w, restored, 200)
 		return
 	}
 
@@ -220,7 +303,18 @@ func (s *Server) handleGoogleAuth(w http.ResponseWriter, r *http.Request) {
 	}
 	u, err := s.insertMember(name, studentID, email, "", "google", sub, picture, "")
 	if err != nil {
-		writeJSON(w, 409, map[string]string{"error": "ไม่สามารถสร้างบัญชี Google ได้"})
+		log.Printf("google insertMember failed email=%s sub=%s: %v", email, sub, err)
+		// Race: another request created the user — try login path once more.
+		if existing, e2 := s.store.getUserByGoogleSub(sub); e2 == nil {
+			s.finishAuth(w, existing, 200)
+			return
+		}
+		if existing, e2 := s.store.getUserByEmail(email); e2 == nil {
+			_, _ = s.store.db.Exec(`UPDATE users SET google_sub=? WHERE user_id=? AND delete_at IS NULL`, sub, existing.UserID)
+			s.finishAuth(w, existing, 200)
+			return
+		}
+		writeJSON(w, 409, map[string]string{"error": "ไม่สามารถสร้างบัญชี Google ได้ — อาจมีอีเมลนี้ในระบบแล้ว หรือฐานข้อมูลยังไม่พร้อม"})
 		return
 	}
 	s.finishAuth(w, u, 201)

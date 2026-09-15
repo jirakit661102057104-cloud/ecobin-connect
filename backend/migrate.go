@@ -267,6 +267,8 @@ func migrateAuthProviders(db *sql.DB) error {
 		"VARCHAR(64) NULL COMMENT 'Google subject'"); err != nil {
 		return err
 	}
+	// Google avatar URLs can exceed 500 chars with query params.
+	_, _ = db.Exec(`ALTER TABLE users MODIFY COLUMN avatar_url VARCHAR(1000) NULL`)
 	_, _ = db.Exec(`CREATE TABLE IF NOT EXISTS phone_otps (
 		phone VARCHAR(20) PRIMARY KEY,
 		code_hash VARCHAR(255) NOT NULL,
