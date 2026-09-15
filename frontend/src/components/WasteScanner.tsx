@@ -25,7 +25,10 @@ interface WasteScannerProps {
   openAuthModal: () => void;
 }
 
-const TEACHABLE_MODEL_URL = process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL?.replace(/\/+$/, '');
+const DEFAULT_MODEL_URL = '/models/ecobin-bottle-can';
+const TEACHABLE_MODEL_URL = (
+  process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL || DEFAULT_MODEL_URL
+).replace(/\/+$/, '');
 /** SIT: accept only bottle/can when confidence is strictly above this ratio (default 80%). */
 const CLASSIFY_CONFIDENCE = Number(process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_CONFIDENCE || 0.8);
 const CLASSIFY_CONFIDENCE_PCT = Math.round(CLASSIFY_CONFIDENCE * 1000) / 10;
@@ -192,8 +195,8 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
       if (!TEACHABLE_MODEL_URL) {
         throw new Error(
           language === 'th'
-            ? 'ยังไม่ได้ตั้ง NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL'
-            : 'Teachable Machine model URL is missing',
+            ? 'ยังไม่ได้ตั้งโมเดลจำแนกขยะ (NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL)'
+            : 'Waste classification model URL is missing',
         );
       }
       const result = await classifyImageDataUrl(TEACHABLE_MODEL_URL, imageData);
