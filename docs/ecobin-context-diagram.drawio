@@ -1,0 +1,132 @@
+<mxfile host="app.diagrams.net" agent="EcoBin Connect" version="24.7.17">
+  <diagram id="ecobin-context" name="Context Diagram EcoBin Connect">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Center process -->
+        <mxCell id="proc0" value="&#xa;0&#xa;ระบบเว็บแอปพลิเคชันคัดแยกขยะ&#xa;(EcoBin Connect)&#xa;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=15;align=center;verticalAlign=middle;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="620" y="390" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- External: Member -->
+        <mxCell id="user" value="ผู้ใช้งาน&#xa;(สมาชิก)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="120" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- External: Admin -->
+        <mxCell id="admin" value="ผู้ดูแลระบบ&#xa;(Admin)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="120" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- External: Guest -->
+        <mxCell id="guest" value="ผู้ใช้งานแบบไม่ลงทะเบียน&#xa;(Guest)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="760" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Member -> System -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="user" target="proc0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="300" />
+              <mxPoint x="700" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e1l" value="ข้อมูลสมัคร/เข้าสู่ระบบ&#xa;รูปภาพขวดพลาสติก&#xa;จำนวนขวดที่สแกน&#xa;คำขอแลกของรางวัล" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e1">
+          <mxGeometry x="-0.1" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" x="-90" y="-10" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- System -> Member -->
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="proc0" target="user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="250" />
+              <mxPoint x="220" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2l" value="ข้อมูลโปรไฟล์และแต้มสะสม&#xa;สถิติ/คาร์บอนฟุตพริ้นท์&#xa;รายการของรางวัล&#xa;ผลการตรวจสอบภาพจากแอดมิน&#xa;รหัสรับของรางวัล (QR)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e2">
+          <mxGeometry x="-0.05" relative="1" as="geometry">
+            <mxPoint as="offset" x="100" y="-55" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Admin -> System -->
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="admin" target="proc0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1360" y="300" />
+              <mxPoint x="820" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3l" value="ข้อมูลเข้าสู่ระบบ&#xa;จัดการบัญชีผู้ใช้&#xa;อนุมัติ/ไม่อนุมัติ/ขอภาพใหม่&#xa;จัดการของรางวัล ถังขยะ กฎคะแนน&#xa;สแกน QR รับ/ยกเลิกของรางวัล" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e3">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" x="110" y="-20" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- System -> Admin -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="proc0" target="admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="250" />
+              <mxPoint x="1300" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4l" value="คิวภาพรอตรวจสอบ&#xa;รายงานผู้ใช้และสถานะแลกของ&#xa;สถิติแต้มและปริมาณขวด&#xa;ข้อมูลถังขยะ/กฎระบบ" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e4">
+          <mxGeometry x="-0.05" relative="1" as="geometry">
+            <mxPoint as="offset" x="-95" y="-50" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Guest -> System -->
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="guest" target="proc0">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="700" />
+              <mxPoint x="700" y="700" />
+              <mxPoint x="700" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5l" value="คำขอเข้าชมโดยไม่ล็อกอิน&#xa;รูปภาพสแกนทดลอง&#xa;จำนวนขวดที่ตรวจพบ (ทดลอง)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e5">
+          <mxGeometry x="-0.2" relative="1" as="geometry">
+            <mxPoint as="offset" x="-30" y="-35" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- System -> Guest -->
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startArrow=none;strokeWidth=1.5;" edge="1" parent="1" source="proc0" target="guest">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="600" />
+              <mxPoint x="760" y="720" />
+              <mxPoint x="260" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6l" value="แคตตาล็อกของรางวัล&#xa;ผลสแกนทดลอง/ประมาณการแต้ม&#xa;ข้อความแนะนำให้สมัครสมาชิก&#xa;(ไม่ได้แต้มจริง / ไม่แลกรางวัลได้)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e6">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" x="120" y="20" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Title -->
+        <mxCell id="title" value="ภาพที่ ... แผนภาพบริบท (Context Diagram) ของระบบเว็บแอปพลิเคชัน EcoBin Connect" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="30" width="880" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Note -->
+        <mxCell id="note" value="หมายเหตุ: ผู้เยี่ยมชม (Guest) สแกนได้แบบทดลองเท่านั้น ไม่ได้แต้มจริงและแลกของรางวัลไม่ได้&#xa;สมาชิกได้แต้มหลังผู้ดูแลระบบอนุมัติภาพแล้ว" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;align=left;spacingLeft=8;spacingRight=8;" vertex="1" parent="1">
+          <mxGeometry x="520" y="900" width="480" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

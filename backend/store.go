@@ -12,7 +12,7 @@ import (
 )
 
 type Store struct {
-	db       *sql.DB
+	db        *sql.DB
 	uploadDir string
 }
 
@@ -61,7 +61,9 @@ func (s *Store) listUsers() ([]User, error) {
 
 func (s *Store) listWaste(userID string, admin bool) ([]WasteRecord, error) {
 	q := `SELECT w.record_id, w.user_id, u.full_name, u.student_id, w.image_url, w.plastic_type, w.bottle_count,
-		DATE_FORMAT(w.upload_timestamp, '%Y-%m-%d %H:%i:%s'), w.verification_status, w.carbon_saved, w.points_awarded, IFNULL(w.admin_comment,''), IFNULL(w.bin_location,'')
+		DATE_FORMAT(w.upload_timestamp, '%Y-%m-%d %H:%i:%s'), w.verification_status, w.carbon_saved,
+		w.weight_kg, w.carbon_footprint, w.carbon_avoided, IFNULL(w.emission_factor_version,''),
+		w.points_awarded, IFNULL(w.admin_comment,''), IFNULL(w.bin_location,'')
 		FROM waste_records w JOIN users u ON u.user_id = w.user_id
 		WHERE w.delete_at IS NULL AND u.delete_at IS NULL`
 	var rows *sql.Rows
@@ -78,7 +80,9 @@ func (s *Store) listWaste(userID string, admin bool) ([]WasteRecord, error) {
 	var out []WasteRecord
 	for rows.Next() {
 		var r WasteRecord
-		if err := rows.Scan(&r.RecordID, &r.UserID, &r.UserName, &r.StudentID, &r.ImageURL, &r.PlasticType, &r.BottleCount, &r.UploadTimestamp, &r.VerificationStatus, &r.CarbonSaved, &r.PointsAwarded, &r.AdminComment, &r.BinLocation); err != nil {
+		if err := rows.Scan(&r.RecordID, &r.UserID, &r.UserName, &r.StudentID, &r.ImageURL, &r.PlasticType, &r.BottleCount,
+			&r.UploadTimestamp, &r.VerificationStatus, &r.CarbonSaved, &r.WeightKg, &r.CarbonFootprint,
+			&r.CarbonAvoided, &r.EmissionFactorVersion, &r.PointsAwarded, &r.AdminComment, &r.BinLocation); err != nil {
 			return nil, err
 		}
 		out = append(out, r)
@@ -255,7 +259,24 @@ func (s *Store) listBins() ([]SmartBin, error) {
 }
 
 func (s *Store) listPlasticTypes() ([]PlasticType, error) {
-	rows, err := s.db.Query(`SELECT plastic_code, short_name, full_name, display_name_th, carbon_factor, IFNULL(points_per_bottle,10), IFNULL(recycling_tips,'')
+	rows, err := s.db.Query(`SELECT plastic_code, short_name, full_name, display_name_th, carbon_factor,
+		IFNULL(average_weight_kg,0),
+		IFNULL((SELECT factor_value FROM emission_factors e WHERE e.plastic_code=plastic_types.plastic_code
+			AND e.factor_type='virgin_production' AND e.is_active=TRUE
+			AND (e.effective_date IS NULL OR e.effective_date<=CURDATE())
+			AND (e.expires_at IS NULL OR e.expires_at>=CURDATE())
+			ORDER BY e.effective_date DESC LIMIT 1),0),
+		IFNULL((SELECT factor_value FROM emission_factors e WHERE e.plastic_code=plastic_types.plastic_code
+			AND e.factor_type='recycled_production' AND e.is_active=TRUE
+			AND (e.effective_date IS NULL OR e.effective_date<=CURDATE())
+			AND (e.expires_at IS NULL OR e.expires_at>=CURDATE())
+			ORDER BY e.effective_date DESC LIMIT 1),0),
+		IFNULL((SELECT source_version FROM emission_factors e WHERE e.plastic_code=plastic_types.plastic_code
+			AND e.factor_type='virgin_production' AND e.is_active=TRUE
+			AND (e.effective_date IS NULL OR e.effective_date<=CURDATE())
+			AND (e.expires_at IS NULL OR e.expires_at>=CURDATE())
+			ORDER BY e.effective_date DESC LIMIT 1),''),
+		IFNULL(points_per_bottle,10), IFNULL(recycling_tips,'')
 		FROM plastic_types WHERE delete_at IS NULL ORDER BY plastic_code`)
 	if err != nil {
 		return nil, err
@@ -264,7 +285,9 @@ func (s *Store) listPlasticTypes() ([]PlasticType, error) {
 	var out []PlasticType
 	for rows.Next() {
 		var p PlasticType
-		if err := rows.Scan(&p.PlasticCode, &p.ShortName, &p.FullName, &p.DisplayNameTH, &p.CarbonFactor, &p.PointsPerBottle, &p.RecyclingTips); err != nil {
+		if err := rows.Scan(&p.PlasticCode, &p.ShortName, &p.FullName, &p.DisplayNameTH, &p.CarbonFactor,
+			&p.AverageWeightKg, &p.VirginEmissionFactor, &p.RecycledEmissionFactor,
+			&p.EmissionFactorVersion, &p.PointsPerBottle, &p.RecyclingTips); err != nil {
 			return nil, err
 		}
 		out = append(out, p)
@@ -273,31 +296,6 @@ func (s *Store) listPlasticTypes() ([]PlasticType, error) {
 		out = []PlasticType{}
 	}
 	return out, rows.Err()
-}
-
-func (s *Store) scoreForPlastic(name string) (int, float64) {
-	cfg := s.getAppSettings()
-	pts, carbon := cfg.PointsPerBottle, cfg.CarbonPerBottle
-	types, err := s.listPlasticTypes()
-	if err != nil {
-		return pts, carbon
-	}
-	n := strings.ToLower(strings.TrimSpace(name))
-	if n == "" {
-		return pts, carbon
-	}
-	for _, p := range types {
-		hay := strings.ToLower(p.DisplayNameTH + " " + p.ShortName + " " + p.FullName)
-		short := strings.ToLower(strings.TrimSpace(strings.Split(p.ShortName, "/")[0]))
-		if strings.Contains(hay, n) || strings.Contains(n, strings.ToLower(p.DisplayNameTH)) || (len(short) >= 2 && strings.Contains(n, short)) {
-			pts = p.PointsPerBottle
-			carbon = p.CarbonFactor
-			if strings.Contains(n, strings.ToLower(p.DisplayNameTH)) {
-				break
-			}
-		}
-	}
-	return pts, carbon
 }
 
 func (s *Store) getAppSettings() AppSettings {

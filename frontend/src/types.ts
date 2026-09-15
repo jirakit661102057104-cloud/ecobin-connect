@@ -31,6 +31,10 @@ export interface WasteRecord {
   upload_timestamp: string;
   verification_status: VerificationStatus;
   carbon_saved: number; // in kg CO2e
+  weight_kg: number;
+  carbon_footprint: number;
+  carbon_avoided: number;
+  emission_factor_version?: string;
   points_awarded: number;
   admin_comment: string;
   bin_location?: string;
@@ -90,6 +94,10 @@ export interface PlasticType {
   full_name: string;
   display_name_th: string;
   carbon_factor: number;
+  average_weight_kg: number;
+  virgin_emission_factor: number;
+  recycled_emission_factor: number;
+  emission_factor_version?: string;
   points_per_bottle: number;
   recycling_tips?: string;
 }

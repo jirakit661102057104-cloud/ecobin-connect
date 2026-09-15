@@ -116,6 +116,10 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
     upload_timestamp: '2026-08-14 09:30:15',
     verification_status: 'อนุมัติแล้ว',
     carbon_saved: 0.24,
+    weight_kg: 0.08166,
+    carbon_footprint: 0.23999,
+    carbon_avoided: 0,
+    emission_factor_version: 'Update_April2026',
     points_awarded: 30,
     admin_comment: 'ตรวจสอบแล้ว ขยะขวดน้ำดื่ม PET ใสสะอาด แยกฝาถูกต้อง',
     bin_location: 'จุดคัดแยกหน้าอาคารคณะวิทยาศาสตร์ฯ'
@@ -131,6 +135,10 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
     upload_timestamp: '2026-08-14 13:15:40',
     verification_status: 'อนุมัติแล้ว',
     carbon_saved: 0.16,
+    weight_kg: 0.06488,
+    carbon_footprint: 0.16001,
+    carbon_avoided: 0,
+    emission_factor_version: 'Update_April2026',
     points_awarded: 20,
     admin_comment: 'ขวดนม HDPE ผ่านการล้างและเทน้ำออกเรียบร้อย',
     bin_location: 'โรงอาหารกลาง มหาวิทยาลัยราชภัฏเพชรบูรณ์'
@@ -146,6 +154,10 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
     upload_timestamp: '2026-08-14 15:20:00',
     verification_status: 'อนุมัติแล้ว',
     carbon_saved: 0.40,
+    weight_kg: 0.1361,
+    carbon_footprint: 0.39997,
+    carbon_avoided: 0,
+    emission_factor_version: 'Update_April2026',
     points_awarded: 50,
     admin_comment: 'ขวดน้ำอัดลมและน้ำดื่ม PET ครบ 5 ขวด',
     bin_location: 'อาคารเทคโนโลยีสารสนเทศ IT'
@@ -161,6 +173,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
     upload_timestamp: '2026-08-14 16:45:10',
     verification_status: 'รอการตรวจสอบ',
     carbon_saved: 0.32,
+    weight_kg: 0,
+    carbon_footprint: 0,
+    carbon_avoided: 0,
     points_awarded: 40,
     admin_comment: 'อยู่ระหว่างการตรวจสอบภาพจากระบบ',
     bin_location: 'อาคารบรรณราชนครินทร์ (หอสมุดกลาง)'
@@ -176,6 +191,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
     upload_timestamp: '2026-08-13 11:10:00',
     verification_status: 'ไม่อนุมัติ',
     carbon_saved: 0,
+    weight_kg: 0,
+    carbon_footprint: 0,
+    carbon_avoided: 0,
     points_awarded: 0,
     admin_comment: 'ภาพถ่ายไม่ตรงกับขวดพลาสติกรีไซเคิล (พบถุงพลาสติกปะปน)',
     bin_location: 'ลานกิจกรรมนักศึกษา'

@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "skills": {
+    "accessibility-a11y": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/accessibility-a11y/SKILL.md",
+      "computedHash": "5a82b9ba99c3ef791f050a86b2c21807ae51481a18948a4e19ae974879349dea"
+    },
+    "ai-assisted-frontend-workflow": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/05-ai-agent-workflow/ai-assisted-frontend-workflow/SKILL.md",
+      "computedHash": "52cc65792c77797a539d26a89bd8aa46d78b3dcd5ac0a7ca05af23624f07544a"
+    },
+    "auth-authorization": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/auth-authorization/SKILL.md",
+      "computedHash": "aa4801b4dfdd132e262334d40a55b3daf4123384360589591ecdc03f0d2ba940"
+    },
+    "database-schema-design": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/database-schema-design/SKILL.md",
+      "computedHash": "f6809c9af5c67a54a6470f32b08bd02a4fcd77e9fce91c75202dae6fcd7e1405"
+    },
+    "deployment-vercel-production": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/06-dev-workflow/deployment-vercel-production/SKILL.md",
+      "computedHash": "2d01f1a57c42f584bc1bab9543f332066b0295c8ff05a99c4b3b7a107cc487b1"
+    },
+    "design-system-tailwind": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/design-system-tailwind/SKILL.md",
+      "computedHash": "11ebfe8e9b7fdf06ae46de1cfa8955c98f39497bc4de401eb96c5270bc411440"
+    },
+    "form-validation-error-handling": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/form-validation-error-handling/SKILL.md",
+      "computedHash": "9c11834ced0ad53848b114dd23531fe70d5d3176e0eded64b10f635cfa0bc06a"
+    },
+    "landing-page-conversion": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/03-product-saas/landing-page-conversion/SKILL.md",
+      "computedHash": "d941e63b9650f9ef8853898d7d518a7c63cf532c6507b6da0385e57c538006aa"
+    },
+    "mern-stack-architecture": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/mern-stack-architecture/SKILL.md",
+      "computedHash": "94b4cc4e9a1adcd1633cee06fcba5758b22547eaf99e6f0d4d8f2512a871c3cf"
+    },
+    "motion-design-toolkit": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/motion-design-toolkit/SKILL.md",
+      "computedHash": "a28509c6e92f74b0679b96fea702d763db3e6339a0289fdf2b4410b1c43f742d"
+    },
+    "nextjs-architecture": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/nextjs-architecture/SKILL.md",
+      "computedHash": "2cc7247975dff73ee787ee9b7ffb6ae8b556d56ee7a4282d37d012883ad27a31"
+    },
+    "payment-gateway-integration": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/03-product-saas/payment-gateway-integration/SKILL.md",
+      "computedHash": "b2786de62ef2d48fcc058333928464a3c555372bed1c0f9d0c4dafaa1f405581"
+    },
+    "performance-seo-optimization": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/06-dev-workflow/performance-seo-optimization/SKILL.md",
+      "computedHash": "244fe5844a553eb1203a0070f42a5728831bdfd2e791b344ac57776cdae5acc2"
+    },
+    "project-architecture-clean-code": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/06-dev-workflow/project-architecture-clean-code/SKILL.md",
+      "computedHash": "61b7ef214d0cbc8b30e32f4eb9ea372a266a5799eabf5ace9a2512cf36f05a79"
+    },
+    "react-component-engineering": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/react-component-engineering/SKILL.md",
+      "computedHash": "44a5f6903675eb8f1895d07ac7201fd6a5995a5a6815575ced7f562681c92c46"
+    },
+    "react-three-fiber-3d": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/react-three-fiber-3d/SKILL.md",
+      "computedHash": "2fff0bf98e6fa0ad7040921ded9aff14bb5a21daa48008596ba842cec84a8771"
+    },
+    "responsive-mobile-first": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/01-frontend-engineering/responsive-mobile-first/SKILL.md",
+      "computedHash": "b79037aaefccecee0d9205fc1c2ea9390a0bcf6e37395aecc3670f4f0409361f"
+    },
+    "rest-api-integration": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/rest-api-integration/SKILL.md",
+      "computedHash": "b7720cf55bc168f20bc61d022e90c57ba804e46fb13acdc40db615ee9b98938c"
+    },
+    "saas-dashboard-admin": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/03-product-saas/saas-dashboard-admin/SKILL.md",
+      "computedHash": "f6d85218ae6d416b3075cb39873d0dc3476f545e66b0be0d04ae4a62dda849a8"
+    },
+    "startup-mvp-development": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/03-product-saas/startup-mvp-development/SKILL.md",
+      "computedHash": "e29be1450f2d47c1bb7e468fcdafb4f6b769ec5823bf9d90b5e0341c69d8d1f9"
+    },
+    "state-management": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/02-fullstack-backend/state-management/SKILL.md",
+      "computedHash": "11148174678dac6c834a76dad6101766687106a60262c245a566c5fb373b61c3"
+    },
+    "ux-research-flow-design": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/04-ux-ui-design/ux-research-flow-design/SKILL.md",
+      "computedHash": "f0e0f9e75712d20049032b829c27ba696e400d1fb6ebf02b730987558563ca1e"
+    },
+    "visual-design-language": {
+      "source": "manish1803/nextjs-fullstack-skills",
+      "sourceType": "github",
+      "skillPath": "skills/04-ux-ui-design/visual-design-language/SKILL.md",
+      "computedHash": "222d9504277e0807b1909e5a64628027349a2a2dc1f059a088397a68f3728401"
+    }
+  }
+}

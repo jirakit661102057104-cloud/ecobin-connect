@@ -21,19 +21,23 @@ type User struct {
 }
 
 type WasteRecord struct {
-	RecordID           string  `json:"record_id"`
-	UserID             string  `json:"user_id"`
-	UserName           string  `json:"user_name,omitempty"`
-	StudentID          string  `json:"student_id,omitempty"`
-	ImageURL           string  `json:"image_url"`
-	PlasticType        string  `json:"plastic_type"`
-	BottleCount        int     `json:"bottle_count"`
-	UploadTimestamp    string  `json:"upload_timestamp"`
-	VerificationStatus string  `json:"verification_status"`
-	CarbonSaved        float64 `json:"carbon_saved"`
-	PointsAwarded      int     `json:"points_awarded"`
-	AdminComment       string  `json:"admin_comment"`
-	BinLocation        string  `json:"bin_location,omitempty"`
+	RecordID              string  `json:"record_id"`
+	UserID                string  `json:"user_id"`
+	UserName              string  `json:"user_name,omitempty"`
+	StudentID             string  `json:"student_id,omitempty"`
+	ImageURL              string  `json:"image_url"`
+	PlasticType           string  `json:"plastic_type"`
+	BottleCount           int     `json:"bottle_count"`
+	UploadTimestamp       string  `json:"upload_timestamp"`
+	VerificationStatus    string  `json:"verification_status"`
+	CarbonSaved           float64 `json:"carbon_saved"`
+	WeightKg              float64 `json:"weight_kg"`
+	CarbonFootprint       float64 `json:"carbon_footprint"`
+	CarbonAvoided         float64 `json:"carbon_avoided"`
+	EmissionFactorVersion string  `json:"emission_factor_version,omitempty"`
+	PointsAwarded         int     `json:"points_awarded"`
+	AdminComment          string  `json:"admin_comment"`
+	BinLocation           string  `json:"bin_location,omitempty"`
 }
 
 type PointTransaction struct {
@@ -81,13 +85,13 @@ type GuestLog struct {
 }
 
 type ScanResult struct {
-	Valid        bool    `json:"valid"`
-	PlasticType  string  `json:"plastic_type"`
-	BottleCount  int     `json:"bottle_count"`
-	Confidence   float64 `json:"confidence"`
-	Notes        string  `json:"notes"`
-	NotesEN      string  `json:"notes_en"`
-	PlasticTypeEN string `json:"plastic_type_en"`
+	Valid         bool    `json:"valid"`
+	PlasticType   string  `json:"plastic_type"`
+	BottleCount   int     `json:"bottle_count"`
+	Confidence    float64 `json:"confidence"`
+	Notes         string  `json:"notes"`
+	NotesEN       string  `json:"notes_en"`
+	PlasticTypeEN string  `json:"plastic_type_en"`
 }
 
 func fmtTime(t time.Time) string {
@@ -109,11 +113,15 @@ type AppSettings struct {
 }
 
 type PlasticType struct {
-	PlasticCode     int     `json:"plastic_code"`
-	ShortName       string  `json:"short_name"`
-	FullName        string  `json:"full_name"`
-	DisplayNameTH   string  `json:"display_name_th"`
-	CarbonFactor    float64 `json:"carbon_factor"`
-	PointsPerBottle int     `json:"points_per_bottle"`
-	RecyclingTips   string  `json:"recycling_tips,omitempty"`
+	PlasticCode            int     `json:"plastic_code"`
+	ShortName              string  `json:"short_name"`
+	FullName               string  `json:"full_name"`
+	DisplayNameTH          string  `json:"display_name_th"`
+	CarbonFactor           float64 `json:"carbon_factor"`
+	AverageWeightKg        float64 `json:"average_weight_kg"`
+	VirginEmissionFactor   float64 `json:"virgin_emission_factor"`
+	RecycledEmissionFactor float64 `json:"recycled_emission_factor"`
+	EmissionFactorVersion  string  `json:"emission_factor_version,omitempty"`
+	PointsPerBottle        int     `json:"points_per_bottle"`
+	RecyclingTips          string  `json:"recycling_tips,omitempty"`
 }

@@ -13,13 +13,13 @@ import (
 
 func scanImage(imageData string) ScanResult {
 	fallback := ScanResult{
-		Valid:         true,
-		PlasticType:   "PET (เบอร์ 1 - ขวดน้ำใส)",
-		PlasticTypeEN: "PET (#1 - Clear Bottle)",
-		BottleCount:   2,
-		Confidence:    90,
-		Notes:         "ตรวจพบขวดพลาสติก PET (โหมดสำรองเมื่อไม่มี Gemini API key)",
-		NotesEN:       "Detected PET bottles (fallback mode without Gemini API key)",
+		Valid:         false,
+		PlasticType:   "ไม่ผ่าน",
+		PlasticTypeEN: "INVALID",
+		BottleCount:   0,
+		Confidence:    0,
+		Notes:         "AI ไม่พร้อมใช้งาน กรุณาลองสแกนใหม่",
+		NotesEN:       "AI is unavailable; please scan again",
 	}
 
 	key := os.Getenv("GEMINI_API_KEY")
@@ -38,9 +38,10 @@ func scanImage(imageData string) ScanResult {
 				"parts": []any{
 					map[string]string{"text": `You are EcoBin Connect vision. Analyze this photo of waste.
 Reply ONLY valid JSON with keys:
-valid (boolean: true only if recyclable PET or HDPE plastic bottles),
+valid (boolean: true only if it is a recyclable plastic bottle or aluminium beverage can),
 plastic_type_th, plastic_type_en, bottle_count (int), confidence (0-100), notes_th, notes_en.
-If mixed trash or bags, valid=false and bottle_count=0.`},
+For beta, classify only PLASTIC_BOTTLE, CAN, or INVALID.
+If mixed trash, bags, or another object, valid=false and bottle_count=0.`},
 					map[string]any{
 						"inline_data": map[string]string{
 							"mime_type": mime,
@@ -51,7 +52,7 @@ If mixed trash or bags, valid=false and bottle_count=0.`},
 			},
 		},
 		"generationConfig": map[string]any{
-			"temperature":     0.1,
+			"temperature":      0.1,
 			"responseMimeType": "application/json",
 		},
 	}
@@ -98,8 +99,16 @@ If mixed trash or bags, valid=false and bottle_count=0.`},
 	if g.BottleCount < 0 {
 		g.BottleCount = 0
 	}
-	if g.PlasticTypeTH == "" {
-		g.PlasticTypeTH = fallback.PlasticType
+	if !g.Valid {
+		g.PlasticTypeTH = "ไม่ผ่าน"
+		g.PlasticTypeEN = "INVALID"
+		g.BottleCount = 0
+	} else if isCanLabel(g.PlasticTypeTH + " " + g.PlasticTypeEN) {
+		g.PlasticTypeTH = "กระป๋องอะลูมิเนียม"
+		g.PlasticTypeEN = "CAN"
+	} else {
+		g.PlasticTypeTH = "ขวดพลาสติก"
+		g.PlasticTypeEN = "PLASTIC_BOTTLE"
 	}
 	return ScanResult{
 		Valid:         g.Valid,
@@ -110,6 +119,14 @@ If mixed trash or bags, valid=false and bottle_count=0.`},
 		Notes:         g.NotesTH,
 		NotesEN:       g.NotesEN,
 	}
+}
+
+func isCanLabel(value string) bool {
+	n := strings.ToLower(value)
+	return strings.Contains(n, "can") ||
+		strings.Contains(n, "aluminium") ||
+		strings.Contains(n, "aluminum") ||
+		strings.Contains(n, "กระป๋อง")
 }
 
 func splitDataURL(imageData string) (mime, b64 string) {

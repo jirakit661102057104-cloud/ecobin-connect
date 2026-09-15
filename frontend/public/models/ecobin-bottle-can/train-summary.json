@@ -1,0 +1,35 @@
+{
+  "valAcc": 0.8777777777777778,
+  "confMat": [
+    [
+      26,
+      3,
+      2
+    ],
+    [
+      0,
+      33,
+      1
+    ],
+    [
+      2,
+      3,
+      20
+    ]
+  ],
+  "perClassRecall": [
+    {
+      "label": "PLASTIC_BOTTLE",
+      "recall": 0.8387096774193549
+    },
+    {
+      "label": "CAN",
+      "recall": 0.9705882352941176
+    },
+    {
+      "label": "INVALID",
+      "recall": 0.8
+    }
+  ],
+  "bestAcc": 0.8777777552604675
+}

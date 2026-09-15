@@ -52,11 +52,12 @@ CREATE TABLE IF NOT EXISTS users (
   COMMENT='บัญชีผู้ใช้สมาชิกและผู้ดูแลระบบ';
 
 CREATE TABLE IF NOT EXISTS plastic_types (
-  plastic_code TINYINT PRIMARY KEY COMMENT 'เบอร์ 1-7 ตามสัญลักษณ์รีไซเคิล',
+  plastic_code TINYINT PRIMARY KEY COMMENT 'รหัสวัสดุรีไซเคิล; 1-7 พลาสติก, 8 กระป๋อง',
   short_name VARCHAR(40) NOT NULL COMMENT 'เช่น PET / HDPE',
   full_name VARCHAR(160) NOT NULL,
   display_name_th VARCHAR(120) NOT NULL,
   carbon_factor DECIMAL(6,3) NOT NULL DEFAULT 0.080 COMMENT 'kg CO2e ต่อขวดโดยประมาณ',
+  average_weight_kg DECIMAL(8,5) NOT NULL DEFAULT 0.00000 COMMENT 'น้ำหนักเฉลี่ยต่อชิ้น (kg); ใช้เมื่อไม่มีน้ำหนักจริง',
   recycling_tips TEXT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่สร้าง',
   created_by VARCHAR(32) NULL COMMENT 'ผู้สร้าง (user_id หรือ SYSTEM)',
@@ -64,7 +65,28 @@ CREATE TABLE IF NOT EXISTS plastic_types (
   delete_by VARCHAR(32) NULL COMMENT 'ผู้ลบ (user_id หรือ SYSTEM)',
   KEY idx_plastic_deleted (delete_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  COMMENT='ประเภทพลาสติก 7 ชนิด ตามเอกสารวิจัย';
+  COMMENT='ประเภทวัสดุรีไซเคิลที่ระบบรองรับ';
+
+CREATE TABLE IF NOT EXISTS emission_factors (
+  emission_factor_id VARCHAR(40) PRIMARY KEY,
+  plastic_code TINYINT NOT NULL,
+  factor_type ENUM('virgin_production','recycled_production') NOT NULL,
+  factor_value DECIMAL(10,4) NOT NULL COMMENT 'ค่าปัจจัยการปล่อย',
+  unit VARCHAR(32) NOT NULL DEFAULT 'kgCO2e/kg',
+  source_name VARCHAR(200) NOT NULL,
+  source_url VARCHAR(500) NOT NULL,
+  source_version VARCHAR(80) NOT NULL,
+  effective_date DATE NULL,
+  expires_at DATE NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by VARCHAR(32) NULL,
+  UNIQUE KEY uq_emission_factor_version (plastic_code, factor_type, source_version),
+  KEY idx_emission_factor_lookup (plastic_code, factor_type, is_active),
+  CONSTRAINT fk_emission_factor_plastic FOREIGN KEY (plastic_code) REFERENCES plastic_types(plastic_code)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='ปัจจัยการปล่อยก๊าซเรือนกระจก (kgCO2e/kg) ตามวิธี CMH/TGO; อ้างอิง circularmaterialhub.com/Calculate.php';
 
 CREATE TABLE IF NOT EXISTS smart_bins (
   bin_id VARCHAR(16) PRIMARY KEY COMMENT 'เช่น BIN-01',
@@ -90,6 +112,10 @@ CREATE TABLE IF NOT EXISTS waste_records (
   verification_status ENUM('รอการตรวจสอบ', 'อนุมัติแล้ว', 'ไม่อนุมัติ', 'กรุณาส่งภาพมาใหม่')
     NOT NULL DEFAULT 'รอการตรวจสอบ',
   carbon_saved DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  weight_kg DECIMAL(10,5) NOT NULL DEFAULT 0.00000 COMMENT 'น้ำหนักที่ใช้คำนวณ kg',
+  carbon_footprint DECIMAL(12,5) NOT NULL DEFAULT 0.00000 COMMENT 'คาร์บอนฟุตพริ้นท์ kgCO2e',
+  carbon_avoided DECIMAL(12,5) NOT NULL DEFAULT 0.00000 COMMENT 'การปล่อยที่หลีกเลี่ยงได้ kgCO2e',
+  emission_factor_version VARCHAR(80) NULL COMMENT 'snapshot รุ่นปัจจัยการปล่อยที่ใช้',
   points_awarded INT NOT NULL DEFAULT 0,
   admin_comment TEXT NULL,
   bin_location VARCHAR(200) NULL COMMENT 'ชื่อจุดทิ้ง (เก็บข้อความเพื่อแสดงผล)',

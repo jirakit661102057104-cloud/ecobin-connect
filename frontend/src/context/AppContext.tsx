@@ -90,7 +90,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   points_per_bottle: 10,
   carbon_per_bottle: 0.08,
   announcement: '',
-  waste_auto_approve: false,
+  waste_auto_approve: true,
 };
 const LOCAL_STORAGE_KEY_LANG = 'ecobin_lang';
 const DEMO_PASSWORD = 'ecobin123';
@@ -422,7 +422,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addToast('info', 'ส่งข้อมูลแล้ว', 'รอผู้ดูแลระบบตรวจสอบภาพก่อนได้รับแต้ม');
     } else {
       triggerConfetti();
-      addToast('success', 'บันทึกสำเร็จ!', `ได้รับ +${record.points_awarded} แต้ม (ลดก๊าซคาร์บอน ${record.carbon_saved} kg CO₂e)`);
+      addToast(
+        'success',
+        'บันทึกสำเร็จ!',
+        `ได้รับ +${record.points_awarded} แต้ม · คาร์บอน ${record.carbon_saved} kgCO₂e (TGO / Net Zero)`,
+      );
     }
     return record;
   };
@@ -519,7 +523,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateAppSettings = async (data: Partial<AppSettings>) => {
-    const next = { ...settings, ...data, waste_auto_approve: false };
+    const next = { ...settings, ...data, waste_auto_approve: true };
     await api('/api/admin/settings', { method: 'PATCH', body: JSON.stringify(next) });
     await refreshState();
     addToast('success', 'บันทึกกฎระบบแล้ว', 'การสแกน แต้ม และประกาศจะใช้ค่าล่าสุดทันที');

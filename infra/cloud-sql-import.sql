@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS plastic_types (
   full_name VARCHAR(160) NOT NULL,
   display_name_th VARCHAR(120) NOT NULL,
   carbon_factor DECIMAL(6,3) NOT NULL DEFAULT 0.080 COMMENT 'kg CO2e ต่อขวดโดยประมาณ',
+  average_weight_kg DECIMAL(8,5) NOT NULL DEFAULT 0.00000 COMMENT 'น้ำหนักเฉลี่ยต่อชิ้น (kg)',
   recycling_tips TEXT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่สร้าง',
   created_by VARCHAR(32) NULL COMMENT 'ผู้สร้าง (user_id หรือ SYSTEM)',
@@ -43,6 +44,26 @@ CREATE TABLE IF NOT EXISTS plastic_types (
   KEY idx_plastic_deleted (delete_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='ประเภทพลาสติก 7 ชนิด ตามเอกสารวิจัย';
+
+CREATE TABLE IF NOT EXISTS emission_factors (
+  emission_factor_id VARCHAR(40) PRIMARY KEY,
+  plastic_code TINYINT NOT NULL,
+  factor_type ENUM('virgin_production','recycled_production') NOT NULL,
+  factor_value DECIMAL(10,4) NOT NULL,
+  unit VARCHAR(32) NOT NULL DEFAULT 'kgCO2e/kg',
+  source_name VARCHAR(200) NOT NULL,
+  source_url VARCHAR(500) NOT NULL,
+  source_version VARCHAR(80) NOT NULL,
+  effective_date DATE NULL,
+  expires_at DATE NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_by VARCHAR(32) NULL,
+  UNIQUE KEY uq_emission_factor_version (plastic_code, factor_type, source_version),
+  KEY idx_emission_factor_lookup (plastic_code, factor_type, is_active),
+  CONSTRAINT fk_emission_factor_plastic FOREIGN KEY (plastic_code) REFERENCES plastic_types(plastic_code)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS smart_bins (
   bin_id VARCHAR(16) PRIMARY KEY COMMENT 'เช่น BIN-01',
@@ -68,6 +89,10 @@ CREATE TABLE IF NOT EXISTS waste_records (
   verification_status ENUM('รอการตรวจสอบ', 'อนุมัติแล้ว', 'ไม่อนุมัติ', 'กรุณาส่งภาพมาใหม่')
     NOT NULL DEFAULT 'รอการตรวจสอบ',
   carbon_saved DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  weight_kg DECIMAL(10,5) NOT NULL DEFAULT 0.00000,
+  carbon_footprint DECIMAL(12,5) NOT NULL DEFAULT 0.00000,
+  carbon_avoided DECIMAL(12,5) NOT NULL DEFAULT 0.00000,
+  emission_factor_version VARCHAR(80) NULL,
   points_awarded INT NOT NULL DEFAULT 0,
   admin_comment TEXT NULL,
   bin_location VARCHAR(200) NULL COMMENT 'ชื่อจุดทิ้ง (เก็บข้อความเพื่อแสดงผล)',
@@ -173,7 +198,8 @@ INSERT INTO plastic_types (plastic_code, short_name, full_name, display_name_th,
   (4, 'LDPE', 'Low-Density Polyethylene', 'LDPE (เบอร์ 4 - ถุงหิ้ว)', 0.040, 'รวบรวมถุงที่แห้งสะอาด', 'SYSTEM'),
   (5, 'PP', 'Polypropylene', 'PP (เบอร์ 5)', 0.060, 'ล้างคราบอาหารก่อนรีไซเคิล', 'SYSTEM'),
   (6, 'PS', 'Polystyrene', 'PS (เบอร์ 6 - โฟม)', 0.030, 'ลดการใช้ หากทิ้งให้เช็ดคราบอาหาร', 'SYSTEM'),
-  (7, 'OTHER', 'Other Plastics', 'พลาสติกอื่นๆ (เบอร์ 7)', 0.020, 'ส่งโครงการขยะกำพร้าหรือ RDF', 'SYSTEM')
+  (7, 'OTHER', 'Other Plastics', 'พลาสติกอื่นๆ (เบอร์ 7)', 0.020, 'ส่งโครงการขยะกำพร้าหรือ RDF', 'SYSTEM'),
+  (8, 'CAN', 'Aluminium Beverage Can', 'กระป๋องอะลูมิเนียม', 0.082, 'เทของเหลวออก ล้างและบีบกระป๋องก่อนนำไปรีไซเคิล', 'SYSTEM')
 ON DUPLICATE KEY UPDATE
   short_name = VALUES(short_name),
   display_name_th = VALUES(display_name_th),

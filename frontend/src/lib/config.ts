@@ -12,7 +12,9 @@ export function apiBase() {
   if (isBrowserRemoteHost()) return '';
   const explicit = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
   if (explicit) return explicit;
-  return 'http://localhost:8080';
+  // Empty means same-origin Next.js proxy. This keeps local login working
+  // against Cloud Run when MySQL/Go API is not running on this machine.
+  return '';
 }
 
 export const API_BASE = apiBase();

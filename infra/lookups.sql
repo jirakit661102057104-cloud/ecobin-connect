@@ -7,7 +7,8 @@ INSERT INTO plastic_types (plastic_code, short_name, full_name, display_name_th,
   (4, 'LDPE', 'Low-Density Polyethylene', 'LDPE (เบอร์ 4 - ถุงหิ้ว)', 0.040, 'รวบรวมถุงที่แห้งสะอาด', 'SYSTEM'),
   (5, 'PP', 'Polypropylene', 'PP (เบอร์ 5)', 0.060, 'ล้างคราบอาหารก่อนรีไซเคิล', 'SYSTEM'),
   (6, 'PS', 'Polystyrene', 'PS (เบอร์ 6 - โฟม)', 0.030, 'ลดการใช้ หากทิ้งให้เช็ดคราบอาหาร', 'SYSTEM'),
-  (7, 'OTHER', 'Other Plastics', 'พลาสติกอื่นๆ (เบอร์ 7)', 0.020, 'ส่งโครงการขยะกำพร้าหรือ RDF', 'SYSTEM')
+  (7, 'OTHER', 'Other Plastics', 'พลาสติกอื่นๆ (เบอร์ 7)', 0.020, 'ส่งโครงการขยะกำพร้าหรือ RDF', 'SYSTEM'),
+  (8, 'CAN', 'Aluminium Beverage Can', 'กระป๋องอะลูมิเนียม', 0.082, 'เทของเหลวออก ล้างและบีบกระป๋องก่อนนำไปรีไซเคิล', 'SYSTEM')
 ON DUPLICATE KEY UPDATE
   short_name = VALUES(short_name),
   display_name_th = VALUES(display_name_th),

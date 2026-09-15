@@ -117,6 +117,7 @@ export const AdminPanel: React.FC = () => {
     full_name: '',
     points_per_bottle: 10,
     carbon_factor: 0.08,
+    average_weight_kg: 0.0272,
   });
   const [rulesForm, setRulesForm] = useState(settings);
 
@@ -246,6 +247,7 @@ export const AdminPanel: React.FC = () => {
       full_name: item?.full_name || '',
       points_per_bottle: item?.points_per_bottle ?? 10,
       carbon_factor: item?.carbon_factor ?? 0.08,
+      average_weight_kg: item?.average_weight_kg ?? 0.0272,
     });
     setShowPlasticModal(true);
   };
@@ -259,6 +261,7 @@ export const AdminPanel: React.FC = () => {
       full_name: plasticForm.full_name || plasticForm.display_name_th,
       points_per_bottle: plasticForm.points_per_bottle,
       carbon_factor: plasticForm.carbon_factor,
+      average_weight_kg: plasticForm.average_weight_kg,
     });
     setShowPlasticModal(false);
   };
@@ -298,7 +301,7 @@ export const AdminPanel: React.FC = () => {
   const approvedRecords = wasteRecords.filter((r) => r.verification_status === 'อนุมัติแล้ว');
   const pendingPickups = redemptions.filter((r) => r.redeem_status === 'รอรับของรางวัล');
   const totalCampusBottles = approvedRecords.reduce((acc, r) => acc + r.bottle_count, 0);
-  const totalCampusCarbon = approvedRecords.reduce((acc, r) => acc + r.carbon_saved, 0);
+  const totalCampusCarbon = approvedRecords.reduce((acc, r) => acc + (r.carbon_footprint || 0), 0);
   const memberCount = users.filter((u) => u.user_role === 'Member').length;
   const verifyBins = useMemo(() => {
     const names = new Set<string>();
@@ -445,7 +448,7 @@ export const AdminPanel: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs">
-              <span className="text-xs text-slate-400 block">ก๊าซเรือนกระจกที่ลดได้</span>
+              <span className="text-xs text-slate-400 block">Carbon footprint จากพลาสติก</span>
               <strong className="text-2xl font-extrabold text-teal-700">{totalCampusCarbon.toFixed(2)} kg CO₂e</strong>
             </div>
             <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs">
@@ -866,7 +869,7 @@ export const AdminPanel: React.FC = () => {
             <input type="number" min={0} value={rulesForm.points_per_bottle} onChange={(e) => setRulesForm({ ...rulesForm, points_per_bottle: Number(e.target.value) })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
           </label>
           <label className="block text-xs font-semibold text-slate-700">
-            kg CO₂e ต่อขวด (ค่าเริ่มต้น)
+            kg CO₂e ต่อขวด (fallback กรณีไม่มี TGO factor)
             <input type="number" min={0} step="0.01" value={rulesForm.carbon_per_bottle} onChange={(e) => setRulesForm({ ...rulesForm, carbon_per_bottle: Number(e.target.value) })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
           </label>
           </div>
@@ -898,7 +901,7 @@ export const AdminPanel: React.FC = () => {
                     <th className="p-2.5 font-semibold">ชื่อขวด</th>
                     <th className="p-2.5 font-semibold">ชื่อย่อ</th>
                     <th className="p-2.5 font-semibold text-right">แต้ม/ขวด</th>
-                    <th className="p-2.5 font-semibold text-right">kg CO₂e</th>
+                    <th className="p-2.5 font-semibold text-right">TGO EF</th>
                     <th className="p-2.5 font-semibold"></th>
                   </tr>
                 </thead>
@@ -908,7 +911,9 @@ export const AdminPanel: React.FC = () => {
                       <td className="p-2.5 font-semibold text-slate-800">{p.display_name_th}</td>
                       <td className="p-2.5 text-slate-500">{p.short_name}</td>
                       <td className="p-2.5 text-right font-bold text-amber-700">{p.points_per_bottle}</td>
-                      <td className="p-2.5 text-right text-teal-700">{p.carbon_factor}</td>
+                      <td className="p-2.5 text-right text-teal-700">
+                        {p.virgin_emission_factor || '-'}{p.virgin_emission_factor ? ' kgCO₂e/kg' : ''}
+                      </td>
                       <td className="p-2.5 text-right whitespace-nowrap">
                         <button type="button" onClick={() => openPlasticDialog(p)} className="px-2 py-1 rounded-lg bg-slate-50 text-slate-700 font-bold mr-1">แก้ไข</button>
                         <button type="button" onClick={() => deletePlastic(p.plastic_code)} className="px-2 py-1 rounded-lg text-rose-600 font-bold">ลบ</button>
@@ -1328,7 +1333,10 @@ export const AdminPanel: React.FC = () => {
               <label className="block text-xs font-semibold">แต้มต่อขวด
                 <input type="number" min={0} required value={plasticForm.points_per_bottle} onChange={(e) => setPlasticForm({ ...plasticForm, points_per_bottle: Number(e.target.value) })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
               </label>
-              <label className="block text-xs font-semibold">kg CO₂e ต่อขวด
+              <label className="block text-xs font-semibold">น้ำหนักเฉลี่ย/ขวด (kg)
+                <input type="number" min={0} step="0.00001" value={plasticForm.average_weight_kg} onChange={(e) => setPlasticForm({ ...plasticForm, average_weight_kg: Number(e.target.value) })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
+              </label>
+              <label className="block text-xs font-semibold">kg CO₂e/ขวด (fallback)
                 <input type="number" min={0} step="0.01" value={plasticForm.carbon_factor} onChange={(e) => setPlasticForm({ ...plasticForm, carbon_factor: Number(e.target.value) })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
               </label>
             </div>

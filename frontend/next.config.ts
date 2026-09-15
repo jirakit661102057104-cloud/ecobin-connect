@@ -21,6 +21,8 @@ function loadFrontendEnv() {
 loadFrontendEnv();
 
 const nextConfig: NextConfig = {
+  // Silence multi-lockfile warning (root bun.lock + frontend/package-lock.json)
+  outputFileTracingRoot: resolve(__dirname),
   images: {
     unoptimized: true,
   },

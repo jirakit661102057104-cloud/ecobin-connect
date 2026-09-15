@@ -1,0 +1,245 @@
+<mxfile host="app.diagrams.net" agent="EcoBin Connect" version="24.7.17">
+  <diagram id="er-relationships" name="3.3.3 ความสัมพันธ์เอนทิตี้">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="รูปที่ 3.x แผนภาพกำหนดความสัมพันธ์ระหว่างเอนทิตี้&#xa;ระบบเว็บแอปพลิเคชัน EcoBin Connect" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=15;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Entities -->
+        <mxCell id="users" value="users" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="80" y="280" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="waste" value="waste_records" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="140" width="150" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="txn" value="point_transactions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="280" width="160" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="redeem" value="redemptions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="440" width="150" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rewards" value="rewards" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=14;align=center;" vertex="1" parent="1">
+          <mxGeometry x="760" y="440" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="plastic" value="plastic_types" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="140" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bins" value="smart_bins" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="760" y="200" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="guest" value="guest_logs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=13;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="300" width="130" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Relationship diamonds (Chen style) -->
+        <mxCell id="rel1" value="มี" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="145" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel2" value="มี" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="282" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel3" value="แลก" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="442" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel4" value="ถูกแลก" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="620" y="442" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel5" value="เป็นประเภท" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="610" y="100" width="90" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="rel6" value="อยู่ที่" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="620" y="200" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rel7" value="ได้แต้มจาก" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="455" y="205" width="90" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Lines users - waste -->
+        <mxCell id="e1a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="rel1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e1a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e1b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel1" target="waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e1b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- users - txn -->
+        <mxCell id="e2a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="rel2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e2a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e2b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel2" target="txn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e2b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- users - redeem -->
+        <mxCell id="e3a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="rel3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e3a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e3b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel3" target="redeem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e3b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- rewards - redeem -->
+        <mxCell id="e4a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rewards" target="rel4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e4a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e4b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel4" target="redeem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e4b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- plastic - waste -->
+        <mxCell id="e5a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="plastic" target="rel5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e5a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e5b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel5" target="waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e5b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- bins - waste -->
+        <mxCell id="e6a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="bins" target="rel6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e6a">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e6b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel6" target="waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e6b">
+          <mxGeometry x="0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- waste - txn -->
+        <mxCell id="e7a" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="waste" target="rel7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7al" value="1" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e7a">
+          <mxGeometry x="-0.3" relative="1" as="geometry"><mxPoint x="-12" as="offset" /></mxGeometry>
+        </mxCell>
+        <mxCell id="e7b" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="rel7" target="txn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7bl" value="M" style="edgeLabel;html=1;fontSize=12;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="e7b">
+          <mxGeometry x="0.3" relative="1" as="geometry"><mxPoint x="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- guest note -->
+        <mxCell id="guest-note" value="ไม่เชื่อม FK&#xa;กับ users" style="text;html=1;align=center;fontSize=11;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="370" width="150" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="guest-dash" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="guest" target="users">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1125" y="180" /><mxPoint x="145" y="180" /></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend" value="สัญลักษณ์&#xa;• สี่เหลี่ยม = เอนทิตี้&#xa;• ข้าวหลามตัด = ความสัมพันธ์&#xa;• 1 = หนึ่ง · M = หลาย (One-to-Many)&#xa;• เส้นประ = ไม่มี Foreign Key (Guest ยังไม่สมัครสมาชิก)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;align=left;spacingLeft=10;fontSize=12;fontColor=#000000;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="560" width="420" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="table" value="สรุปความสัมพันธ์&#xa;1) users —&lt; มี &gt;— waste_records          (1:M)&#xa;2) users —&lt; มี &gt;— point_transactions   (1:M)&#xa;3) users —&lt; แลก &gt;— redemptions         (1:M)&#xa;4) rewards —&lt; ถูกแลก &gt;— redemptions    (1:M)&#xa;5) plastic_types —&lt; เป็นประเภท &gt;— waste_records (1:M)&#xa;6) smart_bins —&lt; อยู่ที่ &gt;— waste_records (1:M)&#xa;7) waste_records —&lt; ได้แต้มจาก &gt;— point_transactions (1:M)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;align=left;spacingLeft=10;fontSize=11;fontColor=#000000;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="540" y="560" width="520" height="150" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="er-relationships-simple" name="แบบย่อ (เส้น 1:M)">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="รูปที่ 3.x ความสัมพันธ์ระหว่างเอนทิตี้ (1:M) — EcoBin Connect" style="text;html=1;align=center;fontStyle=1;fontSize=15;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="250" y="20" width="650" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="users" value="users&#xa;PK user_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="250" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="waste" value="waste_records&#xa;PK record_id&#xa;FK user_id, plastic_code, bin_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="380" y="100" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="txn" value="point_transactions&#xa;PK transaction_id&#xa;FK user_id, record_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="380" y="240" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="redeem" value="redemptions&#xa;PK redeem_id&#xa;FK user_id, reward_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="380" y="400" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rewards" value="rewards&#xa;PK reward_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="720" y="400" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="plastic" value="plastic_types&#xa;PK plastic_code" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="720" y="60" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bins" value="smart_bins&#xa;PK bin_id" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="720" y="180" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="guest" value="guest_logs&#xa;PK guest_session_id&#xa;(ไม่เชื่อม users)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="960" y="260" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="r1" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="waste"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r1l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r1"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r2" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="txn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r2l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r2"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r3" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="users" target="redeem"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r3l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r3"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r4" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="rewards" target="redeem"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r4l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r4"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r5" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="plastic" target="waste"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r5l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r5"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r6" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="bins" target="waste"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r6l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r6"><mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry></mxCell>
+
+        <mxCell id="r7" style="endArrow=ERmany;startArrow=ERone;html=1;strokeColor=#000000;" edge="1" parent="1" source="waste" target="txn"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="r7l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r7"><mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

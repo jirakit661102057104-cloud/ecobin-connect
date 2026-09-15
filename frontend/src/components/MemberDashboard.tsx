@@ -45,11 +45,11 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
   const approvedCount = approvedRecords.length;
   const totalBottles = approvedRecords.reduce((acc, r) => acc + r.bottle_count, 0);
   const totalPoints = currentUser ? currentUser.total_points : 0;
-  const totalCarbon = currentUser ? currentUser.total_carbon_saved : 0;
+  const totalCarbon = approvedRecords.reduce((acc, r) => acc + (r.carbon_footprint || 0), 0);
+  const totalAvoided = approvedRecords.reduce((acc, r) => acc + (r.carbon_avoided || 0), 0);
   const TREE_KG = 20;
-  const treesEquiv = (totalCarbon / TREE_KG).toFixed(1);
+  const treesEquiv = (totalAvoided / TREE_KG).toFixed(1);
   const ptsPerBottle = settings.points_per_bottle || 10;
-  const carbonPerBottle = settings.carbon_per_bottle || 0.08;
 
   const { weeklyData, weekBottles, weekPoints, weekCarbon } = useMemo(() => {
     const dayTh = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัส', 'ศุกร์', 'เสาร์'];
@@ -76,7 +76,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
         day: language === 'th' ? dayTh[start.getDay()] : dayEn[start.getDay()],
         bottles: ofDay.reduce((acc, r) => acc + r.bottle_count, 0),
         points: ofDay.reduce((acc, r) => acc + (r.points_awarded || 0), 0),
-        carbon: ofDay.reduce((acc, r) => acc + (r.carbon_saved || 0), 0),
+        carbon: ofDay.reduce((acc, r) => acc + (r.carbon_footprint || 0), 0),
       };
     });
 
@@ -98,7 +98,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
       icon: <Trash2 className="w-5 h-5 text-emerald-600" />,
     },
     carbon: {
-      title: language === 'th' ? 'ที่มาของการลด CO₂e' : 'Where CO₂e savings come from',
+      title: language === 'th' ? 'ที่มาของ Carbon footprint' : 'Where the carbon footprint comes from',
       icon: <Leaf className="w-5 h-5 text-teal-600" />,
     },
     trees: {
@@ -232,7 +232,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
           className="text-left bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white shadow-sm hover:shadow-[0_8px_30px_rgb(20,184,166,0.12)] hover:-translate-y-0.5 hover:border-teal-100 transition-all duration-300 cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-400">{language === 'th' ? 'ลด CO₂e' : 'CO₂e Saved'}</span>
+            <span className="text-xs font-semibold text-slate-400">{language === 'th' ? 'Carbon footprint' : 'Carbon footprint'}</span>
             <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
               <Leaf className="w-4 h-4" />
             </div>
@@ -325,7 +325,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
               <strong className="text-slate-800 text-sm">{weekBottles}</strong>
             </div>
             <div className="p-2 bg-slate-50/70 rounded-xl">
-              <span className="text-slate-400 block text-[10px]">{language === 'th' ? 'ลด CO₂e' : 'CO₂e Saved'}</span>
+              <span className="text-slate-400 block text-[10px]">{language === 'th' ? 'Carbon footprint' : 'Carbon footprint'}</span>
               <strong className="text-emerald-700 text-sm">{weekCarbon.toFixed(2)} kg</strong>
             </div>
             <div className="p-2 bg-slate-50/70 rounded-xl">
@@ -512,8 +512,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                 <div className="space-y-2">
                   <p className="text-[11px] text-slate-500">
                     {language === 'th'
-                      ? `รวม ${totalCarbon.toFixed(2)} kg · สูตร = ขวด × ${carbonPerBottle} kg`
-                      : `Total ${totalCarbon.toFixed(2)} kg · bottles × ${carbonPerBottle} kg`}
+                      ? `รวม ${totalCarbon.toFixed(4)} kgCO₂e · สูตร = น้ำหนัก × Emission Factor ของ TGO`
+                      : `Total ${totalCarbon.toFixed(4)} kgCO₂e · weight × TGO emission factor`}
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
                     {approvedRecords.length === 0 ? (
@@ -528,7 +528,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                               <p className="text-xs font-bold text-slate-800 truncate">{r.plastic_type} · {r.bottle_count} {language === 'th' ? 'ขวด' : 'btl'}</p>
                               <p className="text-[10px] text-slate-400">{r.upload_timestamp}</p>
                             </div>
-                            <strong className="text-sm text-teal-700 shrink-0">{(r.carbon_saved || 0).toFixed(2)} kg</strong>
+                            <strong className="text-sm text-teal-700 shrink-0">{(r.carbon_footprint || 0).toFixed(4)} kgCO₂e</strong>
                           </div>
                         ))
                     )}
@@ -553,11 +553,11 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                           <div key={r.record_id} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-3 py-2.5">
                             <img src={r.image_url} alt="" className="w-11 h-11 rounded-xl object-cover border border-slate-200 shrink-0" />
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-bold text-slate-800 truncate">{r.plastic_type} · {(r.carbon_saved || 0).toFixed(2)} kg CO₂e</p>
+                              <p className="text-xs font-bold text-slate-800 truncate">{r.plastic_type} · {(r.carbon_avoided || 0).toFixed(4)} kgCO₂e</p>
                               <p className="text-[10px] text-slate-400">{r.upload_timestamp}</p>
                             </div>
                             <strong className="text-sm text-emerald-700 shrink-0">
-                              {((r.carbon_saved || 0) / TREE_KG).toFixed(2)} {language === 'th' ? 'ต้น' : ''}
+                              {((r.carbon_avoided || 0) / TREE_KG).toFixed(2)} {language === 'th' ? 'ต้น' : ''}
                             </strong>
                           </div>
                         ))

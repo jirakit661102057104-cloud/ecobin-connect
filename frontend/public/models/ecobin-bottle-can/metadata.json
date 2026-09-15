@@ -1,0 +1,21 @@
+{
+  "labels": [
+    "PLASTIC_BOTTLE",
+    "CAN",
+    "INVALID"
+  ],
+  "modelName": "EcoBinBottleCanSIT",
+  "imageSize": 224,
+  "embedding": "mobilenet-v2-0.5",
+  "inference": "mobilenet-embedding-head",
+  "threshold": 0.8,
+  "trainedAt": "2026-09-15T06:58:40.266Z",
+  "dataset": "TrashNet (plastic→PLASTIC_BOTTLE, metal→CAN, others→INVALID)",
+  "source": "https://github.com/garythung/trashnet",
+  "validationAccuracy": 87.8,
+  "perClassRecall": {
+    "PLASTIC_BOTTLE": 83.9,
+    "CAN": 97.1,
+    "INVALID": 80
+  }
+}

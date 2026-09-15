@@ -57,3 +57,10 @@ func nullString(s string) sql.NullString {
 	}
 	return sql.NullString{String: s, Valid: true}
 }
+
+func nullInt(value int) sql.NullInt64 {
+	if value <= 0 {
+		return sql.NullInt64{}
+	}
+	return sql.NullInt64{Int64: int64(value), Valid: true}
+}

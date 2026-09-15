@@ -267,14 +267,19 @@ func (s *Server) handleAdminCreatePlastic(w http.ResponseWriter, r *http.Request
 	if body.CarbonFactor < 0 {
 		body.CarbonFactor = 0
 	}
+	if body.AverageWeightKg < 0 {
+		body.AverageWeightKg = 0
+	}
 	var next int
 	_ = s.store.db.QueryRow(`SELECT IFNULL(MAX(plastic_code),0)+1 FROM plastic_types`).Scan(&next)
 	if next < 1 {
 		next = 1
 	}
 	me := s.currentUser(r)
-	_, err := s.store.db.Exec(`INSERT INTO plastic_types (plastic_code, short_name, full_name, display_name_th, carbon_factor, points_per_bottle, recycling_tips, created_by)
-		VALUES (?,?,?,?,?,?,?,?)`, next, body.ShortName, body.FullName, strings.TrimSpace(body.DisplayNameTH), body.CarbonFactor, body.PointsPerBottle, body.RecyclingTips, me.UserID)
+	_, err := s.store.db.Exec(`INSERT INTO plastic_types
+		(plastic_code, short_name, full_name, display_name_th, carbon_factor, average_weight_kg, points_per_bottle, recycling_tips, created_by)
+		VALUES (?,?,?,?,?,?,?,?,?)`, next, body.ShortName, body.FullName, strings.TrimSpace(body.DisplayNameTH),
+		body.CarbonFactor, body.AverageWeightKg, body.PointsPerBottle, body.RecyclingTips, me.UserID)
 	if err != nil {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกชนิดขวดไม่สำเร็จ"})
 		return
@@ -299,9 +304,14 @@ func (s *Server) handleAdminUpdatePlastic(w http.ResponseWriter, r *http.Request
 	if body.PointsPerBottle < 0 {
 		body.PointsPerBottle = 0
 	}
-	res, err := s.store.db.Exec(`UPDATE plastic_types SET short_name=?, full_name=?, display_name_th=?, carbon_factor=?, points_per_bottle=?, recycling_tips=?
+	if body.AverageWeightKg < 0 {
+		body.AverageWeightKg = 0
+	}
+	res, err := s.store.db.Exec(`UPDATE plastic_types SET short_name=?, full_name=?, display_name_th=?,
+		carbon_factor=?, average_weight_kg=?, points_per_bottle=?, recycling_tips=?
 		WHERE plastic_code=? AND delete_at IS NULL`,
-		body.ShortName, body.FullName, strings.TrimSpace(body.DisplayNameTH), body.CarbonFactor, body.PointsPerBottle, body.RecyclingTips, id)
+		body.ShortName, body.FullName, strings.TrimSpace(body.DisplayNameTH), body.CarbonFactor,
+		body.AverageWeightKg, body.PointsPerBottle, body.RecyclingTips, id)
 	if err != nil {
 		writeJSON(w, 500, map[string]string{"error": "อัปเดตไม่สำเร็จ"})
 		return

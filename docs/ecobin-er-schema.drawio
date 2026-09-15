@@ -1,0 +1,192 @@
+<mxfile host="app.diagrams.net" agent="EcoBin Connect" version="24.7.17">
+  <diagram id="er-users-chen" name="3.3.2.1 Entity users (Chen)">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="รูปที่ 3.x เอนทิตี้ users (Entity and Attribute)&#xa;ระบบเว็บแอปพลิเคชัน EcoBin Connect" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="200" y="20" width="700" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Entity -->
+        <mxCell id="e-users" value="users" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=16;align=center;" vertex="1" parent="1">
+          <mxGeometry x="470" y="430" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Attributes (ovals) - layout like sample image -->
+        <mxCell id="a-uid" value="&lt;u&gt;user_id&lt;/u&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="120" y="180" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-name" value="full_name" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="100" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-sid" value="student_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="400" y="70" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-email" value="email" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="540" y="70" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-pass" value="password_hash" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="680" y="100" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-role" value="user_role" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="820" y="180" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-pts" value="total_points" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="840" y="300" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-co2" value="total_carbon_saved" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="780" y="400" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Extra attributes (current system) -->
+        <mxCell id="a-phone" value="phone" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="120" y="300" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-auth" value="auth_provider" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="100" y="400" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-dept" value="department" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="260" y="520" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-avatar" value="avatar_url" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="420" y="560" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="a-gsub" value="google_sub" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="580" y="560" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Lines entity <-> attributes -->
+        <mxCell id="l1" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-uid" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l2" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-name" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l3" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-sid" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l4" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-email" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l5" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-pass" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l6" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-role" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l7" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-pts" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l8" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-co2" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l9" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-phone" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l10" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-auth" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l11" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-dept" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l12" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-avatar" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l13" style="endArrow=none;html=1;strokeColor=#666666;" edge="1" parent="1" source="a-gsub" target="e-users"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <mxCell id="note" value="หมายเหตุ: ขีดเส้นใต้ = Primary Key · สีเหลือง = แอททริบิวต์หลักตามรูปเดิม · สีม่วง = แอททริบิวต์เพิ่มในระบบปัจจุบัน · รหัสผ่านเก็บเป็น password_hash (bcrypt) ไม่เก็บรหัสผ่านดิบ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="150" y="680" width="800" height="55" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="er-full-schema" name="ER Schema (เต็มระบบ)">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="แผนภาพ ER Schema — EcoBin Connect (MySQL / Cloud SQL)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="700" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- users -->
+        <mxCell id="t-users" value="users&#xa;─────────────&#xa;PK user_id&#xa;   full_name&#xa;UK student_id&#xa;UK email&#xa;   password_hash&#xa;   user_role&#xa;   total_points&#xa;   total_carbon_saved&#xa;   avatar_url&#xa;   department&#xa;UK phone&#xa;   auth_provider&#xa;UK google_sub&#xa;   created_at / created_by&#xa;   delete_at / delete_by" style="shape=table;startSize=28;container=0;collapsible=0;childLayout=0;fontSize=11;align=left;spacingLeft=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="210" height="280" as="geometry" />
+        </mxCell>
+
+        <!-- plastic_types -->
+        <mxCell id="t-plastic" value="plastic_types&#xa;─────────────&#xa;PK plastic_code&#xa;   short_name&#xa;   full_name&#xa;   display_name_th&#xa;   carbon_factor&#xa;   points_per_bottle&#xa;   recycling_tips&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="200" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- smart_bins -->
+        <mxCell id="t-bins" value="smart_bins&#xa;─────────────&#xa;PK bin_id&#xa;   bin_name&#xa;   status&#xa;   capacity_note&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="560" y="80" width="180" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- waste_records -->
+        <mxCell id="t-waste" value="waste_records&#xa;─────────────&#xa;PK record_id&#xa;FK user_id&#xa;   image_url&#xa;   plastic_type&#xa;FK plastic_code&#xa;   bottle_count&#xa;   upload_timestamp&#xa;   verification_status&#xa;   carbon_saved&#xa;   points_awarded&#xa;   admin_comment&#xa;   bin_location&#xa;FK bin_id&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#fff2cc;strokeColor=#d6b656;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="320" y="320" width="210" height="260" as="geometry" />
+        </mxCell>
+
+        <!-- point_transactions -->
+        <mxCell id="t-txn" value="point_transactions&#xa;─────────────&#xa;PK transaction_id&#xa;FK user_id&#xa;FK record_id&#xa;   points_earned&#xa;   transaction_type&#xa;   description&#xa;   transaction_date&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- rewards -->
+        <mxCell id="t-rewards" value="rewards&#xa;─────────────&#xa;PK reward_id&#xa;   reward_name&#xa;   points_required&#xa;   reward_description&#xa;   reward_stock&#xa;   reward_image&#xa;   category&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#e1d5e7;strokeColor=#9673a6;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="800" y="80" width="210" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- redemptions -->
+        <mxCell id="t-redeem" value="redemptions&#xa;─────────────&#xa;PK redeem_id&#xa;FK user_id&#xa;FK reward_id&#xa;   points_used&#xa;   redeem_date&#xa;   redeem_status&#xa;UK pickup_code&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f8cecc;strokeColor=#b85450;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="800" y="320" width="210" height="190" as="geometry" />
+        </mxCell>
+
+        <!-- guest_logs -->
+        <mxCell id="t-guest" value="guest_logs&#xa;─────────────&#xa;PK guest_session_id&#xa;   device_id&#xa;   temp_image_path&#xa;   temp_scan_result&#xa;   detected_bottles&#xa;   estimated_points&#xa;   timestamp&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#666666;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="80" width="220" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- Relations -->
+        <mxCell id="r1" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.35;entryX=0;entryY=0.2;" edge="1" parent="1" source="t-users" target="t-waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r1l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r1">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r2" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-users" target="t-txn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r2">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r3" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.55;entryX=0;entryY=0.35;" edge="1" parent="1" source="t-users" target="t-redeem">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="234" /><mxPoint x="280" y="386" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r3l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r3">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r4" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-plastic" target="t-waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r4">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="-16" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r5" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0;exitY=1;entryX=1;entryY=0.15;" edge="1" parent="1" source="t-bins" target="t-waste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r5">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r6" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.25;" edge="1" parent="1" source="t-waste" target="t-txn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="450" /><mxPoint x="280" y="467" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r6l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r6">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r7" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-rewards" target="t-redeem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r7">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="note" value="หมายเหตุ: guest_logs ไม่มี FK ไป users เพราะเป็นผู้เยี่ยมชมที่ยังไม่สมัคร · Soft delete ใช้ delete_at / delete_by · สอดคล้อง D1–D5 ใน DFD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="640" width="700" height="45" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

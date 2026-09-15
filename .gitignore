@@ -14,4 +14,6 @@ backend/uploads/*.png
 backend/uploads/*.jpeg
 backend/*.exe
 frontend/frontend.env
+frontend/scripts/_data/
+frontend/scripts/_tm-accuracy-out/
 *.tsbuildinfo

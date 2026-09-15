@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { matchBottleScore } from '../lib/bottleScore';
-import { api } from '../lib/api';
+import { classifyImageDataUrl } from '../lib/teachableMachine';
 import { 
   Camera, 
   CheckCircle2, 
@@ -20,69 +20,15 @@ import {
   X
 } from 'lucide-react';
 
-interface SampleImage {
-  title_th: string;
-  title_en: string;
-  url: string;
-  type_th: string;
-  type_en: string;
-  count: number;
-  valid: boolean;
-  notes_th: string;
-  notes_en: string;
-}
-
-const SAMPLE_IMAGES: SampleImage[] = [
-  {
-    title_th: 'ขวด PET ใส (3 ขวด)',
-    title_en: 'Clear PET (3 Bottles)',
-    url: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80',
-    type_th: 'PET (เบอร์ 1 - ขวดน้ำใส)',
-    type_en: 'PET (#1 - Clear Bottle)',
-    count: 3,
-    valid: true,
-    notes_th: 'ผ่านเกณฑ์: ขวดน้ำ PET ใสสะอาด',
-    notes_en: 'Pass: Clean clear PET bottle'
-  },
-  {
-    title_th: 'ขวดนม HDPE (2 ขวด)',
-    title_en: 'HDPE Milk (2 Bottles)',
-    url: 'https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?w=800&auto=format&fit=crop&q=80',
-    type_th: 'HDPE (เบอร์ 2 - ขวดนม/ขุ่น)',
-    type_en: 'HDPE (#2 - Milk/Opaque)',
-    count: 2,
-    valid: true,
-    notes_th: 'ผ่านเกณฑ์: พลาสติก HDPE ล้างสะอาด',
-    notes_en: 'Pass: Clean HDPE plastic'
-  },
-  {
-    title_th: 'ขวดน้ำอัดลม PET (5 ขวด)',
-    title_en: 'PET Soda (5 Bottles)',
-    url: 'https://images.unsplash.com/photo-1528190336454-13cd56b45b5a?w=800&auto=format&fit=crop&q=80',
-    type_th: 'PET (เบอร์ 1 - ขวดน้ำใส)',
-    type_en: 'PET (#1 - Clear Bottle)',
-    count: 5,
-    valid: true,
-    notes_th: 'ผ่านเกณฑ์: ขวด PET แยกฝาเรียบร้อย',
-    notes_en: 'Pass: PET bottles separated cap'
-  },
-  {
-    title_th: 'ขยะไม่ตรงประเภท (ถุง/ขยะผสม)',
-    title_en: 'Invalid (Mixed Waste)',
-    url: 'https://images.unsplash.com/photo-1577705998148-6da4f3963bc8?w=800&auto=format&fit=crop&q=80',
-    type_th: 'ขยะทั่วไป / พลาสติกอื่น',
-    type_en: 'General / Other Plastic',
-    count: 0,
-    valid: false,
-    notes_th: 'ไม่ผ่านเกณฑ์: พบถุงพลาสติกและขยะผสม',
-    notes_en: 'Fail: Found plastic bags and mixed waste'
-  }
-];
-
 interface WasteScannerProps {
   onSuccessNavigate?: (tab: string) => void;
   openAuthModal: () => void;
 }
+
+const TEACHABLE_MODEL_URL = process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL?.replace(/\/+$/, '');
+/** SIT: accept only bottle/can when confidence is strictly above this ratio (default 80%). */
+const CLASSIFY_CONFIDENCE = Number(process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_CONFIDENCE || 0.8);
+const CLASSIFY_CONFIDENCE_PCT = Math.round(CLASSIFY_CONFIDENCE * 1000) / 10;
 
 export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, openAuthModal }) => {
   const { currentUser, language, addWasteRecord, addGuestWasteRecord, bins, settings, plasticTypes } = useApp();
@@ -93,71 +39,211 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
   const [selectedBin, setSelectedBin] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
-  const [detectedPlasticType, setDetectedPlasticType] = useState<string>('PET (#1)');
+  const [detectedPlasticType, setDetectedPlasticType] = useState<string>(
+    language === 'th' ? 'ขวดพลาสติก' : 'Plastic bottle',
+  );
   const [bottleCount, setBottleCount] = useState<number>(3);
   const [isValidBottle, setIsValidBottle] = useState<boolean>(true);
   const [confidenceScore, setConfidenceScore] = useState<number>(98.5);
   const [detectionNotes, setDetectionNotes] = useState<string>('');
   const [showGuidePopup, setShowGuidePopup] = useState<boolean>(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isOpeningCamera, setIsOpeningCamera] = useState(false);
+  const [cameraError, setCameraError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (!selectedBin && liveBins[0]) setSelectedBin(liveBins[0].bin_name);
   }, [liveBins, selectedBin]);
+
+  useEffect(() => () => stopCamera(), []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const stream = cameraStreamRef.current;
+    if (!isCameraOpen || !video || !stream) return;
+    video.srcObject = stream;
+    void video.play().catch(() => {
+      /* autoplay can fail briefly; capture still works once ready */
+    });
+  }, [isCameraOpen]);
+
+  const stopCamera = () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
+    cameraStreamRef.current = null;
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraOpen(false);
+    setIsOpeningCamera(false);
+  };
+
+  const openCameraStream = async (): Promise<MediaStream> => {
+    const attempts: MediaStreamConstraints[] = [
+      { audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { audio: false, video: { facingMode: 'user' } },
+      { audio: false, video: true },
+    ];
+    let lastError: unknown;
+    for (const constraints of attempts) {
+      try {
+        return await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError instanceof Error ? lastError : new Error('Device in use');
+  };
+
+  const cameraErrorMessage = (error: unknown) => {
+    const raw = error instanceof Error ? error.message : String(error || 'unknown error');
+    const name = error instanceof DOMException ? error.name : '';
+    if (
+      /Device in use/i.test(raw) ||
+      name === 'NotReadableError' ||
+      name === 'TrackStartError' ||
+      name === 'AbortError'
+    ) {
+      return language === 'th'
+        ? 'กล้องถูกใช้งานอยู่ ปิดแท็บอื่นหรือแอปที่ใช้กล้อง แล้วกดเปิดกล้องอีกครั้ง'
+        : 'Camera is in use. Close other tabs/apps using the camera, then try again.';
+    }
+    if (name === 'NotAllowedError' || /Permission/i.test(raw)) {
+      return language === 'th'
+        ? 'ยังไม่อนุญาตการใช้กล้อง กรุณาอนุญาตในเบราว์เซอร์แล้วลองใหม่'
+        : 'Camera permission denied. Allow camera access and try again.';
+    }
+    return language === 'th'
+      ? `เปิดกล้องไม่สำเร็จ: ${raw}`
+      : `Unable to open camera: ${raw}`;
+  };
+
+  const startCamera = async () => {
+    setCameraError('');
+    setScanCompleted(false);
+    setSelectedImage(null);
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError(language === 'th' ? 'เบราว์เซอร์นี้ไม่รองรับกล้อง' : 'This browser does not support camera access');
+      return;
+    }
+
+    try {
+      stopCamera();
+      await new Promise((resolve) => setTimeout(resolve, 250));
+
+      setIsOpeningCamera(true);
+      cameraStreamRef.current = await openCameraStream();
+      setIsCameraOpen(true);
+    } catch (error) {
+      stopCamera();
+      setCameraError(cameraErrorMessage(error));
+    } finally {
+      setIsOpeningCamera(false);
+    }
+  };
+
+  const captureAndProcess = async () => {
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) {
+      setCameraError(
+        language === 'th' ? 'กล้องยังไม่พร้อม รอสักครู่แล้วกดถ่ายอีกครั้ง' : 'Camera is not ready yet. Wait a moment and try again.',
+      );
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg', 0.88);
+
+    stopCamera();
+    setSelectedImage(imageData);
+    await runTeachableScan(imageData);
+  };
 
   const handleOpenCameraClick = () => {
     const hasSeenGuide = sessionStorage.getItem('hasSeenEcoBinScannerGuide');
     if (!hasSeenGuide) {
       setShowGuidePopup(true);
     } else {
-      fileInputRef.current?.click();
+      void startCamera();
     }
   };
 
   const proceedToCamera = () => {
     setShowGuidePopup(false);
     sessionStorage.setItem('hasSeenEcoBinScannerGuide', 'true');
-    fileInputRef.current?.click();
+    void startCamera();
   };
 
-  const runServerScan = async (imageData: string) => {
+  const runTeachableScan = async (imageData: string) => {
     setIsScanning(true);
     setScanCompleted(false);
+    setCameraError('');
     try {
-      const result = await api<{
-        valid: boolean;
-        plastic_type: string;
-        plastic_type_en: string;
-        bottle_count: number;
-        confidence: number;
-        notes: string;
-        notes_en: string;
-      }>('/api/scan', {
-        method: 'POST',
-        body: JSON.stringify({ image_data: imageData }),
-      });
-      setDetectedPlasticType(language === 'th' ? result.plastic_type : (result.plastic_type_en || result.plastic_type));
-      setBottleCount(result.bottle_count);
-      setIsValidBottle(result.valid);
-      setConfidenceScore(result.confidence || 90);
-      setDetectionNotes(language === 'th' ? result.notes : (result.notes_en || result.notes));
+      if (!TEACHABLE_MODEL_URL) {
+        throw new Error(
+          language === 'th'
+            ? 'ยังไม่ได้ตั้ง NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL'
+            : 'Teachable Machine model URL is missing',
+        );
+      }
+      const result = await classifyImageDataUrl(TEACHABLE_MODEL_URL, imageData);
+      // SIT gate: only plastic bottle / can, and confidence > 80% (configurable).
+      const accepted =
+        result.valid &&
+        (result.plasticTypeEN === 'PLASTIC_BOTTLE' || result.plasticTypeEN === 'CAN') &&
+        result.confidence > CLASSIFY_CONFIDENCE_PCT;
+      setDetectedPlasticType(
+        accepted
+          ? (language === 'th' ? result.plasticTypeTH : result.plasticTypeEN)
+          : (language === 'th' ? 'ไม่ผ่าน' : 'INVALID'),
+      );
+      setBottleCount(accepted ? result.bottleCount : 0);
+      setIsValidBottle(accepted);
+      setConfidenceScore(result.confidence);
+      if (accepted) {
+        setDetectionNotes(
+          language === 'th'
+            ? `ผ่านเกณฑ์ SIT: ${result.className} (${result.confidence}% > ${CLASSIFY_CONFIDENCE_PCT}%) — พร้อมคำนวณคาร์บอนและให้แต้มหลังบันทึก`
+            : `SIT pass: ${result.className} (${result.confidence}% > ${CLASSIFY_CONFIDENCE_PCT}%) — carbon and points apply on submit`,
+        );
+      } else if (!result.valid || (result.plasticTypeEN !== 'PLASTIC_BOTTLE' && result.plasticTypeEN !== 'CAN')) {
+        setDetectionNotes(
+          language === 'th'
+            ? `ไม่ผ่าน: ต้องเป็นขวดพลาสติกหรือกระป๋องเท่านั้น (ได้ ${result.className} ${result.confidence}%)`
+            : `Rejected: only plastic bottle or can accepted (got ${result.className} ${result.confidence}%)`,
+        );
+      } else {
+        setDetectionNotes(
+          language === 'th'
+            ? `ไม่ผ่าน: ความมั่นใจ ${result.confidence}% ต้องมากกว่า ${CLASSIFY_CONFIDENCE_PCT}% จึงจะคำนวณและให้แต้ม`
+            : `Rejected: confidence ${result.confidence}% must be above ${CLASSIFY_CONFIDENCE_PCT}% to score`,
+        );
+      }
       setScanCompleted(true);
-    } catch {
-      setDetectedPlasticType(language === 'th' ? 'PET (เบอร์ 1 - ขวดน้ำใส)' : 'PET (#1 - Clear Bottle)');
-      setBottleCount(2);
-      setIsValidBottle(true);
-      setConfidenceScore(90);
-      setDetectionNotes(language === 'th' ? 'โหมดสำรอง: ไม่สามารถเรียก AI ได้' : 'Fallback: AI scan unavailable');
+    } catch (error) {
+      setDetectedPlasticType(language === 'th' ? 'ไม่สามารถจำแนกประเภทได้' : 'Unable to classify');
+      setBottleCount(0);
+      setIsValidBottle(false);
+      setConfidenceScore(0);
+      setDetectionNotes(
+        language === 'th'
+          ? `Teachable Machine ไม่พร้อม: ${error instanceof Error ? error.message : 'unknown error'}`
+          : `Teachable Machine unavailable: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
       setScanCompleted(true);
     } finally {
       setIsScanning(false);
     }
-  };
-
-  const handleSelectSample = (sample: SampleImage) => {
-    setSelectedImage(sample.url);
-    void runServerScan(sample.url);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,23 +253,29 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
       reader.onload = (event) => {
         const url = event.target?.result as string;
         setSelectedImage(url);
-        void runServerScan(url);
+        void runTeachableScan(url);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleReset = () => {
+    stopCamera();
     setSelectedImage(null);
     setScanCompleted(false);
     setIsScanning(false);
+    setCameraError('');
   };
 
   const handleSubmitRecord = async () => {
     if (!selectedImage) return;
 
     if (!isValidBottle) {
-      alert(language === 'th' ? 'ไม่สามารถส่งข้อมูลได้ เนื่องจากภาพไม่ตรงกับเงื่อนไขขวดพลาสติกรีไซเคิล' : 'Cannot submit. The image does not match the recyclable plastic bottle criteria.');
+      alert(
+        language === 'th'
+          ? `ส่งข้อมูลไม่ได้ ต้องเป็นขวดพลาสติกหรือกระป๋อง และความมั่นใจมากกว่า ${CLASSIFY_CONFIDENCE_PCT}%`
+          : `Only plastic bottles or cans with confidence above ${CLASSIFY_CONFIDENCE_PCT}% can be submitted.`,
+      );
       return;
     }
 
@@ -217,7 +309,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
     settings.carbon_per_bottle || 0.08
   );
   const estimatedPoints = bottleCount * bottleScore.points;
-  const estimatedCarbon = (bottleCount * bottleScore.carbon).toFixed(2);
+  const estimatedWeight = bottleCount * (bottleScore.matched?.average_weight_kg || 0);
+  const virginFactor = bottleScore.matched?.virgin_emission_factor || 0;
+  const recycledFactor = bottleScore.matched?.recycled_emission_factor || 0;
+  const estimatedNetZeroCredit = recycledFactor > 0
+    ? estimatedWeight * Math.max(virginFactor - recycledFactor, 0)
+    : estimatedWeight * virginFactor;
 
   return (
     <div className="max-w-4xl mx-auto space-y-5">
@@ -228,7 +325,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
           <span className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
             <Camera className="w-4 h-4" />
           </span>
-          {language === 'th' ? 'สแกนและคัดแยกขวดพลาสติก' : 'Scan and Sort Plastic Bottles'}
+          {language === 'th' ? 'Beta SIT: ขวดพลาสติกและกระป๋อง (รับเมื่อความมั่นใจ > ' + CLASSIFY_CONFIDENCE_PCT + '%)' : `Beta SIT: Plastic bottles & cans (accept when confidence > ${CLASSIFY_CONFIDENCE_PCT}%)`}
         </h2>
       </div>
 
@@ -256,7 +353,37 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
         <div className="lg:col-span-7 space-y-3.5">
           <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-sm relative min-h-[340px] flex flex-col items-center justify-center text-white">
             
-            {selectedImage ? (
+            {isCameraOpen ? (
+              <div className="relative w-full h-[340px] bg-black">
+                <video
+                  ref={videoRef}
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-5 border-2 border-emerald-400/80 rounded-2xl pointer-events-none">
+                  <div className="absolute left-1/2 top-1/2 w-2/3 h-2/3 -translate-x-1/2 -translate-y-1/2 border border-dashed border-emerald-300 rounded-xl" />
+                </div>
+                <div className="absolute inset-x-3 bottom-3 flex items-center gap-2">
+                  <button
+                    id="scanner-capture-btn"
+                    onClick={() => void captureAndProcess()}
+                    disabled={isOpeningCamera || isScanning}
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-bold flex items-center justify-center gap-2"
+                  >
+                    <Camera className="w-4 h-4" />
+                    {language === 'th' ? 'ถ่ายรูปแล้วส่งประมวลผล' : 'Capture & process'}
+                  </button>
+                  <button
+                    onClick={stopCamera}
+                    className="p-2.5 bg-black/60 hover:bg-black/80 text-white rounded-xl"
+                    title={language === 'th' ? 'ปิดกล้อง' : 'Close camera'}
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ) : selectedImage ? (
               <div className="relative w-full h-[340px] bg-black">
                 <img 
                   src={selectedImage} 
@@ -320,10 +447,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   <Camera className="w-7 h-7" />
                 </div>
                 <h3 className="text-sm font-semibold text-white mb-1">
-                  {language === 'th' ? 'ถ่ายรูปหรืออัปโหลดภาพขวด' : 'Take a photo or upload an image'}
+                  {language === 'th' ? 'ถ่ายรูปขวดพลาสติกหรือกระป๋อง' : 'Capture a plastic bottle or can'}
                 </h3>
                 <p className="text-[11px] text-slate-400 mb-5">
-                  {language === 'th' ? 'เลือกภาพหรือทดสอบจากตัวอย่างด้านล่าง' : 'Select an image or use samples below'}
+                  {language === 'th'
+                    ? `เปิดกล้องถ่ายรูปขวดพลาสติกหรือกระป๋อง แล้วส่งจำแนก (รับเมื่อความมั่นใจ > ${CLASSIFY_CONFIDENCE_PCT}%)`
+                    : `Photograph a plastic bottle or can (accept when confidence > ${CLASSIFY_CONFIDENCE_PCT}%)`}
                 </p>
 
                 <input 
@@ -337,15 +466,32 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 <button
                   id="scanner-open-camera-btn"
                   onClick={handleOpenCameraClick}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl transition-colors shadow-xs cursor-pointer"
+                  disabled={isOpeningCamera}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-semibold rounded-xl transition-colors shadow-xs cursor-pointer"
                 >
                   <Camera className="w-4 h-4" />
-                  <span>{language === 'th' ? 'เปิดกล้อง / อัปโหลด' : 'Open Camera / Upload'}</span>
+                  <span>
+                    {isOpeningCamera
+                      ? (language === 'th' ? 'กำลังเปิดกล้อง...' : 'Opening camera...')
+                      : (language === 'th' ? 'เปิดกล้องถ่ายรูป' : 'Open camera')}
+                  </span>
+                </button>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full mt-2 flex items-center justify-center gap-2 py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-xl"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span>{language === 'th' ? 'อัปโหลดรูปแทน' : 'Upload an image instead'}</span>
                 </button>
               </div>
             )}
           </div>
 
+          {cameraError && (
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+              {cameraError}
+            </div>
+          )}
 
 
         </div>
@@ -371,16 +517,21 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
             {scanCompleted ? (
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-400 text-[11px] block">{language === 'th' ? 'ชนิดพลาสติก:' : 'Plastic Type:'}</span>
+                  <span className="text-slate-400 text-[11px] block">{language === 'th' ? 'ประเภทวัสดุ:' : 'Material Type:'}</span>
                   <p className="text-slate-900 font-bold text-xs flex items-center gap-1 mt-0.5">
                     <Leaf className="w-3.5 h-3.5 text-emerald-600" />
                     {detectedPlasticType}
                   </p>
+                  {detectionNotes && (
+                    <p className={`mt-1.5 text-[10px] leading-relaxed ${isValidBottle ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {detectionNotes}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <span className="text-slate-400 text-[10px] block mb-1">{language === 'th' ? 'จำนวนขวด:' : 'Bottle Count:'}</span>
+                    <span className="text-slate-400 text-[10px] block mb-1">{language === 'th' ? 'จำนวนชิ้น:' : 'Item Count:'}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setBottleCount(Math.max(1, bottleCount - 1))}
@@ -405,17 +556,28 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                     <div className="flex items-baseline gap-1 text-emerald-900 font-bold">
                       <Coins className="w-3.5 h-3.5 text-amber-500 fill-amber-400 inline" />
                       <span className="text-base">+{isValidBottle ? estimatedPoints : 0}</span>
-                      <span className="text-[10px] font-normal">{language === 'th' ? 'หลังอนุมัติ' : 'after approval'}</span>
+                      <span className="text-[10px] font-normal">{language === 'th' ? 'ทันทีหลังบันทึก' : 'on submit'}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between bg-teal-50/70 p-2.5 rounded-xl border border-teal-100 text-teal-900 text-xs font-medium">
-                  <span className="flex items-center gap-1.5">
-                    <Leaf className="w-3.5 h-3.5 text-teal-600" />
-                    {language === 'th' ? 'ลด CO₂e:' : 'CO₂e Reduced:'}
-                  </span>
-                  <span className="font-bold">{isValidBottle ? estimatedCarbon : 0.00} kg</span>
+                <div className="bg-teal-50/70 p-2.5 rounded-xl border border-teal-100 text-teal-900 text-xs font-medium space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Leaf className="w-3.5 h-3.5 text-teal-600" />
+                      {language === 'th' ? 'เครดิต Net Zero โดยประมาณ:' : 'Estimated Net Zero credit:'}
+                    </span>
+                    <span className="font-bold">{isValidBottle ? estimatedNetZeroCredit.toFixed(4) : '0.0000'} kgCO₂e</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-teal-700">
+                    <span>{language === 'th' ? `น้ำหนักประมาณ ${estimatedWeight.toFixed(4)} kg` : `Estimated weight ${estimatedWeight.toFixed(4)} kg`}</span>
+                    <span>{virginFactor > 0 ? `TGO EF ${virginFactor}` : ''}</span>
+                  </div>
+                  <p className="border-t border-teal-100 pt-1.5 text-[10px] text-teal-800">
+                    {language === 'th'
+                      ? 'ตามหลัก Net Zero ของ TGO: คัดแยกเพื่อรีไซเคิล = ลดภาระปล่อยเทียบการผลิตวัสดุใหม่'
+                      : 'Per TGO Net Zero: recycling diversion offsets virgin-material emissions'}
+                  </p>
                 </div>
 
                 <label className="block">
@@ -450,7 +612,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   <Check className="w-4 h-4" />
                   <span>
                     {currentUser 
-                      ? (language === 'th' ? `ส่งให้แอดมินตรวจ (ประมาณ ${estimatedPoints} แต้มหลังอนุมัติ)` : `Submit for admin review (~${estimatedPoints} pts after approval)`) 
+                      ? (language === 'th' ? `บันทึกและรับ +${estimatedPoints} แต้มทันที` : `Save and earn +${estimatedPoints} pts now`)
                       : (language === 'th' ? 'บันทึกผล (โหมด Guest)' : 'Save (Guest Mode)')}
                   </span>
                 </button>
@@ -458,7 +620,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
             ) : (
               <div className="py-6 text-center text-slate-400 text-xs space-y-1.5">
                 <ScanLine className="w-6 h-6 mx-auto text-slate-300" />
-                <p>{language === 'th' ? 'เลือกหรือถ่ายรูปภาพเพื่อเริ่มวิเคราะห์' : 'Select or take an image to start analyzing'}</p>
+                <p>{language === 'th' ? 'เปิดกล้องถ่ายรูป หรืออัปโหลดภาพเพื่อเริ่มวิเคราะห์' : 'Open the camera or upload an image to analyze'}</p>
               </div>
             )}
           </div>
@@ -494,11 +656,11 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-700 font-bold shadow-sm shrink-0">2</div>
-                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'แยกฝาและฉลาก' : 'Remove cap and label'}</span>
+                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'แยกฝาขวด หลอด และสิ่งปนเปื้อน' : 'Remove caps, straws, and contaminants'}</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-700 font-bold shadow-sm shrink-0">3</div>
-                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'บีบขวดให้แบน' : 'Crush bottle flat'}</span>
+                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'บีบขวดหรือกระป๋องให้แบน' : 'Flatten the bottle or can'}</span>
                 </div>
               </div>
 

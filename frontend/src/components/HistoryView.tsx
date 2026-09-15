@@ -209,9 +209,12 @@ export const HistoryView: React.FC = () => {
                       </span>
                     </div>
                     {record.verification_status === 'อนุมัติแล้ว' && (
-                    <span className="text-[10px] text-teal-700 font-medium">
-                      -{record.carbon_saved} kg CO₂e
-                    </span>
+                      <div className="text-right text-[10px] font-medium">
+                        <p className="text-slate-600">CF {record.carbon_footprint?.toFixed(4) || '0.0000'} kgCO₂e</p>
+                        {record.carbon_avoided > 0 && (
+                          <p className="text-teal-700">ลดได้ {record.carbon_avoided.toFixed(4)} kgCO₂e</p>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

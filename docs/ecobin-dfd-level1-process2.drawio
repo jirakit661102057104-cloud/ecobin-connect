@@ -1,0 +1,229 @@
+<mxfile host="app.diagrams.net" agent="EcoBin Connect" version="24.7.17">
+  <diagram id="ecobin-dfd1-p20" name="DFD Level 1 Process 2.0">
+    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="แผนภาพกระแสข้อมูล (DFD Level 1 of Process 2.0)&#xa;รับภาพถ่าย วิเคราะห์ด้วย AI และรอการตรวจสอบ — EcoBin Connect" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="20" width="820" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ========== 2.1 Member scan + AI ========== -->
+        <mxCell id="e21-member" value="สมาชิกทั่วไป" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="130" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p21" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p21-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="128" as="sourcePoint" />
+            <mxPoint x="620" y="128" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p21-id" value="2.1" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="102" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p21-name" value="รับภาพและวิเคราะห์&#xa;ด้วย AI (สมาชิก)" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="400" y="130" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d2a" value="D2 ประวัติการทิ้งขยะ&#xa;(waste_records)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="90" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d5a" value="D5 ประเภทขวด / กฎคะแนน&#xa;(plastic_types / settings)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="160" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f21-in" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="e21-member" target="p21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f21-inl" value="ข้อมูลภาพถ่ายขวดพลาสติก" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f21-in">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f21-out" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.7;" edge="1" parent="1" source="p21" target="e21-member">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="172" /><mxPoint x="280" y="151" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f21-outl" value="ผลวิเคราะห์เบื้องต้น / สถานะรอตรวจสอบ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f21-out">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="14" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f21-d2" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.35;entryX=0;entryY=0.5;" edge="1" parent="1" source="p21" target="d2a">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f21-d2l" value="บันทึกรายการขยะ&#xa;(สถานะ: รอการตรวจสอบ)" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f21-d2">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f21-d5" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.7;" edge="1" parent="1" source="d5a" target="p21">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="760" y="185" /><mxPoint x="760" y="163" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f21-d5l" value="ดึงประเภทขวด / แต้มประมาณการ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f21-d5">
+          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- ========== 2.2 Guest trial scan ========== -->
+        <mxCell id="e22-guest" value="ผู้ใช้งานแบบไม่ลงทะเบียน&#xa;(Guest)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="50" y="360" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p22" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="350" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p22-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="376" as="sourcePoint" />
+            <mxPoint x="620" y="376" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p22-id" value="2.2" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="352" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p22-name" value="สแกนทดลอง (Guest)" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="400" y="382" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d4" value="D4 บันทึกสแกน Guest&#xa;(guest_logs)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="340" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d5b" value="D5 ประเภทขวด / กฎคะแนน" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="410" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f22-in" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="e22-guest" target="p22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f22-inl" value="ภาพถ่ายสแกนทดลอง" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f22-in">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f22-out" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.7;" edge="1" parent="1" source="p22" target="e22-guest">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="414" /><mxPoint x="280" y="395" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f22-outl" value="ผลสแกนทดลอง / ประมาณการแต้ม&#xa;(ไม่ได้แต้มจริง)" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f22-out">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="16" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f22-d4" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="p22" target="d4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f22-d4l" value="บันทึกสแกน Guest" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f22-d4">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f22-d5" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.85;" edge="1" parent="1" source="d5b" target="p22">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="760" y="430" /><mxPoint x="760" y="418" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f22-d5l" value="ดึงกฎคะแนนเพื่อประมาณการ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f22-d5">
+          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <!-- ========== 2.3 Admin approve ========== -->
+        <mxCell id="e23-admin" value="ผู้ดูแลระบบ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="580" width="130" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="e23-member" value="สมาชิกทั่วไป" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="700" width="130" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p23" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="600" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p23-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="628" as="sourcePoint" />
+            <mxPoint x="620" y="628" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p23-id" value="2.3" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="602" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p23-name" value="ตรวจสอบและอนุมัติภาพ" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="400" y="632" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d2b" value="D2 ประวัติการทิ้งขยะ&#xa;(waste_records)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="540" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d1" value="D1 ข้อมูลผู้ใช้งาน&#xa;(users)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="620" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" value="D3 ธุรกรรมแต้ม&#xa;(point_transactions)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="850" y="700" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f23-d2r" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.2;" edge="1" parent="1" source="d2b" target="p23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f23-d2rl" value="ดึงรายการรอตรวจสอบ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-d2r">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-to-admin" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.3;entryX=1;entryY=0.5;" edge="1" parent="1" source="p23" target="e23-admin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="627" /><mxPoint x="280" y="602" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f23-to-adminl" value="ข้อมูลภาพถ่ายรอตรวจสอบ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-to-admin">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-from-admin" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.55;" edge="1" parent="1" source="e23-admin" target="p23">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="240" y="640" /><mxPoint x="240" y="650" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f23-from-adminl" value="ผลการตรวจสอบ + แต้มปรับ&#xa;(อนุมัติ / ไม่อนุมัติ / ขอภาพใหม่)" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-from-admin">
+          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="16" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-to-member" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.9;entryX=1;entryY=0.5;" edge="1" parent="1" source="p23" target="e23-member">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="260" y="681" /><mxPoint x="260" y="722" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f23-to-memberl" value="แจ้งผลการตรวจสอบ / แต้มที่ได้" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-to-member">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-d2w" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.35;entryX=0;entryY=0.7;" edge="1" parent="1" source="p23" target="d2b">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="760" y="631" /><mxPoint x="760" y="575" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="f23-d2wl" value="อัปเดตสถานะรายการขยะ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-d2w">
+          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-d1" style="endArrow=classic;html=1;rounded=0;dashed=1;exitX=1;exitY=0.55;entryX=0;entryY=0.5;" edge="1" parent="1" source="p23" target="d1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f23-d1l" value="เพิ่มแต้มสมาชิกเมื่ออนุมัติ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-d1">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="f23-d3" style="endArrow=classic;html=1;rounded=0;dashed=1;exitX=1;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="1" source="p23" target="d3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f23-d3l" value="บันทึกธุรกรรมแต้มเมื่ออนุมัติ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f23-d3">
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="note" value="หมายเหตุ&#xa;• Level 1 ของ 2.0 แตกเป็น 2.1 รับภาพ+AI (สมาชิก) · 2.2 สแกนทดลอง Guest · 2.3 ตรวจสอบและอนุมัติภาพ&#xa;• สมาชิกได้แต้มจริงหลังแอดมินอนุมัติเท่านั้น · Guest ได้แค่ผลทดลอง ไม่เข้า waste_records และไม่ได้แต้ม&#xa;• เส้นประ = เกิดเมื่ออนุมัติแล้วเท่านั้น (อัปเดตแต้มใน D1 + บันทึก D3)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="160" y="820" width="780" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

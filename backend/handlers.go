@@ -142,16 +142,16 @@ func (s *Server) handleState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, 200, map[string]any{
-		"user":           me,
-		"users":          users,
-		"waste_records":  waste,
-		"rewards":        rewards,
-		"transactions":   txns,
-		"redemptions":    reds,
-		"guest_logs":     guests,
-		"bins":           bins,
-		"plastic_types":  plastics,
-		"settings":       settings,
+		"user":          me,
+		"users":         users,
+		"waste_records": waste,
+		"rewards":       rewards,
+		"transactions":  txns,
+		"redemptions":   reds,
+		"guest_logs":    guests,
+		"bins":          bins,
+		"plastic_types": plastics,
+		"settings":      settings,
 	})
 }
 
@@ -351,10 +351,11 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		ImageData   string `json:"image_data"`
-		PlasticType string `json:"plastic_type"`
-		BottleCount int    `json:"bottle_count"`
-		BinLocation string `json:"bin_location"`
+		ImageData   string   `json:"image_data"`
+		PlasticType string   `json:"plastic_type"`
+		BottleCount int      `json:"bottle_count"`
+		BinLocation string   `json:"bin_location"`
+		WeightKg    *float64 `json:"weight_kg"`
 	}
 	if err := readJSON(r, &body); err != nil {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
@@ -369,18 +370,41 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกรูปไม่สำเร็จ"})
 		return
 	}
+
+	// Teachable Machine classifies on the client; EcoBin awards points immediately.
+	// Carbon uses CMH-style mass×EF with TGO factors (circularmaterialhub.com/Calculate.php).
+	carbonCalc := s.store.carbonForPlastic(body.PlasticType, body.BottleCount, body.WeightKg)
+	points := body.BottleCount * carbonCalc.PointsPerBottle
+	footprint := carbonCalc.CarbonFootprint
+	avoided := carbonCalc.CarbonAvoided
+	carbon := avoided
+	if carbon <= 0 {
+		// No recycle-pathway EF: credit baseline footprint (mass × baseline EF).
+		carbon = footprint
+	}
+	weightKg := carbonCalc.WeightKg
 	now := time.Now()
-	status := "รอการตรวจสอบ"
-	points := 0
-	carbon := 0.0
-	comment := "รอผู้ดูแลระบบตรวจสอบภาพถ่าย — แต้มจะได้รับเมื่อแอดมินกดอนุมัติ"
-	_, err = s.store.db.Exec(`INSERT INTO waste_records (record_id, user_id, image_url, plastic_type, bottle_count, upload_timestamp, verification_status, carbon_saved, points_awarded, admin_comment, bin_location, created_by)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
-		id, me.UserID, img, body.PlasticType, body.BottleCount, now, status, carbon, points, comment, body.BinLocation, me.UserID)
+	status := "อนุมัติแล้ว"
+	comment := "Teachable Machine จำแนกแล้ว — คำนวณ GHG แบบ CMH (มวล×EF ของ TGO) และให้แต้มทันที"
+
+	_, err = s.store.db.Exec(`INSERT INTO waste_records
+		(record_id, user_id, image_url, plastic_type, plastic_code, bottle_count, upload_timestamp, verification_status,
+		 carbon_saved, weight_kg, carbon_footprint, carbon_avoided, emission_factor_version, points_awarded, admin_comment, bin_location, created_by)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		id, me.UserID, img, body.PlasticType, nullInt(carbonCalc.PlasticCode), body.BottleCount, now, status,
+		carbon, weightKg, footprint, avoided, carbonCalc.EmissionFactorVersion, points, comment, body.BinLocation, me.UserID)
 	if err != nil {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกรายการไม่สำเร็จ"})
 		return
 	}
+
+	_, _ = s.store.db.Exec(`UPDATE users SET total_points = total_points + ?, total_carbon_saved = total_carbon_saved + ? WHERE user_id=? AND delete_at IS NULL`,
+		points, carbon, me.UserID)
+	_, _ = s.store.db.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
+		VALUES (?,?,?,?,'earn',?,?,?)`,
+		newID("TXN"), me.UserID, id, points,
+		"Teachable Machine + CMH/TGO carbon · ให้แต้มทันที", now, me.UserID)
+
 	records, _ := s.store.listWaste(me.UserID, false)
 	var rec WasteRecord
 	for _, x := range records {
@@ -433,8 +457,11 @@ func (s *Server) handleVerifyWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var rec WasteRecord
-	err := s.store.db.QueryRow(`SELECT record_id, user_id, bottle_count, verification_status, points_awarded, plastic_type FROM waste_records WHERE record_id=? AND delete_at IS NULL`, id).
-		Scan(&rec.RecordID, &rec.UserID, &rec.BottleCount, &rec.VerificationStatus, &rec.PointsAwarded, &rec.PlasticType)
+	err := s.store.db.QueryRow(`SELECT record_id, user_id, bottle_count, verification_status, points_awarded,
+		plastic_type, carbon_saved, weight_kg
+		FROM waste_records WHERE record_id=? AND delete_at IS NULL`, id).
+		Scan(&rec.RecordID, &rec.UserID, &rec.BottleCount, &rec.VerificationStatus, &rec.PointsAwarded,
+			&rec.PlasticType, &rec.CarbonSaved, &rec.WeightKg)
 	if err != nil {
 		writeJSON(w, 404, map[string]string{"error": "ไม่พบรายการ"})
 		return
@@ -444,8 +471,12 @@ func (s *Server) handleVerifyWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	prev := rec.VerificationStatus
-	unitPts, unitCarbon := s.store.scoreForPlastic(rec.PlasticType)
-	finalPoints := rec.BottleCount * unitPts
+	var actualWeight *float64
+	if rec.WeightKg > 0 {
+		actualWeight = &rec.WeightKg
+	}
+	carbonCalc := s.store.carbonForPlastic(rec.PlasticType, rec.BottleCount, actualWeight)
+	finalPoints := rec.BottleCount * carbonCalc.PointsPerBottle
 	if body.AdjustedPoints != nil {
 		finalPoints = *body.AdjustedPoints
 	}
@@ -453,14 +484,34 @@ func (s *Server) handleVerifyWaste(w http.ResponseWriter, r *http.Request) {
 		finalPoints = 0
 	}
 	carbon := 0.0
+	footprint := 0.0
+	avoided := 0.0
+	weightKg := carbonCalc.WeightKg
 	if body.Status == "อนุมัติแล้ว" {
-		carbon = float64(rec.BottleCount) * unitCarbon
+		footprint = carbonCalc.CarbonFootprint
+		avoided = carbonCalc.CarbonAvoided
+		carbon = avoided // compatibility field used by existing dashboards
 	}
-	_, _ = s.store.db.Exec(`UPDATE waste_records SET verification_status=?, admin_comment=?, points_awarded=?, carbon_saved=? WHERE record_id=? AND delete_at IS NULL`,
-		body.Status, body.Comment, finalPoints, carbon, id)
+	_, _ = s.store.db.Exec(`UPDATE waste_records SET verification_status=?, admin_comment=?, points_awarded=?,
+		carbon_saved=?, weight_kg=?, carbon_footprint=?, carbon_avoided=?, emission_factor_version=?, plastic_code=?
+		WHERE record_id=? AND delete_at IS NULL`,
+		body.Status, body.Comment, finalPoints, carbon, weightKg, footprint, avoided,
+		carbonCalc.EmissionFactorVersion, nullInt(carbonCalc.PlasticCode), id)
+
+	oldPoints, oldCarbon := 0, 0.0
+	if prev == "อนุมัติแล้ว" {
+		oldPoints, oldCarbon = rec.PointsAwarded, rec.CarbonSaved
+	}
+	newPoints, newCarbon := 0, 0.0
+	if body.Status == "อนุมัติแล้ว" {
+		newPoints, newCarbon = finalPoints, carbon
+	}
+	deltaPoints, deltaCarbon := newPoints-oldPoints, newCarbon-oldCarbon
+	if deltaPoints != 0 || deltaCarbon != 0 {
+		_, _ = s.store.db.Exec(`UPDATE users SET total_points = total_points + ?, total_carbon_saved = total_carbon_saved + ? WHERE user_id=? AND delete_at IS NULL`, deltaPoints, deltaCarbon, rec.UserID)
+	}
 	if body.Status == "อนุมัติแล้ว" && prev != "อนุมัติแล้ว" {
 		adminID := s.currentUser(r).UserID
-		_, _ = s.store.db.Exec(`UPDATE users SET total_points = total_points + ?, total_carbon_saved = total_carbon_saved + ? WHERE user_id=? AND delete_at IS NULL`, finalPoints, carbon, rec.UserID)
 		_, _ = s.store.db.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
 			VALUES (?,?,?,?,'earn',?,?,?)`, newID("TXN"), rec.UserID, id, finalPoints, "อนุมัติภาพถ่ายขยะ +แต้ม", time.Now(), adminID)
 	}
@@ -737,11 +788,11 @@ func (s *Server) handleAdminUserChildren(w http.ResponseWriter, r *http.Request)
 	txns, _ := s.store.listTransactions(id, false)
 	reds, _ := s.store.listRedemptions(id, false)
 	writeJSON(w, 200, map[string]any{
-		"parent":               u,
-		"cardinality":          "1:M",
-		"waste_records":        waste,
-		"point_transactions":   txns,
-		"redemptions":          reds,
+		"parent":             u,
+		"cardinality":        "1:M",
+		"waste_records":      waste,
+		"point_transactions": txns,
+		"redemptions":        reds,
 	})
 }
 

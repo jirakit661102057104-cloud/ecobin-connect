@@ -13,6 +13,14 @@ const HOP_BY_HOP = new Set([
   'content-length',
 ]);
 
+const FORWARDED_REQUEST_HEADERS = [
+  'accept',
+  'authorization',
+  'content-type',
+  'cookie',
+  'user-agent',
+] as const;
+
 const DEFAULT_API =
   'https://ecobin-api-568301593385.asia-southeast1.run.app';
 
@@ -43,28 +51,41 @@ export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', pa
 
   const dest = `${base}/${prefix}/${path.map(encodeURIComponent).join('/')}${req.nextUrl.search}`;
   const headers = new Headers();
-  req.headers.forEach((value, key) => {
-    const lower = key.toLowerCase();
-    if (HOP_BY_HOP.has(lower)) return;
-    if (lower.startsWith('x-forwarded-') || lower === 'x-vercel-id' || lower === 'x-real-ip') return;
-    headers.set(key, value);
-  });
+  // Vercel adds transport-specific headers (for example compressed body
+  // metadata) that must not be replayed to Cloud Run with a materialized body.
+  for (const key of FORWARDED_REQUEST_HEADERS) {
+    const value = req.headers.get(key);
+    if (value) headers.set(key, value);
+  }
 
   const init: RequestInit = {
     method: req.method,
     headers,
     redirect: 'manual',
+    cache: 'no-store',
   };
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    init.body = await req.arrayBuffer();
+    // Materialize the body as Uint8Array. Passing NextRequest's stream or a
+    // bare ArrayBuffer can fail in Vercel's Node runtime before reaching
+    // Cloud Run, especially after a Google redirect.
+    const body = await req.arrayBuffer();
+    init.body = new Uint8Array(body);
   }
 
   let upstream: Response;
   try {
     upstream = await fetch(dest, init);
-  } catch {
+  } catch (error) {
+    console.error('API proxy upstream fetch failed', {
+      method: req.method,
+      destination: dest,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return NextResponse.json(
-      { error: 'เชื่อมต่อ Go API ไม่ได้ ตรวจว่า API เปิดเน็ตได้ และ API_PROXY_TARGET ถูกต้อง' },
+      {
+        error:
+          'เชื่อมต่อ Go API ผ่าน Vercel ไม่ได้ กรุณาตรวจ Deployment Logs ของฟังก์ชัน /api',
+      },
       { status: 502 }
     );
   }
