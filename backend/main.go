@@ -64,6 +64,7 @@ func main() {
 		r.Post("/auth/email/otp/check", s.handleEmailOTPCheck)
 		r.Post("/scan", s.handleScan)
 		r.Post("/guest/scan", s.handleGuestScan)
+		r.Post("/events/classify", s.handleClassifyLog)
 		r.Get("/rewards", func(w http.ResponseWriter, req *http.Request) {
 			list, _ := s.store.listRewards()
 			writeJSON(w, 200, list)
@@ -83,6 +84,10 @@ func main() {
 			r.Get("/admin/relations", s.handleAdminRelations)
 			r.Get("/admin/relations/users/{id}", s.handleAdminUserChildren)
 			r.Patch("/admin/waste/{id}", s.handleVerifyWaste)
+			r.Get("/admin/events", s.handleAdminListEvents)
+			r.Get("/admin/training-samples", s.handleAdminListTrainingSamples)
+			r.Get("/admin/model-versions", s.handleAdminListModelVersions)
+			r.Post("/admin/model-versions", s.handleAdminRegisterModelVersion)
 			r.Post("/admin/rewards", s.handleCreateReward)
 			r.Put("/admin/rewards/{id}", s.handleUpdateReward)
 			r.Delete("/admin/rewards/{id}", s.handleDeleteReward)

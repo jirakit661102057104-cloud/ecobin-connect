@@ -26,7 +26,14 @@ const DEFAULT_API =
 
 function isUsableApiTarget(url: string) {
   if (!url) return false;
-  if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
+  // Production (Vercel) must never proxy to a developer machine.
+  if (process.env.VERCEL) {
+    if (url.includes('localhost') || url.includes('127.0.0.1')) return false;
+    if (url.includes('trycloudflare.com')) return false;
+    return /^https:\/\//.test(url);
+  }
+  // Local Next.js: allow http://localhost:8080 so new API routes work before Cloud Run deploy.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(url)) return true;
   if (url.includes('trycloudflare.com')) return false;
   return /^https:\/\//.test(url);
 }

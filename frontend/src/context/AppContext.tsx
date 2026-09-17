@@ -63,8 +63,30 @@ interface AppContextType {
   updateUserProfile: (data: Partial<User>) => Promise<boolean>;
   uploadAvatar: (imageData: string) => Promise<string | null>;
   logout: () => Promise<void>;
-  addWasteRecord: (data: { imageUrl: string; plasticType: string; bottleCount: number; binLocation?: string }) => Promise<WasteRecord>;
-  addGuestWasteRecord: (data: { imageUrl: string; detectedBottles: number; scanResult: string }) => Promise<LocalStorageLog>;
+  addWasteRecord: (data: {
+    imageUrl: string;
+    plasticType: string;
+    bottleCount: number;
+    binLocation?: string;
+    confidence?: number;
+    modelLabel?: string;
+    correlationId?: string;
+  }) => Promise<WasteRecord>;
+  addGuestWasteRecord: (data: {
+    imageUrl: string;
+    detectedBottles: number;
+    scanResult: string;
+    confidence?: number;
+    modelLabel?: string;
+    correlationId?: string;
+  }) => Promise<LocalStorageLog>;
+  logClassifyEvent: (data: {
+    correlationId: string;
+    modelLabel: string;
+    confidence: number;
+    accepted: boolean;
+    plasticType: string;
+  }) => Promise<void>;
   verifyWasteRecord: (recordId: string, status: 'อนุมัติแล้ว' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่', comment: string, adjustedPoints?: number) => Promise<void>;
   redeemReward: (rewardId: string) => Promise<{ success: boolean; message: string; redemption?: RedemptionSimulation }>;
   lookupRedeem: (code: string) => Promise<RedemptionSimulation>;
@@ -150,6 +172,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const data = await api<AppStatePayload>('/api/state');
       applyState(data);
+      // Stale cookie after JWT rotate / expired session: clear so login is usable.
+      if (!data.user) {
+        await api('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
+        clearGuestBrowse();
+      }
     } catch {
       // API offline — keep empty guest view
     } finally {
@@ -406,6 +433,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     plasticType: string;
     bottleCount: number;
     binLocation?: string;
+    confidence?: number;
+    modelLabel?: string;
+    correlationId?: string;
   }): Promise<WasteRecord> => {
     const res = await api<{ record: WasteRecord }>('/api/waste', {
       method: 'POST',
@@ -414,6 +444,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         plastic_type: data.plasticType,
         bottle_count: data.bottleCount,
         bin_location: data.binLocation,
+        confidence: data.confidence,
+        model_label: data.modelLabel,
+        correlation_id: data.correlationId,
       }),
     });
     await refreshState();
@@ -435,6 +468,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     imageUrl: string;
     detectedBottles: number;
     scanResult: string;
+    confidence?: number;
+    modelLabel?: string;
+    correlationId?: string;
   }): Promise<LocalStorageLog> => {
     const log = await api<LocalStorageLog>('/api/guest/scan', {
       method: 'POST',
@@ -442,12 +478,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         image_data: data.imageUrl,
         detected_bottles: data.detectedBottles,
         scan_result: data.scanResult,
+        confidence: data.confidence,
+        model_label: data.modelLabel,
+        correlation_id: data.correlationId,
       }),
     });
     const mapped = { ...log, temp_image_path: mediaUrl(log.temp_image_path) };
     setGuestLogs((prev) => [mapped, ...prev]);
     addToast('info', 'จำลองการตรวจสอบสำเร็จ (Guest)', `ตรวจพบขวดพลาสติก ${data.detectedBottles} ขวด (สมัครสมาชิกเพื่อสะสมแต้มจริง)`);
     return mapped;
+  };
+
+  const logClassifyEvent = async (data: {
+    correlationId: string;
+    modelLabel: string;
+    confidence: number;
+    accepted: boolean;
+    plasticType: string;
+  }) => {
+    try {
+      await api('/api/events/classify', {
+        method: 'POST',
+        body: JSON.stringify({
+          correlation_id: data.correlationId,
+          model_label: data.modelLabel,
+          confidence: data.confidence,
+          accepted: data.accepted,
+          plastic_type: data.plasticType,
+          source: 'frontend',
+        }),
+      });
+    } catch {
+      // non-blocking audit
+    }
   };
 
   const verifyWasteRecord = async (
@@ -624,6 +687,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         logout,
         addWasteRecord,
         addGuestWasteRecord,
+        logClassifyEvent,
         verifyWasteRecord,
         redeemReward,
         lookupRedeem,

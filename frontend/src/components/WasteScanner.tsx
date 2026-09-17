@@ -34,7 +34,7 @@ const CLASSIFY_CONFIDENCE = Number(process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_CON
 const CLASSIFY_CONFIDENCE_PCT = Math.round(CLASSIFY_CONFIDENCE * 1000) / 10;
 
 export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, openAuthModal }) => {
-  const { currentUser, language, addWasteRecord, addGuestWasteRecord, bins, settings, plasticTypes } = useApp();
+  const { currentUser, language, addWasteRecord, addGuestWasteRecord, logClassifyEvent, bins, settings, plasticTypes } = useApp();
 
   const liveBins = bins.filter((b) => b.status !== 'ปิดปรับปรุง');
 
@@ -48,6 +48,8 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
   const [bottleCount, setBottleCount] = useState<number>(3);
   const [isValidBottle, setIsValidBottle] = useState<boolean>(true);
   const [confidenceScore, setConfidenceScore] = useState<number>(98.5);
+  const [modelLabel, setModelLabel] = useState<string>('');
+  const [correlationId, setCorrelationId] = useState<string>('');
   const [detectionNotes, setDetectionNotes] = useState<string>('');
   const [showGuidePopup, setShowGuidePopup] = useState<boolean>(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -205,10 +207,23 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
         result.valid &&
         (result.plasticTypeEN === 'PLASTIC_BOTTLE' || result.plasticTypeEN === 'CAN') &&
         result.confidence > CLASSIFY_CONFIDENCE_PCT;
+      const corr =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `corr-${Date.now()}`;
+      setCorrelationId(corr);
+      setModelLabel(result.plasticTypeEN);
+      void logClassifyEvent({
+        correlationId: corr,
+        modelLabel: result.plasticTypeEN,
+        confidence: result.confidence,
+        accepted,
+        plasticType: result.plasticTypeTH,
+      });
       setDetectedPlasticType(
         accepted
           ? (language === 'th' ? result.plasticTypeTH : result.plasticTypeEN)
-          : (language === 'th' ? 'ไม่ผ่าน' : 'INVALID'),
+          : (language === 'th' ? 'ยังไม่ผ่าน' : 'Not accepted'),
       );
       setBottleCount(accepted ? result.bottleCount : 0);
       setIsValidBottle(accepted);
@@ -216,32 +231,32 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
       if (accepted) {
         setDetectionNotes(
           language === 'th'
-            ? `ผ่านเกณฑ์ SIT: ${result.className} (${result.confidence}% > ${CLASSIFY_CONFIDENCE_PCT}%) — พร้อมคำนวณคาร์บอนและให้แต้มหลังบันทึก`
-            : `SIT pass: ${result.className} (${result.confidence}% > ${CLASSIFY_CONFIDENCE_PCT}%) — carbon and points apply on submit`,
+            ? `ตรวจพบ${result.plasticTypeTH} ความแม่นยำ ${result.confidence}% (ต้องมากกว่า ${CLASSIFY_CONFIDENCE_PCT}%) — กดบันทึกเพื่อรับแต้ม`
+            : `Detected ${result.plasticTypeEN} at ${result.confidence}% (need above ${CLASSIFY_CONFIDENCE_PCT}%) — tap Save to earn points`,
         );
       } else if (!result.valid || (result.plasticTypeEN !== 'PLASTIC_BOTTLE' && result.plasticTypeEN !== 'CAN')) {
         setDetectionNotes(
           language === 'th'
-            ? `ไม่ผ่าน: ต้องเป็นขวดพลาสติกหรือกระป๋องเท่านั้น (ได้ ${result.className} ${result.confidence}%)`
-            : `Rejected: only plastic bottle or can accepted (got ${result.className} ${result.confidence}%)`,
+            ? `ระบบรับเฉพาะขวดพลาสติกหรือกระป๋องเท่านั้น ลองจัดเฟรมใหม่แล้วถ่ายอีกครั้ง`
+            : `Only plastic bottles or cans are accepted. Reframe and try again.`,
         );
       } else {
         setDetectionNotes(
           language === 'th'
-            ? `ไม่ผ่าน: ความมั่นใจ ${result.confidence}% ต้องมากกว่า ${CLASSIFY_CONFIDENCE_PCT}% จึงจะคำนวณและให้แต้ม`
-            : `Rejected: confidence ${result.confidence}% must be above ${CLASSIFY_CONFIDENCE_PCT}% to score`,
+            ? `ความแม่นยำ ${result.confidence}% ยังต่ำเกินไป (ต้องมากกว่า ${CLASSIFY_CONFIDENCE_PCT}%) ลองถ่ายใกล้ขึ้น แสงสว่างขึ้น`
+            : `Accuracy ${result.confidence}% is too low (need above ${CLASSIFY_CONFIDENCE_PCT}%). Move closer and use better light.`,
         );
       }
       setScanCompleted(true);
     } catch (error) {
-      setDetectedPlasticType(language === 'th' ? 'ไม่สามารถจำแนกประเภทได้' : 'Unable to classify');
+      setDetectedPlasticType(language === 'th' ? 'ตรวจไม่สำเร็จ' : 'Could not classify');
       setBottleCount(0);
       setIsValidBottle(false);
       setConfidenceScore(0);
       setDetectionNotes(
         language === 'th'
-          ? `Teachable Machine ไม่พร้อม: ${error instanceof Error ? error.message : 'unknown error'}`
-          : `Teachable Machine unavailable: ${error instanceof Error ? error.message : 'unknown error'}`,
+          ? `ตรวจรูปไม่สำเร็จ: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาด'} — ลองใหม่หรืออัปโหลดรูปอื่น`
+          : `Could not classify: ${error instanceof Error ? error.message : 'unknown error'} — try again`,
       );
       setScanCompleted(true);
     } finally {
@@ -276,8 +291,8 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
     if (!isValidBottle) {
       alert(
         language === 'th'
-          ? `ส่งข้อมูลไม่ได้ ต้องเป็นขวดพลาสติกหรือกระป๋อง และความมั่นใจมากกว่า ${CLASSIFY_CONFIDENCE_PCT}%`
-          : `Only plastic bottles or cans with confidence above ${CLASSIFY_CONFIDENCE_PCT}% can be submitted.`,
+          ? `ยังบันทึกไม่ได้ — ต้องเป็นขวดพลาสติกหรือกระป๋อง และความแม่นยำมากกว่า ${CLASSIFY_CONFIDENCE_PCT}%`
+          : `Cannot save yet — need a plastic bottle or can with accuracy above ${CLASSIFY_CONFIDENCE_PCT}%.`,
       );
       return;
     }
@@ -287,13 +302,19 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
         imageUrl: selectedImage,
         plasticType: detectedPlasticType,
         bottleCount: bottleCount,
-        binLocation: selectedBin
+        binLocation: selectedBin,
+        confidence: confidenceScore,
+        modelLabel: modelLabel || undefined,
+        correlationId: correlationId || undefined,
       });
     } else {
       await addGuestWasteRecord({
         imageUrl: selectedImage,
         detectedBottles: bottleCount,
-        scanResult: detectionNotes
+        scanResult: detectionNotes,
+        confidence: confidenceScore,
+        modelLabel: modelLabel || undefined,
+        correlationId: correlationId || undefined,
       });
     }
 
@@ -322,14 +343,30 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       
-      {/* Header Bar */}
-      <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-white shadow-sm">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-md p-5 rounded-2xl border border-white shadow-sm space-y-2">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
             <Camera className="w-4 h-4" />
           </span>
-          {language === 'th' ? 'Beta SIT: ขวดพลาสติกและกระป๋อง (รับเมื่อความมั่นใจ > ' + CLASSIFY_CONFIDENCE_PCT + '%)' : `Beta SIT: Plastic bottles & cans (accept when confidence > ${CLASSIFY_CONFIDENCE_PCT}%)`}
+          {language === 'th' ? 'สแกนขวดพลาสติกและกระป๋อง' : 'Scan plastic bottles and cans'}
         </h2>
+        <ol className="text-[11px] text-slate-600 grid grid-cols-1 sm:grid-cols-3 gap-1.5 sm:gap-2 list-none">
+          <li className="rounded-lg bg-slate-50 px-2.5 py-1.5 border border-slate-100">
+            <span className="font-bold text-emerald-700">1.</span>{' '}
+            {language === 'th' ? 'ถ่ายหรืออัปโหลดรูป' : 'Take or upload a photo'}
+          </li>
+          <li className="rounded-lg bg-slate-50 px-2.5 py-1.5 border border-slate-100">
+            <span className="font-bold text-emerald-700">2.</span>{' '}
+            {language === 'th'
+              ? `รอผลตรวจ (ผ่านเมื่อแม่นยำ > ${CLASSIFY_CONFIDENCE_PCT}%)`
+              : `Wait for result (pass when accuracy > ${CLASSIFY_CONFIDENCE_PCT}%)`}
+          </li>
+          <li className="rounded-lg bg-slate-50 px-2.5 py-1.5 border border-slate-100">
+            <span className="font-bold text-emerald-700">3.</span>{' '}
+            {language === 'th' ? 'กดบันทึกเพื่อรับแต้มทันที' : 'Save to earn points right away'}
+          </li>
+        </ol>
       </div>
 
       {/* Guest Mode Notice */}
@@ -337,14 +374,18 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
         <div className="bg-amber-50/80 border border-amber-200/70 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-amber-950 text-xs">
           <div className="flex items-center gap-2.5">
             <Info className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>{language === 'th' ? 'โหมดผู้เยี่ยมชม: ผลการทดสอบจะบันทึกลงเครื่อง (Local Storage)' : 'Guest Mode: Results are saved to your local storage.'}</span>
+            <span>
+              {language === 'th'
+                ? 'คุณยังไม่ได้เข้าสู่ระบบ — ลองสแกนได้ แต่จะยังไม่ได้รับแต้มจริง'
+                : 'You are not signed in — you can try scanning, but you will not earn real points yet.'}
+            </span>
           </div>
           <button
             id="scanner-login-prompt-btn"
             onClick={openAuthModal}
             className="shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold transition-colors"
           >
-            {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
+            {language === 'th' ? 'เข้าสู่ระบบเพื่อรับแต้ม' : 'Sign in to earn points'}
           </button>
         </div>
       )}
@@ -375,7 +416,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                     className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-xs font-bold flex items-center justify-center gap-2"
                   >
                     <Camera className="w-4 h-4" />
-                    {language === 'th' ? 'ถ่ายรูปแล้วส่งประมวลผล' : 'Capture & process'}
+                    {language === 'th' ? 'ถ่ายรูป' : 'Take photo'}
                   </button>
                   <button
                     onClick={stopCamera}
@@ -390,7 +431,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
               <div className="relative w-full h-[340px] bg-black">
                 <img 
                   src={selectedImage} 
-                  alt="Uploaded waste" 
+                  alt={language === 'th' ? 'รูปขยะที่ถ่าย' : 'Captured waste photo'} 
                   className="w-full h-full object-contain"
                 />
 
@@ -403,7 +444,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                     </div>
                     <p className="mt-3 text-xs font-semibold text-emerald-200 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                      {language === 'th' ? 'กำลังประมวลผลภาพถ่าย...' : 'Processing image...'}
+                      {language === 'th' ? 'กำลังตรวจว่าเป็นขวดหรือกระป๋อง...' : 'Checking if it is a bottle or can...'}
                     </p>
                   </div>
                 )}
@@ -420,12 +461,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                         {isValidBottle ? (
                           <span className="text-emerald-400 flex items-center gap-1">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            {detectedPlasticType} ({confidenceScore}%)
+                            {language === 'th' ? 'ผ่าน' : 'Passed'}: {detectedPlasticType} ({confidenceScore}%)
                           </span>
                         ) : (
                           <span className="text-rose-400 flex items-center gap-1">
                             <AlertCircle className="w-3.5 h-3.5" />
-                            {language === 'th' ? 'ไม่ตรงเกณฑ์' : 'Does not match criteria'} ({confidenceScore}%)
+                            {language === 'th' ? 'ยังไม่ผ่าน' : 'Not passed'} ({confidenceScore}%)
                           </span>
                         )}
                       </div>
@@ -438,7 +479,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   id="scanner-reset-btn"
                   onClick={handleReset}
                   className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black/80 text-white rounded-xl backdrop-blur-md transition-colors cursor-pointer"
-                  title={language === 'th' ? 'เปลี่ยนรูปภาพ' : 'Change Image'}
+                  title={language === 'th' ? 'ถ่ายใหม่' : 'Retake'}
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
@@ -450,12 +491,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   <Camera className="w-7 h-7" />
                 </div>
                 <h3 className="text-sm font-semibold text-white mb-1">
-                  {language === 'th' ? 'ถ่ายรูปขวดพลาสติกหรือกระป๋อง' : 'Capture a plastic bottle or can'}
+                  {language === 'th' ? 'เริ่มด้วยการถ่ายรูป' : 'Start with a photo'}
                 </h3>
                 <p className="text-[11px] text-slate-400 mb-5">
                   {language === 'th'
-                    ? `เปิดกล้องถ่ายรูปขวดพลาสติกหรือกระป๋อง แล้วส่งจำแนก (รับเมื่อความมั่นใจ > ${CLASSIFY_CONFIDENCE_PCT}%)`
-                    : `Photograph a plastic bottle or can (accept when confidence > ${CLASSIFY_CONFIDENCE_PCT}%)`}
+                    ? 'วางขวดหรือกระป๋องให้อยู่กลางภาพ แสงพอ และพื้นหลังไม่รก'
+                    : 'Place the bottle or can in the center, with good light and a clear background'}
                 </p>
 
                 <input 
@@ -476,7 +517,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   <span>
                     {isOpeningCamera
                       ? (language === 'th' ? 'กำลังเปิดกล้อง...' : 'Opening camera...')
-                      : (language === 'th' ? 'เปิดกล้องถ่ายรูป' : 'Open camera')}
+                      : (language === 'th' ? 'เปิดกล้อง' : 'Open camera')}
                   </span>
                 </button>
                 <button
@@ -484,7 +525,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   className="w-full mt-2 flex items-center justify-center gap-2 py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-xl"
                 >
                   <ImageIcon className="w-4 h-4" />
-                  <span>{language === 'th' ? 'อัปโหลดรูปแทน' : 'Upload an image instead'}</span>
+                  <span>{language === 'th' ? 'เลือกจากคลังรูป' : 'Choose from gallery'}</span>
                 </button>
               </div>
             )}
@@ -507,12 +548,14 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
           {/* Analysis & Points Card */}
           <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white shadow-sm space-y-3.5">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-900">{language === 'th' ? 'ผลการวิเคราะห์' : 'Analysis Results'}</span>
+              <span className="text-xs font-bold text-slate-900">{language === 'th' ? 'ผลตรวจ' : 'Result'}</span>
               {scanCompleted && (
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                   isValidBottle ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
                 }`}>
-                  {isValidBottle ? (language === 'th' ? 'ผ่านการตรวจสอบ' : 'Passed') : (language === 'th' ? 'ไม่ผ่านเกณฑ์' : 'Failed')}
+                  {isValidBottle
+                    ? (language === 'th' ? 'พร้อมรับแต้ม' : 'Ready for points')
+                    : (language === 'th' ? 'ยังรับแต้มไม่ได้' : 'No points yet')}
                 </span>
               )}
             </div>
@@ -520,10 +563,11 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
             {scanCompleted ? (
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-400 text-[11px] block">{language === 'th' ? 'ประเภทวัสดุ:' : 'Material Type:'}</span>
+                  <span className="text-slate-400 text-[11px] block">{language === 'th' ? 'ตรวจพบ:' : 'Detected:'}</span>
                   <p className="text-slate-900 font-bold text-xs flex items-center gap-1 mt-0.5">
                     <Leaf className="w-3.5 h-3.5 text-emerald-600" />
                     {detectedPlasticType}
+                    <span className="font-normal text-slate-500">· {confidenceScore}%</span>
                   </p>
                   {detectionNotes && (
                     <p className={`mt-1.5 text-[10px] leading-relaxed ${isValidBottle ? 'text-emerald-700' : 'text-rose-700'}`}>
@@ -534,7 +578,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <span className="text-slate-400 text-[10px] block mb-1">{language === 'th' ? 'จำนวนชิ้น:' : 'Item Count:'}</span>
+                    <span className="text-slate-400 text-[10px] block mb-1">{language === 'th' ? 'จำนวนชิ้น' : 'Quantity'}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setBottleCount(Math.max(1, bottleCount - 1))}
@@ -555,38 +599,34 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   </div>
 
                   <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-100">
-                    <span className="text-emerald-800 text-[10px] block mb-1">{language === 'th' ? 'แต้มโดยประมาณ:' : 'Estimated points:'}</span>
+                    <span className="text-emerald-800 text-[10px] block mb-1">{language === 'th' ? 'แต้มที่จะได้' : 'Points to earn'}</span>
                     <div className="flex items-baseline gap-1 text-emerald-900 font-bold">
                       <Coins className="w-3.5 h-3.5 text-amber-500 fill-amber-400 inline" />
                       <span className="text-base">+{isValidBottle ? estimatedPoints : 0}</span>
-                      <span className="text-[10px] font-normal">{language === 'th' ? 'ทันทีหลังบันทึก' : 'on submit'}</span>
+                      <span className="text-[10px] font-normal">{language === 'th' ? 'หลังกดบันทึก' : 'after save'}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-teal-50/70 p-2.5 rounded-xl border border-teal-100 text-teal-900 text-xs font-medium space-y-1.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="flex items-center gap-1.5">
                       <Leaf className="w-3.5 h-3.5 text-teal-600" />
-                      {language === 'th' ? 'เครดิต Net Zero โดยประมาณ:' : 'Estimated Net Zero credit:'}
+                      {language === 'th' ? 'คาร์บอนที่ลดได้โดยประมาณ' : 'Estimated carbon reduced'}
                     </span>
-                    <span className="font-bold">{isValidBottle ? estimatedNetZeroCredit.toFixed(4) : '0.0000'} kgCO₂e</span>
+                    <span className="font-bold whitespace-nowrap">{isValidBottle ? estimatedNetZeroCredit.toFixed(3) : '0.000'} kgCO₂e</span>
                   </div>
-                  <div className="flex items-center justify-between text-[10px] text-teal-700">
-                    <span>{language === 'th' ? `น้ำหนักประมาณ ${estimatedWeight.toFixed(4)} kg` : `Estimated weight ${estimatedWeight.toFixed(4)} kg`}</span>
-                    <span>{virginFactor > 0 ? `TGO EF ${virginFactor}` : ''}</span>
-                  </div>
-                  <p className="border-t border-teal-100 pt-1.5 text-[10px] text-teal-800">
+                  <p className="text-[10px] text-teal-800 leading-relaxed">
                     {language === 'th'
-                      ? 'ตามหลัก Net Zero ของ TGO: คัดแยกเพื่อรีไซเคิล = ลดภาระปล่อยเทียบการผลิตวัสดุใหม่'
-                      : 'Per TGO Net Zero: recycling diversion offsets virgin-material emissions'}
+                      ? `น้ำหนักประมาณ ${estimatedWeight.toFixed(3)} กก. · คำนวณจากการคัดแยกเพื่อรีไซเคิล`
+                      : `About ${estimatedWeight.toFixed(3)} kg · based on recycling diversion`}
                   </p>
                 </div>
 
                 <label className="block">
                   <span className="text-slate-400 text-[11px] flex items-center gap-1 mb-1">
                     <MapPin className="w-3 h-3" />
-                    {language === 'th' ? 'จุดทิ้ง (จากแผงแอดมิน)' : 'Drop-off point'}
+                    {language === 'th' ? 'จุดทิ้งขยะ' : 'Drop-off location'}
                   </span>
                   <select
                     value={selectedBin}
@@ -615,15 +655,24 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   <Check className="w-4 h-4" />
                   <span>
                     {currentUser 
-                      ? (language === 'th' ? `บันทึกและรับ +${estimatedPoints} แต้มทันที` : `Save and earn +${estimatedPoints} pts now`)
-                      : (language === 'th' ? 'บันทึกผล (โหมด Guest)' : 'Save (Guest Mode)')}
+                      ? (language === 'th' ? `บันทึกและรับ +${estimatedPoints} แต้ม` : `Save and earn +${estimatedPoints} pts`)
+                      : (language === 'th' ? 'บันทึกการทดลอง (ยังไม่ได้รับแต้ม)' : 'Save trial (no points yet)')}
                   </span>
                 </button>
+                {!isValidBottle && (
+                  <button
+                    type="button"
+                    onClick={handleReset}
+                    className="w-full py-2 text-[11px] font-semibold text-emerald-700 hover:text-emerald-800"
+                  >
+                    {language === 'th' ? 'ถ่ายใหม่' : 'Retake photo'}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="py-6 text-center text-slate-400 text-xs space-y-1.5">
                 <ScanLine className="w-6 h-6 mx-auto text-slate-300" />
-                <p>{language === 'th' ? 'เปิดกล้องถ่ายรูป หรืออัปโหลดภาพเพื่อเริ่มวิเคราะห์' : 'Open the camera or upload an image to analyze'}</p>
+                <p>{language === 'th' ? 'ยังไม่มีผลตรวจ — เปิดกล้องหรือเลือกจากคลังรูป' : 'No result yet — open the camera or pick a photo'}</p>
               </div>
             )}
           </div>
@@ -641,7 +690,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 <div className="flex items-center gap-2 text-amber-600">
                   <Sparkles className="w-5 h-5" />
                   <h3 className="text-base font-bold text-slate-900">
-                    {language === 'th' ? 'เกณฑ์การคัดแยกก่อนหย่อนถัง' : 'Sorting Criteria'}
+                    {language === 'th' ? 'ก่อนถ่ายรูป เตรียมขวด/กระป๋อง' : 'Before you take a photo'}
                   </h3>
                 </div>
                 <button 
@@ -659,11 +708,11 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-700 font-bold shadow-sm shrink-0">2</div>
-                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'แยกฝาขวด หลอด และสิ่งปนเปื้อน' : 'Remove caps, straws, and contaminants'}</span>
+                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'แยกฝา หลอด และสิ่งปนเปื้อน' : 'Remove caps, straws, and contaminants'}</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
                   <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-amber-700 font-bold shadow-sm shrink-0">3</div>
-                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'บีบขวดหรือกระป๋องให้แบน' : 'Flatten the bottle or can'}</span>
+                  <span className="text-sm font-medium text-slate-700">{language === 'th' ? 'บีบให้แบน แล้ววางกลางภาพถ่าย' : 'Flatten it, then center it in the photo'}</span>
                 </div>
               </div>
 
@@ -671,7 +720,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 onClick={proceedToCamera}
                 className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-xs transition-colors mt-2 cursor-pointer"
               >
-                {language === 'th' ? 'เข้าใจแล้ว เริ่มถ่ายภาพ' : 'Got it, start scanning'}
+                {language === 'th' ? 'พร้อมแล้ว เปิดกล้อง' : 'Ready — open camera'}
               </button>
             </div>
           </div>

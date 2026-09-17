@@ -1,6 +1,7 @@
 # Deploy EcoBin Go API to Cloud Run + Cloud SQL
 $ErrorActionPreference = 'Continue'
-Set-Location $PSScriptRoot
+$RepoRoot = Split-Path $PSScriptRoot -Parent
+Set-Location $RepoRoot
 
 function Find-GCloud {
   $candidates = @(
@@ -67,7 +68,7 @@ if (-not $project) {
 }
 & $gcloud config set project $project
 
-$envFile = Join-Path $PSScriptRoot 'backend\backend.env'
+$envFile = Join-Path $RepoRoot 'backend\backend.env'
 $cfg = Read-DotEnv $envFile
 
 Write-Host "Project: $project"
@@ -95,11 +96,12 @@ if (-not $mysqlPass -and $dsn -match '^[^:]+:([^@]+)@') {
 }
 
 $jwt = [string]$cfg['JWT_SECRET']
-if (-not $jwt -or $jwt -eq 'ecobin-dev-secret-change-me') {
+if (-not $jwt) {
   $bytes = New-Object byte[] 32
   [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
   $jwt = [Convert]::ToBase64String($bytes)
 }
+# Keep JWT stable across deploys (rotating it logs everyone out / can stick the login page).
 
 $yamlPath = Join-Path $env:TEMP 'ecobin-cloudrun-env.yaml'
 $vars = [ordered]@{
@@ -127,7 +129,7 @@ $yaml = foreach ($k in $vars.Keys) {
 Set-Content -Path $yamlPath -Value ($yaml -join "`n") -Encoding utf8
 
 Write-Host '[deploy Cloud Run]'
-Push-Location (Join-Path $PSScriptRoot 'backend')
+Push-Location (Join-Path $RepoRoot 'backend')
 try {
   & $gcloud run deploy $service `
     --source . `

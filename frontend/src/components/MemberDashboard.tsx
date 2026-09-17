@@ -98,7 +98,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
       icon: <Trash2 className="w-5 h-5 text-emerald-600" />,
     },
     carbon: {
-      title: language === 'th' ? 'ที่มาของ Carbon footprint' : 'Where the carbon footprint comes from',
+      title: language === 'th' ? 'ที่มาของคาร์บอนที่ลดได้' : 'Where carbon reduction comes from',
       icon: <Leaf className="w-5 h-5 text-teal-600" />,
     },
     trees: {
@@ -153,7 +153,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 text-emerald-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
             >
               <Camera className="w-4 h-4" />
-              <span>{language === 'th' ? 'สแกนขวด' : 'Scan Bottle'}</span>
+              <span>{language === 'th' ? 'สแกนขยะ' : 'Scan waste'}</span>
             </button>
 
             <button
@@ -232,7 +232,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
           className="text-left bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-white shadow-sm hover:shadow-[0_8px_30px_rgb(20,184,166,0.12)] hover:-translate-y-0.5 hover:border-teal-100 transition-all duration-300 cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-400">{language === 'th' ? 'Carbon footprint' : 'Carbon footprint'}</span>
+            <span className="text-xs font-semibold text-slate-400">{language === 'th' ? 'คาร์บอนที่ลดได้' : 'Carbon reduced'}</span>
             <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
               <Leaf className="w-4 h-4" />
             </div>
@@ -325,7 +325,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
               <strong className="text-slate-800 text-sm">{weekBottles}</strong>
             </div>
             <div className="p-2 bg-slate-50/70 rounded-xl">
-              <span className="text-slate-400 block text-[10px]">{language === 'th' ? 'Carbon footprint' : 'Carbon footprint'}</span>
+              <span className="text-slate-400 block text-[10px]">{language === 'th' ? 'คาร์บอนที่ลดได้' : 'Carbon reduced'}</span>
               <strong className="text-emerald-700 text-sm">{weekCarbon.toFixed(2)} kg</strong>
             </div>
             <div className="p-2 bg-slate-50/70 rounded-xl">
@@ -397,7 +397,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                             <span className={`font-bold ${record.verification_status === 'อนุมัติแล้ว' ? 'text-emerald-600' : 'text-slate-400'}`}>
                               {record.verification_status === 'อนุมัติแล้ว'
                                 ? `+${record.points_awarded} ${language === 'th' ? 'แต้ม' : 'pts'}`
-                                : (language === 'th' ? 'รออนุมัติ' : 'Pending')}
+                                : (language === 'th' ? 'ยังไม่มีแต้ม' : 'No points')}
                             </span>
                           </div>
                         </div>
@@ -450,8 +450,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                 <div className="space-y-2">
                   <p className="text-[11px] text-slate-500">
                     {language === 'th'
-                      ? `คงเหลือ ${totalPoints} แต้ม · ได้แต้มเมื่อแอดมินอนุมัติภาพเท่านั้น`
-                      : `Balance ${totalPoints} pts · awarded only after admin approval`}
+                      ? `คงเหลือ ${totalPoints} แต้ม · ได้แต้มทันทีหลังบันทึกการสแกนที่ผ่าน`
+                      : `Balance ${totalPoints} pts · awarded immediately after a successful scan`}
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
                     {transactions.length === 0 ? (
@@ -512,8 +512,8 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                 <div className="space-y-2">
                   <p className="text-[11px] text-slate-500">
                     {language === 'th'
-                      ? `รวม ${totalCarbon.toFixed(4)} kgCO₂e · สูตร = น้ำหนัก × Emission Factor ของ TGO`
-                      : `Total ${totalCarbon.toFixed(4)} kgCO₂e · weight × TGO emission factor`}
+                      ? `รวม ${totalCarbon.toFixed(4)} kgCO₂e · คำนวณจากน้ำหนัก × ค่าการปล่อยมาตรฐาน`
+                      : `Total ${totalCarbon.toFixed(4)} kgCO₂e · weight × standard emission factor`}
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
                     {approvedRecords.length === 0 ? (

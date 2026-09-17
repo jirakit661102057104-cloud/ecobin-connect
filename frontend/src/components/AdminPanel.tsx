@@ -6,6 +6,7 @@ import { Reward, WasteRecord, User, SmartBin, PlasticType } from '../types';
 import { api } from '../lib/api';
 import { matchBottleScore } from '../lib/bottleScore';
 import { persistAdminTab, restoreAdminTab } from '../lib/navState';
+import { AdminActivityLog } from './AdminActivityLog';
 import { 
   ShieldCheck, 
   CheckCircle2, 
@@ -22,7 +23,8 @@ import {
   Search,
   MapPin,
   SlidersHorizontal,
-  RefreshCw
+  RefreshCw,
+  Activity
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -64,7 +66,7 @@ export const AdminPanel: React.FC = () => {
     addToast,
   } = useApp();
 
-  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'verify' | 'users' | 'rewards' | 'redemptions' | 'bins' | 'rules' | 'relations'>('overview');
+  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'verify' | 'users' | 'rewards' | 'redemptions' | 'bins' | 'rules' | 'relations' | 'activity'>('overview');
   const [adminTabReady, setAdminTabReady] = useState(false);
   const [userQuery, setUserQuery] = useState('');
   const [verifyStatusFilter, setVerifyStatusFilter] = useState<'ทั้งหมด' | 'รอการตรวจสอบ' | 'อนุมัติแล้ว' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('รอการตรวจสอบ');
@@ -393,6 +395,7 @@ export const AdminPanel: React.FC = () => {
           { id: 'redemptions' as const, label: `คิวรับของ (${pendingPickups.length})`, icon: Ticket },
           { id: 'bins' as const, label: `จุดทิ้ง (${bins.length})`, icon: MapPin },
           { id: 'rules' as const, label: 'กฎระบบ', icon: SlidersHorizontal },
+          { id: 'activity' as const, label: 'Activity Log', icon: Activity },
           { id: 'relations' as const, label: 'ประวัติผู้ใช้', icon: GitBranch },
         ]).map((tab) => (
           <button
@@ -416,7 +419,7 @@ export const AdminPanel: React.FC = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { label: 'รอตรวจรูป', value: pendingRecords.length, hint: 'ต้องอนุมัติก่อนให้แต้ม' },
+              { label: 'รอตรวจรูป', value: pendingRecords.length, hint: 'รายการค้างจากระบบเก่า' },
               { label: 'สมาชิก', value: memberCount, hint: 'บัญชี role Member' },
               { label: 'ขวดที่อนุมัติแล้ว', value: `${totalCampusBottles}`, hint: 'ทั้งวิทยาเขต' },
               { label: 'รอรับของรางวัล', value: pendingPickups.length, hint: 'มีรหัสรับของแล้ว' },
@@ -444,6 +447,10 @@ export const AdminPanel: React.FC = () => {
             <button type="button" onClick={() => setActiveAdminTab('bins')} className="text-left bg-teal-50 border border-teal-100 rounded-2xl p-4 hover:bg-teal-100/70">
               <p className="text-xs font-bold text-teal-900">จุดทิ้งขยะ</p>
               <p className="text-[11px] text-teal-800/80 mt-1">เพิ่ม/ปิดจุดที่สมาชิกเลือกตอนสแกน</p>
+            </button>
+            <button type="button" onClick={() => setActiveAdminTab('activity')} className="text-left bg-indigo-50 border border-indigo-100 rounded-2xl p-4 hover:bg-indigo-100/70">
+              <p className="text-xs font-bold text-indigo-900">Activity Log</p>
+              <p className="text-[11px] text-indigo-800/80 mt-1">ตามรอยสแกน ให้แต้ม และตัวอย่างเทรนโมเดล</p>
             </button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -927,6 +934,8 @@ export const AdminPanel: React.FC = () => {
         </div>
         </div>
       )}
+
+      {activeAdminTab === 'activity' && <AdminActivityLog />}
 
       {activeAdminTab === 'relations' && (
         <div className="space-y-4">

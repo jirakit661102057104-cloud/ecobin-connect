@@ -79,7 +79,7 @@ export const HistoryView: React.FC = () => {
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            {language === 'th' ? `การทิ้ง (${userWasteRecords.length})` : `Waste (${userWasteRecords.length})`}
+            {language === 'th' ? `รายการสแกน (${userWasteRecords.length})` : `Scans (${userWasteRecords.length})`}
           </button>
           <button
             id="hist-tab-points"
@@ -112,7 +112,7 @@ export const HistoryView: React.FC = () => {
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            Guest Logs ({guestLogs.length})
+            {language === 'th' ? `ทดลองสแกน (${guestLogs.length})` : `Trial scans (${guestLogs.length})`}
           </button>
         </div>
       </div>
@@ -124,7 +124,7 @@ export const HistoryView: React.FC = () => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={language === 'th' ? 'ค้นหาตามรหัสรายการ, ประเภทพลาสติก...' : 'Search by ID, plastic type...'}
+          placeholder={language === 'th' ? 'ค้นหารหัสรายการหรือประเภท...' : 'Search by ID or type...'}
           className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none shadow-2xs"
         />
       </div>
@@ -204,7 +204,7 @@ export const HistoryView: React.FC = () => {
                         {record.verification_status === 'อนุมัติแล้ว'
                           ? `+${record.points_awarded} แต้ม`
                           : record.verification_status === 'รอการตรวจสอบ'
-                            ? 'รออนุมัติ'
+                            ? 'ยังไม่มีแต้ม'
                             : '0 แต้ม'}
                       </span>
                     </div>
@@ -329,17 +329,14 @@ export const HistoryView: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 4: Guest Local Storage Logs */}
+      {/* Tab 4: Guest trial scans */}
       {activeTab === 'guest' && (
         <div className="space-y-3">
           <div className="bg-blue-50/70 border border-blue-200/60 rounded-2xl p-3 text-xs text-blue-900 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Smartphone className="w-4 h-4 text-blue-600 shrink-0" />
-              <span>บันทึกการจำลองตรวจสอบบนอุปกรณ์ (Local Storage)</span>
+              <span>{language === 'th' ? 'บันทึกการทดลองสแกนของผู้ที่ยังไม่เข้าสู่ระบบ (ยังไม่ได้รับแต้มจริง)' : 'Trial scans from unsigned-in users (no real points)'}</span>
             </div>
-            <span className="font-mono text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">
-              POCO X6 PRO
-            </span>
           </div>
 
           <div className="space-y-2">
@@ -356,8 +353,8 @@ export const HistoryView: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-bold text-emerald-700 block">+{log.estimated_points} แต้ม</span>
-                  <span className="text-[10px] text-slate-400">{log.detected_bottles} ขวด</span>
+                  <span className="text-xs font-bold text-emerald-700 block">+{log.estimated_points} {language === 'th' ? 'แต้ม (ทดลอง)' : 'pts (trial)'}</span>
+                  <span className="text-[10px] text-slate-400">{log.detected_bottles} {language === 'th' ? 'ชิ้น' : 'items'}</span>
                 </div>
               </div>
             ))}
@@ -365,7 +362,7 @@ export const HistoryView: React.FC = () => {
             {guestLogs.length === 0 && (
               <div className="bg-white rounded-2xl p-8 text-center text-slate-400 text-xs border border-slate-100">
                 <Smartphone className="w-6 h-6 mx-auto mb-1.5 text-slate-300" />
-                <p>ยังไม่มีบันทึกใน Local Storage</p>
+                <p>{language === 'th' ? 'ยังไม่มีบันทึกการทดลองสแกน' : 'No trial scans yet'}</p>
               </div>
             )}
           </div>

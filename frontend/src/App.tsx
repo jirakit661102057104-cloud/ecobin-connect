@@ -50,11 +50,22 @@ function MainAppContent() {
 
   if (!authReady || (!currentUser && !isGuestBrowse())) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-slate-500">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-sm text-slate-500">
         <div className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 px-5 py-3 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           กำลังไปหน้าเข้าสู่ระบบ...
         </div>
+        <button
+          type="button"
+          className="text-xs font-semibold text-emerald-700 hover:underline"
+          onClick={() => {
+            document.cookie = 'ecobin_token=; Max-Age=0; path=/';
+            document.cookie = 'ecobin_guest=; Max-Age=0; path=/';
+            window.location.href = '/login';
+          }}
+        >
+          ถ้าค้างนาน กดที่นี่เพื่อเข้าสู่ระบบใหม่
+        </button>
       </div>
     );
   }

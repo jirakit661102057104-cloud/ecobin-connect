@@ -6,6 +6,7 @@
     "dev": "next dev --port 3000",
     "train:model": "node scripts/train-bottle-can-model.mjs",
     "test:model": "node scripts/tm-accuracy-test.mjs",
+    "test:model:eval": "node scripts/evaluate-ecobin-model.mjs",
     "build": "next build",
     "start": "next start --port 3000"
   },

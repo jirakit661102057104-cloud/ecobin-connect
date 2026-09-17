@@ -1,14 +1,31 @@
 # เอกสาร EcoBin Connect
 
-โฟลเดอร์นี้สรุปงานที่ปรับระบบให้ขึ้นเว็บจริง ล็อกอิน Google ได้ และ API ทำงานตลอดเวลาโดยไม่ต้องเปิดโน้ตบุ๊ก
+## คู่มือ (`guides/`)
 
 | ไฟล์ | เนื้อหา |
 |---|---|
-| [01-สรุปงานที่ทำ.md](./01-สรุปงานที่ทำ.md) | สิ่งที่แก้ในรอบนี้ ทีละเรื่อง |
-| [02-สถาปัตยกรรม.md](./02-สถาปัตยกรรม.md) | เว็บ / API / ฐานข้อมูล อยู่ที่ไหน |
-| [03-deploy.md](./03-deploy.md) | GitHub, Vercel, Cloud Run, โดเมน |
-| [04-google-login.md](./04-google-login.md) | ตั้งค่า Google OAuth และ error ที่เจอ |
-| [05-พัฒนาบนเครื่อง.md](./05-พัฒนาบนเครื่อง.md) | รัน local ด้วย `run.bat` |
+| [01-สรุปงานที่ทำ.md](./guides/01-สรุปงานที่ทำ.md) | สิ่งที่แก้ในรอบนี้ ทีละเรื่อง |
+| [02-สถาปัตยกรรม.md](./guides/02-สถาปัตยกรรม.md) | เว็บ / API / ฐานข้อมูล อยู่ที่ไหน |
+| [03-deploy.md](./guides/03-deploy.md) | GitHub, Vercel, Cloud Run, โดเมน |
+| [04-google-login.md](./guides/04-google-login.md) | ตั้งค่า Google OAuth และ error ที่เจอ |
+| [05-พัฒนาบนเครื่อง.md](./guides/05-พัฒนาบนเครื่อง.md) | รัน local ด้วย `run.bat` |
+| [06-uml-architecture.md](./guides/06-uml-architecture.md) | Architecture + UML |
+| [07-event-log-model-recovery.md](./guides/07-event-log-model-recovery.md) | Event log + กู้โมเดล Teachable |
+
+## ไดอะแกรม (`diagrams/`)
+
+| โฟลเดอร์ | เนื้อหา |
+|---|---|
+| [uml/](./diagrams/uml/) | Architecture, Use Case, Sequence, Activity, Class (draw.io) |
+| [dfd/](./diagrams/dfd/) | Data Flow Diagram Level 0–1 |
+| [er/](./diagrams/er/) | ER / schema |
+| [context/](./diagrams/context/) | Context diagram |
+
+เปิด UML หลัก: [`diagrams/uml/ecobin-uml-architecture.drawio`](./diagrams/uml/ecobin-uml-architecture.drawio)
+
+## งานวิจัย (`research/`)
+
+เล่ม Word, พจนานุกรมข้อมูล Excel และไฟล์ประกอบอยู่ที่นี่
 
 ## ที่อยู่ระบบตอนนี้
 
@@ -17,11 +34,3 @@
 - API (Cloud Run): https://ecobin-api-568301593385.asia-southeast1.run.app
 - ตรวจ API: https://ecobin-api-568301593385.asia-southeast1.run.app/health ต้องได้ `{"status":"ok"}`
 - โค้ด: https://github.com/jirakit661102057104-cloud/ecobin-connect
-- โดเมนที่ซื้อไว้: `jirakit.site` (ผูก DNS กับ Vercel แล้วค่อยใช้เป็นชื่อหลัก)
-
-## เล่มวิจัย Word
-
-- `docs/วิจัยแอปพลิเคชั่น เล่ม.docx` — ปรับเนื้อหาให้สอดคล้องกับเว็บแอป EcoBin Connect แล้ว
-- `docs/วิจัยแอปพลิเคชั่น เล่ม-ต้นฉบับก่อนปรับ.docx` — สำเนาเดิมก่อนแก้ (ออกแบบเป็นแอปมือถือ)
-
-ปิดเครื่องได้ เว็บกับ API ยังทำงาน เพราะไม่ได้รันจากเทอร์มินัลบนโน้ตบุ๊กแล้ว

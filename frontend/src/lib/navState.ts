@@ -5,7 +5,7 @@ const HISTORY_TAB_KEY = 'ecobin_history_tab';
 const MEMBER_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
 const ADMIN_TABS = ['admin', 'scan', 'settings', 'history', 'guide'];
 const GUEST_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
-const ADMIN_SUBTABS = ['overview', 'verify', 'users', 'rewards', 'redemptions', 'bins', 'rules', 'relations'];
+const ADMIN_SUBTABS = ['overview', 'verify', 'users', 'rewards', 'redemptions', 'bins', 'rules', 'relations', 'activity'];
 const HISTORY_SUBTABS = ['waste', 'points', 'redeem', 'guest'];
 
 function read(key: string) {

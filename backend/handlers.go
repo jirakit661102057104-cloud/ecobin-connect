@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -351,11 +352,14 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body struct {
-		ImageData   string   `json:"image_data"`
-		PlasticType string   `json:"plastic_type"`
-		BottleCount int      `json:"bottle_count"`
-		BinLocation string   `json:"bin_location"`
-		WeightKg    *float64 `json:"weight_kg"`
+		ImageData     string   `json:"image_data"`
+		PlasticType   string   `json:"plastic_type"`
+		BottleCount   int      `json:"bottle_count"`
+		BinLocation   string   `json:"bin_location"`
+		WeightKg      *float64 `json:"weight_kg"`
+		Confidence    float64  `json:"confidence"`
+		ModelLabel    string   `json:"model_label"`
+		CorrelationID string   `json:"correlation_id"`
 	}
 	if err := readJSON(r, &body); err != nil {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
@@ -398,12 +402,36 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.store.logEvent(EventWasteSubmitted, "backend", me.UserID, body.CorrelationID, "waste_record", id,
+		"สมาชิกส่งรูปขวด/กระป๋อง", map[string]any{
+			"plastic_type": body.PlasticType, "model_label": body.ModelLabel, "confidence": body.Confidence,
+			"bottle_count": body.BottleCount, "bin_location": body.BinLocation, "image_url": img,
+		})
+
+	txnID := newID("TXN")
 	_, _ = s.store.db.Exec(`UPDATE users SET total_points = total_points + ?, total_carbon_saved = total_carbon_saved + ? WHERE user_id=? AND delete_at IS NULL`,
 		points, carbon, me.UserID)
 	_, _ = s.store.db.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
 		VALUES (?,?,?,?,'earn',?,?,?)`,
-		newID("TXN"), me.UserID, id, points,
+		txnID, me.UserID, id, points,
 		"Teachable Machine + CMH/TGO carbon · ให้แต้มทันที", now, me.UserID)
+
+	s.store.logEvent(EventPointsAwarded, "backend", me.UserID, body.CorrelationID, "point_transaction", txnID,
+		"ให้แต้มทันทีหลังสแกนผ่าน", map[string]any{
+			"record_id": id, "points": points, "carbon_saved": carbon,
+			"carbon_footprint": footprint, "carbon_avoided": avoided, "weight_kg": weightKg,
+		})
+
+	label := body.ModelLabel
+	if label == "" {
+		label = mapTrainingLabel(body.PlasticType)
+	}
+	if body.Confidence >= 80 || body.Confidence == 0 {
+		// Keep high-confidence (or legacy clients without confidence) scans as train samples for model recovery.
+		s.store.saveTrainingSample(label, img, "user_scan", body.Confidence, id, me.UserID, body.CorrelationID, map[string]any{
+			"plastic_type": body.PlasticType, "bottle_count": body.BottleCount,
+		})
+	}
 
 	records, _ := s.store.listWaste(me.UserID, false)
 	var rec WasteRecord
@@ -414,14 +442,17 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	u, _ := s.store.getUserByID(me.UserID)
-	writeJSON(w, 201, map[string]any{"record": rec, "user": u})
+	writeJSON(w, 201, map[string]any{"record": rec, "user": u, "correlation_id": body.CorrelationID})
 }
 
 func (s *Server) handleGuestScan(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		ImageData       string `json:"image_data"`
-		DetectedBottles int    `json:"detected_bottles"`
-		ScanResult      string `json:"scan_result"`
+		ImageData       string  `json:"image_data"`
+		DetectedBottles int     `json:"detected_bottles"`
+		ScanResult      string  `json:"scan_result"`
+		Confidence      float64 `json:"confidence"`
+		ModelLabel      string  `json:"model_label"`
+		CorrelationID   string  `json:"correlation_id"`
 	}
 	if err := readJSON(r, &body); err != nil {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
@@ -434,6 +465,22 @@ func (s *Server) handleGuestScan(w http.ResponseWriter, r *http.Request) {
 	est := body.DetectedBottles * cfg.PointsPerBottle
 	_, _ = s.store.db.Exec(`INSERT INTO guest_logs (guest_session_id, device_id, temp_image_path, temp_scan_result, detected_bottles, estimated_points, timestamp, created_by)
 		VALUES (?,?,?,?,?,?,?,?)`, id, "WEB-BROWSER", img, body.ScanResult, body.DetectedBottles, est, now, actorSystem)
+
+	s.store.logEvent(EventGuestScan, "backend", "", body.CorrelationID, "guest_log", id,
+		"Guest ทดลองสแกน", map[string]any{
+			"scan_result": body.ScanResult, "model_label": body.ModelLabel, "confidence": body.Confidence,
+			"detected_bottles": body.DetectedBottles, "estimated_points": est, "image_url": img,
+		})
+	label := body.ModelLabel
+	if label == "" {
+		label = mapTrainingLabel(body.ScanResult)
+	}
+	if body.Confidence >= 80 || body.Confidence == 0 {
+		s.store.saveTrainingSample(label, img, "guest_scan", body.Confidence, "", "", body.CorrelationID, map[string]any{
+			"scan_result": body.ScanResult,
+		})
+	}
+
 	writeJSON(w, 201, GuestLog{
 		GuestSessionID:  id,
 		DeviceID:        "WEB-BROWSER",
@@ -443,6 +490,120 @@ func (s *Server) handleGuestScan(w http.ResponseWriter, r *http.Request) {
 		EstimatedPoints: est,
 		Timestamp:       fmtTime(now),
 	})
+}
+
+func (s *Server) handleClassifyLog(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		CorrelationID string  `json:"correlation_id"`
+		ModelLabel    string  `json:"model_label"`
+		Confidence    float64 `json:"confidence"`
+		Accepted      bool    `json:"accepted"`
+		PlasticType   string  `json:"plastic_type"`
+		Source        string  `json:"source"`
+	}
+	if err := readJSON(r, &body); err != nil {
+		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
+		return
+	}
+	actor := ""
+	if me := s.currentUser(r); me != nil {
+		actor = me.UserID
+	}
+	src := body.Source
+	if src == "" {
+		src = "frontend"
+	}
+	s.store.logEvent(EventModelClassify, src, actor, body.CorrelationID, "model", body.ModelLabel,
+		"ผลจำแนกรูปจากโมเดลในเบราว์เซอร์", map[string]any{
+			"model_label": body.ModelLabel, "confidence": body.Confidence,
+			"accepted": body.Accepted, "plastic_type": body.PlasticType,
+		})
+	writeJSON(w, 201, map[string]any{"ok": true, "correlation_id": body.CorrelationID})
+}
+
+func (s *Server) handleAdminListEvents(w http.ResponseWriter, r *http.Request) {
+	limit := 100
+	if v := r.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			limit = n
+		}
+	}
+	list, err := s.store.listSystemEvents(limit, r.URL.Query().Get("type"), r.URL.Query().Get("correlation_id"))
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": "โหลด event ไม่สำเร็จ"})
+		return
+	}
+	writeJSON(w, 200, list)
+}
+
+func (s *Server) handleAdminListTrainingSamples(w http.ResponseWriter, r *http.Request) {
+	limit := 200
+	if v := r.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			limit = n
+		}
+	}
+	list, err := s.store.listTrainingSamples(r.URL.Query().Get("label"), limit)
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": "โหลดตัวอย่างเทรนไม่สำเร็จ"})
+		return
+	}
+	writeJSON(w, 200, map[string]any{
+		"samples": list,
+		"howto":   "ดาวน์โหลดรูปจาก image_url แล้วอัปโหลดเข้า Teachable Machine ตาม label (PLASTIC_BOTTLE / CAN / INVALID) เพื่อเทรนโมเดลใหม่เมื่อโมเดลเดิมหาย",
+	})
+}
+
+func (s *Server) handleAdminListModelVersions(w http.ResponseWriter, r *http.Request) {
+	list, err := s.store.listModelVersions()
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": "โหลดรุ่นโมเดลไม่สำเร็จ"})
+		return
+	}
+	writeJSON(w, 200, list)
+}
+
+func (s *Server) handleAdminRegisterModelVersion(w http.ResponseWriter, r *http.Request) {
+	me := s.currentUser(r)
+	var body struct {
+		VersionID   string `json:"version_id"`
+		Provider    string `json:"provider"`
+		DisplayName string `json:"display_name"`
+		ModelURL    string `json:"model_url"`
+		LabelsJSON  string `json:"labels_json"`
+		Notes       string `json:"notes"`
+		Activate    bool   `json:"activate"`
+	}
+	if err := readJSON(r, &body); err != nil || body.ModelURL == "" || body.DisplayName == "" {
+		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ครบ"})
+		return
+	}
+	if body.VersionID == "" {
+		body.VersionID = newID("MOD")
+	}
+	if body.Provider == "" {
+		body.Provider = "teachable_machine"
+	}
+	if body.LabelsJSON == "" {
+		body.LabelsJSON = `["PLASTIC_BOTTLE","CAN","INVALID"]`
+	}
+	if body.Activate {
+		_, _ = s.store.db.Exec(`UPDATE model_versions SET is_active=0 WHERE delete_at IS NULL`)
+	}
+	_, err := s.store.db.Exec(`INSERT INTO model_versions
+		(version_id, provider, display_name, model_url, labels_json, is_active, notes, created_at, created_by)
+		VALUES (?,?,?,?,?,?,?,?,?)`,
+		body.VersionID, body.Provider, body.DisplayName, body.ModelURL, body.LabelsJSON, body.Activate,
+		body.Notes, time.Now(), me.UserID)
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": "บันทึกรุ่นโมเดลไม่สำเร็จ"})
+		return
+	}
+	s.store.logEvent(EventModelRegistered, "admin", me.UserID, "", "model_version", body.VersionID,
+		"ลงทะเบียน/อัปเดตรุ่นโมเดล", map[string]any{
+			"provider": body.Provider, "model_url": body.ModelURL, "activate": body.Activate,
+		})
+	writeJSON(w, 201, map[string]any{"ok": true, "version_id": body.VersionID})
 }
 
 func (s *Server) handleVerifyWaste(w http.ResponseWriter, r *http.Request) {
@@ -512,9 +673,18 @@ func (s *Server) handleVerifyWaste(w http.ResponseWriter, r *http.Request) {
 	}
 	if body.Status == "อนุมัติแล้ว" && prev != "อนุมัติแล้ว" {
 		adminID := s.currentUser(r).UserID
+		txnID := newID("TXN")
 		_, _ = s.store.db.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
-			VALUES (?,?,?,?,'earn',?,?,?)`, newID("TXN"), rec.UserID, id, finalPoints, "อนุมัติภาพถ่ายขยะ +แต้ม", time.Now(), adminID)
+			VALUES (?,?,?,?,'earn',?,?,?)`, txnID, rec.UserID, id, finalPoints, "อนุมัติภาพถ่ายขยะ +แต้ม", time.Now(), adminID)
+		s.store.logEvent(EventPointsAwarded, "admin", adminID, "", "point_transaction", txnID,
+			"แอดมินอนุมัติแล้วให้แต้ม", map[string]any{
+				"record_id": id, "points": finalPoints, "status": body.Status,
+			})
 	}
+	s.store.logEvent("WASTE_VERIFIED", "admin", s.currentUser(r).UserID, "", "waste_record", id,
+		"แอดมินอัปเดตผลการตรวจสอบ", map[string]any{
+			"status": body.Status, "prev_status": prev, "comment": body.Comment, "points": finalPoints,
+		})
 	writeJSON(w, 200, map[string]string{"ok": "true"})
 }
 

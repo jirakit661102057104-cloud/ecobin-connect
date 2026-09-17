@@ -16,4 +16,6 @@ backend/*.exe
 frontend/frontend.env
 frontend/scripts/_data/
 frontend/scripts/_tm-accuracy-out/
+legacy/vite-mockup/node_modules/
+legacy/vite-mockup/dist/
 *.tsbuildinfo

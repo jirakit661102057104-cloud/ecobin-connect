@@ -58,6 +58,80 @@ func migrateSoftDelete(db *sql.DB) error {
 	if err := migrateCarbonAccounting(db); err != nil {
 		return err
 	}
+	if err := migrateEventLog(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func migrateEventLog(db *sql.DB) error {
+	stmts := []string{
+		`CREATE TABLE IF NOT EXISTS model_versions (
+		  version_id VARCHAR(40) PRIMARY KEY,
+		  provider ENUM('ecobin_local','teachable_machine') NOT NULL DEFAULT 'ecobin_local',
+		  display_name VARCHAR(160) NOT NULL,
+		  model_url VARCHAR(500) NOT NULL,
+		  labels_json JSON NOT NULL,
+		  is_active BOOLEAN NOT NULL DEFAULT FALSE,
+		  notes TEXT NULL,
+		  accuracy_summary_json JSON NULL,
+		  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		  created_by VARCHAR(32) NULL,
+		  delete_at DATETIME NULL,
+		  delete_by VARCHAR(32) NULL,
+		  KEY idx_model_active (is_active, delete_at)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+		`CREATE TABLE IF NOT EXISTS model_training_samples (
+		  sample_id VARCHAR(40) PRIMARY KEY,
+		  label ENUM('PLASTIC_BOTTLE','CAN','INVALID') NOT NULL,
+		  image_url TEXT NOT NULL,
+		  source ENUM('user_scan','trashnet','manual','guest_scan') NOT NULL DEFAULT 'user_scan',
+		  confidence DECIMAL(6,2) NULL,
+		  record_id VARCHAR(32) NULL,
+		  model_version_id VARCHAR(40) NULL,
+		  approved_for_train BOOLEAN NOT NULL DEFAULT TRUE,
+		  metadata_json JSON NULL,
+		  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		  created_by VARCHAR(32) NULL,
+		  delete_at DATETIME NULL,
+		  delete_by VARCHAR(32) NULL,
+		  KEY idx_sample_label (label, approved_for_train, delete_at),
+		  KEY idx_sample_record (record_id),
+		  KEY idx_sample_version (model_version_id)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+		`CREATE TABLE IF NOT EXISTS system_events (
+		  event_id VARCHAR(40) PRIMARY KEY,
+		  event_type VARCHAR(64) NOT NULL,
+		  event_source ENUM('frontend','backend','admin','system') NOT NULL DEFAULT 'backend',
+		  actor_user_id VARCHAR(32) NULL,
+		  correlation_id VARCHAR(64) NULL,
+		  entity_type VARCHAR(40) NULL,
+		  entity_id VARCHAR(64) NULL,
+		  message VARCHAR(500) NULL,
+		  payload_json JSON NULL,
+		  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		  KEY idx_events_type_time (event_type, created_at),
+		  KEY idx_events_corr (correlation_id),
+		  KEY idx_events_actor (actor_user_id, created_at),
+		  KEY idx_events_entity (entity_type, entity_id)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`,
+	}
+	for _, stmt := range stmts {
+		if _, err := db.Exec(stmt); err != nil {
+			return fmt.Errorf("migrateEventLog: %w", err)
+		}
+	}
+	// Optional FKs — ignore if already exist / engine limits
+	_, _ = db.Exec(`ALTER TABLE model_training_samples
+		ADD CONSTRAINT fk_sample_record FOREIGN KEY (record_id) REFERENCES waste_records(record_id)
+		ON UPDATE CASCADE ON DELETE SET NULL`)
+	_, _ = db.Exec(`ALTER TABLE model_training_samples
+		ADD CONSTRAINT fk_sample_model FOREIGN KEY (model_version_id) REFERENCES model_versions(version_id)
+		ON UPDATE CASCADE ON DELETE SET NULL`)
+
+	store := &Store{db: db}
+	store.ensureDefaultModelVersion()
+	log.Println("event log tables ready (system_events, model_training_samples, model_versions)")
 	return nil
 }
 

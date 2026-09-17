@@ -22,12 +22,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === '/login' && hasSession) {
-    const q = req.nextUrl.searchParams;
-    if (!q.get('google') && !q.get('google_error')) {
-      return NextResponse.redirect(new URL('/', req.nextUrl.origin));
-    }
-  }
+  // Do not bounce /login → / just because a cookie exists.
+  // Invalid/expired tokens after deploy caused an infinite redirect loop
+  // ("ค้างหน้าเข้าสู่ระบบ"). LoginScreen redirects after /api/state confirms the user.
 
   return NextResponse.next();
 }
