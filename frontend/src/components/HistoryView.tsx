@@ -179,7 +179,11 @@ export const HistoryView: React.FC = () => {
                         </span>
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 ${statusStyles.badge}`}>
                           {statusStyles.icon}
-                          <span>{record.verification_status}</span>
+                          <span>
+                            {record.verification_status === 'อนุมัติแล้ว'
+                              ? (language === 'th' ? 'ผ่านโมเดลแล้ว' : 'AI verified')
+                              : record.verification_status}
+                          </span>
                         </span>
                       </div>
 

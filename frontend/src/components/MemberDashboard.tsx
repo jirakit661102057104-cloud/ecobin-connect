@@ -221,7 +221,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
           </div>
           <div className="mt-1 text-[11px] text-slate-400 flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-            <span>{language === 'th' ? `อนุมัติ ${approvedCount} รายการ` : `Approved ${approvedCount} items`}</span>
+            <span>{language === 'th' ? `ผ่านโมเดล ${approvedCount} รายการ` : `Verified by AI ${approvedCount} items`}</span>
           </div>
         </button>
 
@@ -360,9 +360,9 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
               <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                 {userRecords.length > 0 ? (
                   userRecords.slice(0, 5).map((record) => {
-                    const statusLabel = language === 'th' 
-                      ? record.verification_status 
-                      : (record.verification_status === 'อนุมัติแล้ว' ? 'Approved' 
+                    const statusLabel = language === 'th'
+                      ? (record.verification_status === 'อนุมัติแล้ว' ? 'ผ่านโมเดลแล้ว' : record.verification_status)
+                      : (record.verification_status === 'อนุมัติแล้ว' ? 'AI verified'
                         : record.verification_status === 'รอการตรวจสอบ' ? 'Pending'
                         : record.verification_status === 'กรุณาส่งภาพมาใหม่' ? 'Resubmit photo' : 'Rejected');
 
@@ -479,7 +479,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                 <div className="space-y-2">
                   <p className="text-[11px] text-slate-500">
                     {language === 'th'
-                      ? `นับเฉพาะที่อนุมัติแล้ว ${totalBottles} ขวด จาก ${approvedCount} รายการ`
+                      ? `นับเฉพาะที่ผ่านโมเดลแล้ว ${totalBottles} ขวด จาก ${approvedCount} รายการ`
                       : `${totalBottles} bottles from ${approvedCount} approved records`}
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
@@ -517,7 +517,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
                     {approvedRecords.length === 0 ? (
-                      <p className="text-center text-xs text-slate-400 py-8">{language === 'th' ? 'ยังไม่มีรายการที่อนุมัติ' : 'No approved records'}</p>
+                      <p className="text-center text-xs text-slate-400 py-8">{language === 'th' ? 'ยังไม่มีรายการที่ผ่านโมเดล' : 'No verified records'}</p>
                     ) : (
                       [...approvedRecords]
                         .sort((a, b) => b.upload_timestamp.localeCompare(a.upload_timestamp))
@@ -545,7 +545,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab, 
                   </p>
                   <div className="max-h-[50vh] overflow-y-auto space-y-2 pr-0.5">
                     {approvedRecords.length === 0 ? (
-                      <p className="text-center text-xs text-slate-400 py-8">{language === 'th' ? 'ยังไม่มีรายการที่อนุมัติ' : 'No approved records'}</p>
+                      <p className="text-center text-xs text-slate-400 py-8">{language === 'th' ? 'ยังไม่มีรายการที่ผ่านโมเดล' : 'No verified records'}</p>
                     ) : (
                       [...approvedRecords]
                         .sort((a, b) => b.upload_timestamp.localeCompare(a.upload_timestamp))

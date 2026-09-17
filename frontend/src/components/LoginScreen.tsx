@@ -84,7 +84,12 @@ export const LoginScreen: React.FC = () => {
     }
     if (searchParams.get('google') !== '1' || googleHandled.current) return;
     const raw = document.cookie.split('; ').find((c) => c.startsWith('ecobin_google_credential='));
-    if (!raw) return;
+    if (!raw) {
+      // Redirect came back without credential (often Secure-cookie / CSRF). Surface error.
+      googleHandled.current = true;
+      router.replace('/login?google_error=1');
+      return;
+    }
     googleHandled.current = true;
     const token = decodeURIComponent(raw.slice('ecobin_google_credential='.length));
     document.cookie = 'ecobin_google_credential=; Max-Age=0; path=/';
@@ -93,7 +98,7 @@ export const LoginScreen: React.FC = () => {
       const ok = await loginGoogle({ idToken: token });
       setBusy(false);
       if (ok) router.replace('/');
-      else router.replace('/login');
+      else router.replace('/login?google_error=1');
     })();
   }, [searchParams, loginGoogle, router]);
 
@@ -398,8 +403,9 @@ export const LoginScreen: React.FC = () => {
                   onCredential={handleGoogleToken}
                 />
                 {googleError && (
-                  <p className="text-[11px] text-rose-600 text-center">
-                    เข้าสู่ระบบด้วย Google ไม่สำเร็จ ลองอีกครั้ง
+                  <p className="text-[11px] text-rose-600 text-center leading-relaxed">
+                    เข้าสู่ระบบด้วย Google ไม่สำเร็จ — ลองกดปุ่มอีกครั้ง
+                    หรือตรวจว่าใน Google Console มี origin เป็น http://localhost:3000 และโดเมน Vercel แล้ว
                   </p>
                 )}
                 {!GOOGLE_CLIENT_ID && (

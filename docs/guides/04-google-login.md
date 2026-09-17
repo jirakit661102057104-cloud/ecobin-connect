@@ -33,6 +33,11 @@ https://ecobin-connect-8ap5.vercel.app/login
 
 ## Error ที่เคยเจอ
 
+### Google login สำเร็จแล้วแต่เด้งกลับหน้า login (localhost)
+
+Cloud Run ส่ง cookie แบบ `Secure` — บน `http://localhost` เบราว์เซอร์ทิ้ง cookie  
+แก้แล้วใน `proxyToApi.ts` (ถอด Secure ตอน proxy ผ่าน HTTP) และใช้ Google **popup** บน localhost
+
 ### Error 400: redirect_uri_mismatch
 
 Google ยังไม่มี URL ที่แอปส่งกลับมาในรายการ Redirect URIs หรือมี `/` ท้ายไม่ตรง

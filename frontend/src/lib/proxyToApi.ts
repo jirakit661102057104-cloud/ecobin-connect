@@ -106,8 +106,19 @@ export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', pa
 
   const res = new NextResponse(upstream.body, { status: upstream.status, headers: out });
   const cookies = typeof upstream.headers.getSetCookie === 'function' ? upstream.headers.getSetCookie() : [];
+  const requestIsHttps =
+    req.nextUrl.protocol === 'https:' ||
+    req.headers.get('x-forwarded-proto') === 'https';
   for (const cookie of cookies) {
-    res.headers.append('set-cookie', cookie);
+    // Cloud Run sets Secure cookies; browsers on http://localhost drop them,
+    // so Google login appears to fail after a successful API response.
+    let rewritten = cookie;
+    if (!requestIsHttps) {
+      rewritten = rewritten
+        .replace(/;\s*Secure/gi, '')
+        .replace(/;\s*SameSite=None/gi, '; SameSite=Lax');
+    }
+    res.headers.append('set-cookie', rewritten);
   }
   return res;
 }

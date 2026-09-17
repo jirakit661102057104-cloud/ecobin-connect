@@ -96,16 +96,31 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onCreden
         await loadGisScript();
         if (cancelled || !hostRef.current || !window.google?.accounts?.id) return;
         hostRef.current.innerHTML = '';
-        const loginUri = `${window.location.origin}/login`;
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          ux_mode: 'redirect',
-          login_uri: loginUri,
-          cancel_on_tap_outside: true,
-          callback: async (res) => {
-            if (res.credential) await callbackRef.current(res.credential);
-          },
-        });
+        const isLocalHttp = window.location.protocol === 'http:' &&
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+        // Popup on localhost avoids Secure-cookie / redirect CSRF issues with Cloud Run.
+        // Production HTTPS keeps redirect (better on mobile browsers).
+        if (isLocalHttp) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            ux_mode: 'popup',
+            cancel_on_tap_outside: true,
+            callback: async (res) => {
+              if (res.credential) await callbackRef.current(res.credential);
+            },
+          });
+        } else {
+          const loginUri = `${window.location.origin}/login`;
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            ux_mode: 'redirect',
+            login_uri: loginUri,
+            cancel_on_tap_outside: true,
+            callback: async (res) => {
+              if (res.credential) await callbackRef.current(res.credential);
+            },
+          });
+        }
         window.google.accounts.id.renderButton(hostRef.current, {
           type: 'standard',
           theme: 'outline',

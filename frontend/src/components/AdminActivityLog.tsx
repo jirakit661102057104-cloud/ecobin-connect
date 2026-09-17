@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   Image as ImageIcon,
+  Layers,
 } from 'lucide-react';
 
 type SystemEvent = {
@@ -40,6 +41,28 @@ type TrainingSample = {
   created_at: string;
 };
 
+/** แยกตามงานแอดมิน — โมเดล AI ตรวจรูปแล้ว ไม่มีคิวอนุมัติมือ */
+const GROUPS = [
+  {
+    id: 'scan' as const,
+    label: 'สแกน & แต้ม',
+    hint: 'จำแนก → ส่งขวด → ให้แต้ม / Guest',
+    types: ['MODEL_CLASSIFY', 'WASTE_SUBMITTED', 'POINTS_AWARDED', 'GUEST_SCAN'],
+  },
+  {
+    id: 'model' as const,
+    label: 'โมเดล & เทรน',
+    hint: 'เก็บตัวอย่าง / ลงทะเบียนโมเดล',
+    types: ['TRAINING_SAMPLE_SAVED', 'MODEL_VERSION_REGISTERED'],
+  },
+  {
+    id: 'all' as const,
+    label: 'ทั้งหมด',
+    hint: 'ทุกประเภท',
+    types: [] as string[],
+  },
+];
+
 const EVENT_META: Record<
   string,
   { label: string; color: string; icon: React.ComponentType<{ className?: string }> }
@@ -50,18 +73,8 @@ const EVENT_META: Record<
   GUEST_SCAN: { label: 'Guest สแกน', color: 'bg-slate-50 text-slate-700 border-slate-200', icon: ScanLine },
   TRAINING_SAMPLE_SAVED: { label: 'เก็บตัวอย่างเทรน', color: 'bg-violet-50 text-violet-800 border-violet-200', icon: Database },
   MODEL_VERSION_REGISTERED: { label: 'ลงทะเบียนโมเดล', color: 'bg-indigo-50 text-indigo-800 border-indigo-200', icon: Shield },
-  WASTE_VERIFIED: { label: 'แอดมินตรวจรูป', color: 'bg-purple-50 text-purple-800 border-purple-200', icon: Shield },
+  WASTE_VERIFIED: { label: 'ตรวจรูป (ระบบเก่า)', color: 'bg-slate-100 text-slate-700 border-slate-200', icon: Shield },
 };
-
-const FILTERS = [
-  { id: '', label: 'ทั้งหมด' },
-  { id: 'MODEL_CLASSIFY', label: 'จำแนกรูป' },
-  { id: 'WASTE_SUBMITTED', label: 'ส่งขวด' },
-  { id: 'POINTS_AWARDED', label: 'ให้แต้ม' },
-  { id: 'GUEST_SCAN', label: 'Guest' },
-  { id: 'TRAINING_SAMPLE_SAVED', label: 'ตัวอย่างเทรน' },
-  { id: 'WASTE_VERIFIED', label: 'ตรวจรูป' },
-];
 
 function payloadObj(p: SystemEvent['payload']): Record<string, unknown> {
   if (!p) return {};
@@ -73,9 +86,11 @@ export const AdminActivityLog: React.FC = () => {
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [samples, setSamples] = useState<TrainingSample[]>([]);
   const [loading, setLoading] = useState(false);
-  const [typeFilter, setTypeFilter] = useState('');
+  const [group, setGroup] = useState<(typeof GROUPS)[number]['id']>('scan');
+  const [typeWithin, setTypeWithin] = useState('');
   const [corrFilter, setCorrFilter] = useState('');
   const [query, setQuery] = useState('');
+  const [sampleLabel, setSampleLabel] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [view, setView] = useState<'timeline' | 'samples'>('timeline');
   const [error, setError] = useState('');
@@ -84,12 +99,13 @@ export const AdminActivityLog: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const params = new URLSearchParams({ limit: '150' });
-      if (typeFilter) params.set('type', typeFilter);
+      const params = new URLSearchParams({ limit: '200' });
       if (corrFilter.trim()) params.set('correlation_id', corrFilter.trim());
+      const sampleParams = new URLSearchParams({ limit: '80' });
+      if (sampleLabel) sampleParams.set('label', sampleLabel);
       const [ev, sm] = await Promise.all([
         api<SystemEvent[]>(`/api/admin/events?${params}`),
-        api<{ samples: TrainingSample[] }>('/api/admin/training-samples?limit=60'),
+        api<{ samples: TrainingSample[] }>(`/api/admin/training-samples?${sampleParams}`),
       ]);
       setEvents(Array.isArray(ev) ? ev : []);
       setSamples(sm?.samples || []);
@@ -98,27 +114,48 @@ export const AdminActivityLog: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [typeFilter, corrFilter]);
+  }, [corrFilter, sampleLabel]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const counts = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const e of events) map[e.event_type] = (map[e.event_type] || 0) + 1;
-    return map;
+  const activeGroup = GROUPS.find((g) => g.id === group) || GROUPS[0];
+
+  const groupCounts = useMemo(() => {
+    const out: Record<string, number> = { all: events.length, scan: 0, model: 0 };
+    for (const e of events) {
+      if (GROUPS[0].types.includes(e.event_type)) out.scan += 1;
+      if (GROUPS[1].types.includes(e.event_type)) out.model += 1;
+    }
+    return out;
   }, [events]);
 
+  const typeChips = useMemo(() => {
+    if (group === 'all') {
+      return Object.keys(EVENT_META).map((id) => ({ id, label: EVENT_META[id].label }));
+    }
+    return activeGroup.types.map((id) => ({ id, label: EVENT_META[id]?.label || id }));
+  }, [group, activeGroup]);
+
   const filtered = useMemo(() => {
+    let list = events;
+    if (group !== 'all') {
+      list = list.filter((e) => activeGroup.types.includes(e.event_type));
+    }
+    if (typeWithin) {
+      list = list.filter((e) => e.event_type === typeWithin);
+    }
     const q = query.trim().toLowerCase();
-    if (!q) return events;
-    return events.filter((e) =>
-      [e.event_type, e.message, e.actor_user_id, e.correlation_id, e.entity_id, e.event_id]
-        .filter(Boolean)
-        .some((v) => String(v).toLowerCase().includes(q)),
-    );
-  }, [events, query]);
+    if (q) {
+      list = list.filter((e) =>
+        [e.event_type, e.message, e.actor_user_id, e.correlation_id, e.entity_id, e.event_id]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q)),
+      );
+    }
+    return list;
+  }, [events, group, activeGroup, typeWithin, query]);
 
   return (
     <div className="space-y-3">
@@ -130,8 +167,7 @@ export const AdminActivityLog: React.FC = () => {
               Activity Log
             </h3>
             <p className="text-[11px] text-slate-500 mt-1 leading-relaxed max-w-xl">
-              ตามรอยว่าเกิดอะไรที่ไหน — จำแนกรูป → ส่งขวด → ให้แต้ม → เก็บตัวอย่างเทรน
-              ใช้ <span className="font-semibold text-slate-700">correlation id</span> เพื่อดูเหตุการณ์ชุดเดียวกัน
+              แยกตามงาน: สแกน/แต้ม · โมเดล · แอดมิน — กด correlation เพื่อตามรอยครั้งเดียว
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -163,24 +199,31 @@ export const AdminActivityLog: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-          {[
-            { key: 'MODEL_CLASSIFY', label: 'จำแนก' },
-            { key: 'WASTE_SUBMITTED', label: 'ส่งขวด' },
-            { key: 'POINTS_AWARDED', label: 'ให้แต้ม' },
-            { key: 'TRAINING_SAMPLE_SAVED', label: 'เก็บเทรน' },
-            { key: 'GUEST_SCAN', label: 'Guest' },
-            { key: 'WASTE_VERIFIED', label: 'ตรวจรูป' },
-            { key: '_all', label: 'ในหน้านี้', value: events.length },
-          ].map((c) => (
-            <div key={c.key} className="rounded-xl border border-slate-100 bg-slate-50/80 px-2.5 py-2">
-              <p className="text-[10px] text-slate-500 font-medium">{c.label}</p>
-              <p className="text-sm font-bold text-slate-900">
-                {c.value ?? counts[c.key] ?? 0}
-              </p>
-            </div>
-          ))}
-        </div>
+        {view === 'timeline' && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {GROUPS.map((g) => (
+              <button
+                key={g.id}
+                type="button"
+                onClick={() => {
+                  setGroup(g.id);
+                  setTypeWithin('');
+                }}
+                className={`text-left rounded-xl border px-3 py-2.5 transition-colors ${
+                  group === g.id
+                    ? 'border-purple-400 bg-purple-50'
+                    : 'border-slate-100 bg-slate-50/80 hover:bg-slate-50'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[11px] font-bold text-slate-800">{g.label}</p>
+                  <span className="text-sm font-bold text-slate-900">{groupCounts[g.id] ?? 0}</span>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-0.5">{g.hint}</p>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {error && (
@@ -192,14 +235,29 @@ export const AdminActivityLog: React.FC = () => {
       {view === 'timeline' && (
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
           <div className="p-3 border-b border-slate-100 space-y-2">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+              <Layers className="w-3 h-3" />
+              ย่อยในกลุ่ม «{activeGroup.label}»
+            </div>
             <div className="flex flex-wrap gap-1.5">
-              {FILTERS.map((f) => (
+              <button
+                type="button"
+                onClick={() => setTypeWithin('')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
+                  !typeWithin
+                    ? 'bg-purple-700 text-white border-purple-700'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                ในกลุ่มนี้ทั้งหมด
+              </button>
+              {typeChips.map((f) => (
                 <button
-                  key={f.id || 'all'}
+                  key={f.id}
                   type="button"
-                  onClick={() => setTypeFilter(f.id)}
+                  onClick={() => setTypeWithin(f.id)}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
-                    typeFilter === f.id
+                    typeWithin === f.id
                       ? 'bg-purple-700 text-white border-purple-700'
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                   }`}
@@ -223,7 +281,7 @@ export const AdminActivityLog: React.FC = () => {
                 <input
                   value={corrFilter}
                   onChange={(e) => setCorrFilter(e.target.value)}
-                  placeholder="กรอง correlation id (กด Enter / รีเฟรช)"
+                  placeholder="correlation id — ตามรอยครั้งเดียว (Enter)"
                   className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-purple-400"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') void load();
@@ -237,8 +295,8 @@ export const AdminActivityLog: React.FC = () => {
             <p className="p-6 text-center text-xs text-slate-400">กำลังโหลด…</p>
           ) : filtered.length === 0 ? (
             <div className="p-8 text-center space-y-1">
-              <p className="text-sm font-bold text-slate-700">ยังไม่มี activity</p>
-              <p className="text-[11px] text-slate-500">เมื่อมีคนสแกน/บันทึกขวด เหตุการณ์จะโผล่ที่นี่</p>
+              <p className="text-sm font-bold text-slate-700">ยังไม่มี activity ในกลุ่มนี้</p>
+              <p className="text-[11px] text-slate-500">ลองกลุ่มอื่น หรือให้สมาชิกสแกนขวดก่อน</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-50 max-h-[560px] overflow-y-auto">
@@ -294,10 +352,12 @@ export const AdminActivityLog: React.FC = () => {
                             className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 hover:underline"
                             onClick={() => {
                               setCorrFilter(e.correlation_id || '');
+                              setGroup('all');
+                              setTypeWithin('');
                             }}
                           >
                             <Link2 className="w-3 h-3" />
-                            correlation: {e.correlation_id}
+                            ดูทั้งชุด correlation: {e.correlation_id}
                           </button>
                         )}
                         <pre className="text-[10px] bg-slate-900 text-slate-100 rounded-xl p-3 overflow-x-auto max-h-48">
@@ -328,9 +388,29 @@ export const AdminActivityLog: React.FC = () => {
           <div>
             <h4 className="text-xs font-bold text-slate-900">ตัวอย่างรูปสำหรับเทรน / กู้โมเดล</h4>
             <p className="text-[11px] text-slate-500 mt-1">
-              ดาวน์โหลดรูปตาม label แล้วอัปโหลดเข้า Teachable Machine (PLASTIC_BOTTLE / CAN / INVALID)
-              เมื่อโมเดลหายหรือต้องการอัปเดต
+              แยกจาก Timeline — ใช้ส่งเข้า Teachable Machine เมื่อโมเดลหาย
             </p>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { id: '', label: 'ทุก label' },
+              { id: 'PLASTIC_BOTTLE', label: 'ขวด' },
+              { id: 'CAN', label: 'กระป๋อง' },
+              { id: 'INVALID', label: 'ไม่ผ่าน' },
+            ].map((f) => (
+              <button
+                key={f.id || 'all'}
+                type="button"
+                onClick={() => setSampleLabel(f.id)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border ${
+                  sampleLabel === f.id
+                    ? 'bg-purple-700 text-white border-purple-700'
+                    : 'bg-white text-slate-600 border-slate-200'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
           {samples.length === 0 ? (
             <p className="text-xs text-slate-400 py-6 text-center">ยังไม่มีตัวอย่าง — สแกนขวดผ่านระบบแล้วจะสะสมที่นี่</p>
@@ -346,11 +426,7 @@ export const AdminActivityLog: React.FC = () => {
                 >
                   <div className="aspect-square bg-slate-100 relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={mediaUrl(s.image_url)}
-                      alt={s.label}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={mediaUrl(s.image_url)} alt={s.label} className="w-full h-full object-cover" />
                     <span className="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-black/70 text-white">
                       {s.label}
                     </span>

@@ -5,7 +5,7 @@ const HISTORY_TAB_KEY = 'ecobin_history_tab';
 const MEMBER_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
 const ADMIN_TABS = ['admin', 'scan', 'settings', 'history', 'guide'];
 const GUEST_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
-const ADMIN_SUBTABS = ['overview', 'verify', 'users', 'rewards', 'redemptions', 'bins', 'rules', 'relations', 'activity'];
+const ADMIN_SUBTABS = ['overview', 'scans', 'users', 'rewards', 'redemptions', 'bins', 'rules', 'relations', 'activity'];
 const HISTORY_SUBTABS = ['waste', 'points', 'redeem', 'guest'];
 
 function read(key: string) {
@@ -49,8 +49,10 @@ export function persistMainTab(tab: string, userId?: string | null, role?: strin
 
 export function restoreAdminTab() {
   const saved = read(ADMIN_TAB_KEY);
-  if (saved && ADMIN_SUBTABS.includes(saved)) {
-    return saved as (typeof ADMIN_SUBTABS)[number];
+  // migrate old "verify" (human approve) → read-only "scans"
+  const normalized = saved === 'verify' ? 'scans' : saved;
+  if (normalized && ADMIN_SUBTABS.includes(normalized)) {
+    return normalized as (typeof ADMIN_SUBTABS)[number];
   }
   return 'overview' as const;
 }

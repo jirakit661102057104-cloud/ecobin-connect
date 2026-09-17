@@ -4,13 +4,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Reward, WasteRecord, User, SmartBin, PlasticType } from '../types';
 import { api } from '../lib/api';
-import { matchBottleScore } from '../lib/bottleScore';
 import { persistAdminTab, restoreAdminTab } from '../lib/navState';
 import { AdminActivityLog } from './AdminActivityLog';
 import { 
   ShieldCheck, 
   CheckCircle2, 
-  XCircle, 
   Users, 
   Gift, 
   BarChart3, 
@@ -23,7 +21,6 @@ import {
   Search,
   MapPin,
   SlidersHorizontal,
-  RefreshCw,
   Activity
 } from 'lucide-react';
 import { 
@@ -43,7 +40,6 @@ import {
 export const AdminPanel: React.FC = () => {
   const { 
     wasteRecords, 
-    verifyWasteRecord, 
     users, 
     rewards, 
     addReward, 
@@ -66,13 +62,13 @@ export const AdminPanel: React.FC = () => {
     addToast,
   } = useApp();
 
-  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'verify' | 'users' | 'rewards' | 'redemptions' | 'bins' | 'rules' | 'relations' | 'activity'>('overview');
+  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'scans' | 'users' | 'rewards' | 'redemptions' | 'bins' | 'rules' | 'relations' | 'activity'>('overview');
   const [adminTabReady, setAdminTabReady] = useState(false);
   const [userQuery, setUserQuery] = useState('');
-  const [verifyStatusFilter, setVerifyStatusFilter] = useState<'ทั้งหมด' | 'รอการตรวจสอบ' | 'อนุมัติแล้ว' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('รอการตรวจสอบ');
-  const [verifyQuery, setVerifyQuery] = useState('');
-  const [verifyBin, setVerifyBin] = useState('ทั้งหมด');
-  const [verifyPlastic, setVerifyPlastic] = useState('ทั้งหมด');
+  const [scanStatusFilter, setScanStatusFilter] = useState<'ทั้งหมด' | 'อนุมัติแล้ว' | 'รอการตรวจสอบ' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('ทั้งหมด');
+  const [scanQuery, setScanQuery] = useState('');
+  const [scanBin, setScanBin] = useState('ทั้งหมด');
+  const [scanPlastic, setScanPlastic] = useState('ทั้งหมด');
   const [relationData, setRelationData] = useState<{
     explanations: { parent: string; child: string; join: string; meaning: string }[];
     users_1m: { user_id: string; full_name: string; student_id: string; waste_count: number; txn_count: number; redeem_count: number }[];
@@ -86,11 +82,8 @@ export const AdminPanel: React.FC = () => {
     redemptions: { redeem_id: string; reward_name: string; points_used: number; pickup_code: string }[];
   } | null>(null);
 
-  // State for Review Modal
-  const [selectedRecordToVerify, setSelectedRecordToVerify] = useState<WasteRecord | null>(null);
-  const [verifyStatus, setVerifyStatus] = useState<'อนุมัติแล้ว' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('อนุมัติแล้ว');
-  const [verifyComment, setVerifyComment] = useState('');
-  const [verifyPoints, setVerifyPoints] = useState<number>(30);
+  // State for scan detail (read-only — AI / Teachable already verified)
+  const [selectedScan, setSelectedScan] = useState<WasteRecord | null>(null);
 
   // State for Add/Edit Reward Modal
   const [showRewardModal, setShowRewardModal] = useState(false);
@@ -140,26 +133,8 @@ export const AdminPanel: React.FC = () => {
     setActiveAdminTabState(tab);
   };
 
-  const openVerifyDialog = (record: WasteRecord) => {
-    setSelectedRecordToVerify(record);
-    setVerifyStatus('อนุมัติแล้ว');
-    setVerifyPoints(
-      record.verification_status === 'อนุมัติแล้ว'
-        ? (record.points_awarded || 0)
-        : record.bottle_count * matchBottleScore(plasticTypes, record.plastic_type, settings.points_per_bottle || 10, settings.carbon_per_bottle || 0.08).points
-    );
-    setVerifyComment(record.admin_comment || 'ตรวจสอบแล้ว ขยะขวดพลาสติกสะอาด ถูกต้อง');
-  };
-
-  const handleSaveVerification = () => {
-    if (!selectedRecordToVerify) return;
-    verifyWasteRecord(
-      selectedRecordToVerify.record_id,
-      verifyStatus,
-      verifyComment,
-      verifyPoints
-    );
-    setSelectedRecordToVerify(null);
+  const openScanDetail = (record: WasteRecord) => {
+    setSelectedScan(record);
   };
 
   const openAddRewardDialog = () => {
@@ -305,32 +280,30 @@ export const AdminPanel: React.FC = () => {
   const totalCampusBottles = approvedRecords.reduce((acc, r) => acc + r.bottle_count, 0);
   const totalCampusCarbon = approvedRecords.reduce((acc, r) => acc + (r.carbon_footprint || 0), 0);
   const memberCount = users.filter((u) => u.user_role === 'Member').length;
-  const verifyBins = useMemo(() => {
+  const scanBins = useMemo(() => {
     const names = new Set<string>();
     wasteRecords.forEach((r) => { if (r.bin_location) names.add(r.bin_location); });
     bins.forEach((b) => names.add(b.bin_name));
     return ['ทั้งหมด', ...[...names].sort()];
   }, [wasteRecords, bins]);
-  const verifyPlastics = useMemo(() => {
+  const scanPlastics = useMemo(() => {
     const names = new Set<string>();
     wasteRecords.forEach((r) => { if (r.plastic_type) names.add(r.plastic_type); });
     return ['ทั้งหมด', ...[...names].sort()];
   }, [wasteRecords]);
-  const filteredVerify = useMemo(() => {
-    const q = verifyQuery.trim().toLowerCase();
-    const pending = wasteRecords.filter((r) => r.verification_status === 'รอการตรวจสอบ');
-    const rest = wasteRecords.filter((r) => r.verification_status !== 'รอการตรวจสอบ');
-    return [...pending, ...rest].filter((r) => {
-      if (verifyStatusFilter !== 'ทั้งหมด' && r.verification_status !== verifyStatusFilter) return false;
-      if (verifyBin !== 'ทั้งหมด' && (r.bin_location || '') !== verifyBin) return false;
-      if (verifyPlastic !== 'ทั้งหมด' && r.plastic_type !== verifyPlastic) return false;
+  const filteredScans = useMemo(() => {
+    const q = scanQuery.trim().toLowerCase();
+    return [...wasteRecords].sort((a, b) => String(b.upload_timestamp).localeCompare(String(a.upload_timestamp))).filter((r) => {
+      if (scanStatusFilter !== 'ทั้งหมด' && r.verification_status !== scanStatusFilter) return false;
+      if (scanBin !== 'ทั้งหมด' && (r.bin_location || '') !== scanBin) return false;
+      if (scanPlastic !== 'ทั้งหมด' && r.plastic_type !== scanPlastic) return false;
       if (!q) return true;
       return [r.user_name, r.student_id, r.record_id, r.plastic_type, r.bin_location, r.admin_comment]
         .join(' ')
         .toLowerCase()
         .includes(q);
     });
-  }, [wasteRecords, verifyStatusFilter, verifyQuery, verifyBin, verifyPlastic]);
+  }, [wasteRecords, scanStatusFilter, scanQuery, scanBin, scanPlastic]);
   const filteredUsers = users.filter((u) => {
     const q = userQuery.trim().toLowerCase();
     if (!q) return true;
@@ -369,14 +342,14 @@ export const AdminPanel: React.FC = () => {
             แผงควบคุมผู้ดูแลระบบ
           </h2>
           <p className="text-xs text-purple-200 mt-0.5 max-w-xl">
-            ตรวจรูป อนุมัติแต้ม จัดการสมาชิก จุดทิ้ง ของรางวัล คิวรับของ และกฎแต้ม — แก้แล้วมีผลกับโปรแกรมทันที
+            โมเดล AI ตรวจรูปและให้แต้มแล้ว — แอดมินจัดการสมาชิก จุดทิ้ง ของรางวัล คิวรับของ กฎแต้ม และดู Activity Log
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           <div className="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-xl text-xs text-purple-100 border border-white/10">
-            <span>รอตรวจรูป:</span>
-            <span className="font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-md">{pendingRecords.length}</span>
+            <span>สแกนทั้งหมด:</span>
+            <span className="font-bold text-emerald-200 bg-emerald-400/20 px-2 py-0.5 rounded-md">{wasteRecords.length}</span>
           </div>
           <div className="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-xl text-xs text-purple-100 border border-white/10">
             <span>รอรับของ:</span>
@@ -389,7 +362,7 @@ export const AdminPanel: React.FC = () => {
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {([
           { id: 'overview' as const, label: 'ภาพรวม', icon: BarChart3 },
-          { id: 'verify' as const, label: `รอตรวจ (${pendingRecords.length})`, icon: CheckCircle2 },
+          { id: 'scans' as const, label: `รายการสแกน (${wasteRecords.length})`, icon: CheckCircle2 },
           { id: 'users' as const, label: `สมาชิก (${memberCount})`, icon: Users },
           { id: 'rewards' as const, label: 'ของรางวัล', icon: Gift },
           { id: 'redemptions' as const, label: `คิวรับของ (${pendingPickups.length})`, icon: Ticket },
@@ -419,9 +392,9 @@ export const AdminPanel: React.FC = () => {
         <div className="space-y-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              { label: 'รอตรวจรูป', value: pendingRecords.length, hint: 'รายการค้างจากระบบเก่า' },
+              { label: 'รายการสแกน', value: wasteRecords.length, hint: 'โมเดล AI ตรวจแล้วให้แต้ม' },
               { label: 'สมาชิก', value: memberCount, hint: 'บัญชี role Member' },
-              { label: 'ขวดที่อนุมัติแล้ว', value: `${totalCampusBottles}`, hint: 'ทั้งวิทยาเขต' },
+              { label: 'ขวดที่บันทึกแล้ว', value: `${totalCampusBottles}`, hint: 'ทั้งวิทยาเขต' },
               { label: 'รอรับของรางวัล', value: pendingPickups.length, hint: 'มีรหัสรับของแล้ว' },
             ].map((k) => (
               <div key={k.label} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs">
@@ -432,9 +405,9 @@ export const AdminPanel: React.FC = () => {
             ))}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <button type="button" onClick={() => setActiveAdminTab('verify')} className="text-left bg-amber-50 border border-amber-100 rounded-2xl p-4 hover:bg-amber-100/70">
-              <p className="text-xs font-bold text-amber-900">ตรวจรูปขยะ</p>
-              <p className="text-[11px] text-amber-800/80 mt-1">อนุมัติหรือปฏิเสธ และปรับแต้มได้</p>
+            <button type="button" onClick={() => setActiveAdminTab('scans')} className="text-left bg-emerald-50 border border-emerald-100 rounded-2xl p-4 hover:bg-emerald-100/70">
+              <p className="text-xs font-bold text-emerald-900">รายการสแกน</p>
+              <p className="text-[11px] text-emerald-800/80 mt-1">ดูประวัติที่โมเดลตรวจแล้ว (ไม่อนุมัติมือ)</p>
             </button>
             <button type="button" onClick={() => setActiveAdminTab('rewards')} className="text-left bg-purple-50 border border-purple-100 rounded-2xl p-4 hover:bg-purple-100/70">
               <p className="text-xs font-bold text-purple-900">จัดการของรางวัล</p>
@@ -469,10 +442,10 @@ export const AdminPanel: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div className="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3">
-              <h4 className="text-xs font-bold text-slate-900">ปริมาณขวดที่อนุมัติ แยกตามจุดทิ้ง</h4>
+              <h4 className="text-xs font-bold text-slate-900">ปริมาณขวดที่บันทึก แยกตามจุดทิ้ง</h4>
               <div className="h-56">
                 {buildingStats.length === 0 ? (
-                  <p className="text-xs text-slate-400 pt-8 text-center">ยังไม่มีรายการที่อนุมัติ</p>
+                  <p className="text-xs text-slate-400 pt-8 text-center">ยังไม่มีรายการสแกน</p>
                 ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={buildingStats} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
@@ -487,7 +460,7 @@ export const AdminPanel: React.FC = () => {
               </div>
             </div>
             <div className="lg:col-span-5 bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3">
-              <h4 className="text-xs font-bold text-slate-900">สัดส่วนประเภทพลาสติก (ที่อนุมัติแล้ว)</h4>
+              <h4 className="text-xs font-bold text-slate-900">สัดส่วนประเภทพลาสติก</h4>
               <div className="h-56 flex items-center justify-center">
                 {plasticDistribution.length === 0 ? (
                   <p className="text-xs text-slate-400">ยังไม่มีข้อมูล</p>
@@ -510,23 +483,24 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {activeAdminTab === 'verify' && (
+      {activeAdminTab === 'scans' && (
         <div className="space-y-3">
+          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 text-[11px] text-emerald-900">
+            โมเดล AI (Teachable / EcoBin) ตรวจรูปและให้แต้มอัตโนมัติแล้ว — แท็บนี้สำหรับดูประวัติเท่านั้น ไม่ต้องอนุมัติ/ปฏิเสธมือ
+          </div>
           <div className="bg-white rounded-2xl border border-slate-100 p-3 space-y-2.5">
             <div className="flex flex-wrap gap-1.5">
               {([
-                { id: 'รอการตรวจสอบ' as const, label: `รอตรวจ (${pendingRecords.length})` },
                 { id: 'ทั้งหมด' as const, label: `ทั้งหมด (${wasteRecords.length})` },
-                { id: 'อนุมัติแล้ว' as const, label: `อนุมัติแล้ว (${approvedRecords.length})` },
-                { id: 'กรุณาส่งภาพมาใหม่' as const, label: `ส่งภาพใหม่ (${wasteRecords.filter((r) => r.verification_status === 'กรุณาส่งภาพมาใหม่').length})` },
-                { id: 'ไม่อนุมัติ' as const, label: `ไม่อนุมัติ (${wasteRecords.filter((r) => r.verification_status === 'ไม่อนุมัติ').length})` },
+                { id: 'อนุมัติแล้ว' as const, label: `ผ่านโมเดล (${approvedRecords.length})` },
+                { id: 'รอการตรวจสอบ' as const, label: `ค้างเก่า (${pendingRecords.length})` },
               ]).map((chip) => (
                 <button
                   key={chip.id}
                   type="button"
-                  onClick={() => setVerifyStatusFilter(chip.id)}
+                  onClick={() => setScanStatusFilter(chip.id)}
                   className={`px-3 py-1.5 rounded-xl text-[11px] font-bold ${
-                    verifyStatusFilter === chip.id
+                    scanStatusFilter === chip.id
                       ? 'bg-purple-700 text-white'
                       : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
                   }`}
@@ -539,105 +513,73 @@ export const AdminPanel: React.FC = () => {
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                 <input
-                  value={verifyQuery}
-                  onChange={(e) => setVerifyQuery(e.target.value)}
+                  value={scanQuery}
+                  onChange={(e) => setScanQuery(e.target.value)}
                   placeholder="ค้นหาชื่อ รหัส รายการ"
                   className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-purple-400"
                 />
               </div>
               <select
-                value={verifyBin}
-                onChange={(e) => setVerifyBin(e.target.value)}
+                value={scanBin}
+                onChange={(e) => setScanBin(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white"
               >
-                {verifyBins.map((name) => (
+                {scanBins.map((name) => (
                   <option key={name} value={name}>{name === 'ทั้งหมด' ? 'จุดทิ้งทั้งหมด' : name}</option>
                 ))}
               </select>
               <select
-                value={verifyPlastic}
-                onChange={(e) => setVerifyPlastic(e.target.value)}
+                value={scanPlastic}
+                onChange={(e) => setScanPlastic(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white"
               >
-                {verifyPlastics.map((name) => (
-                  <option key={name} value={name}>{name === 'ทั้งหมด' ? 'ประเภทพลาสติกทั้งหมด' : name}</option>
+                {scanPlastics.map((name) => (
+                  <option key={name} value={name}>{name === 'ทั้งหมด' ? 'ประเภททั้งหมด' : name}</option>
                 ))}
               </select>
             </div>
-            <p className="text-[11px] text-slate-400">แสดง {filteredVerify.length} รายการ</p>
+            <p className="text-[11px] text-slate-400">แสดง {filteredScans.length} รายการ</p>
           </div>
-          {filteredVerify.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 p-8 text-center text-sm text-slate-500">
-              ไม่พบรายการตามตัวกรอง
+
+          {filteredScans.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-10 text-center text-sm text-slate-400">
+              ยังไม่มีรายการสแกน
             </div>
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {filteredVerify.map((record) => {
-              const isPending = record.verification_status === 'รอการตรวจสอบ';
-              return (
-                <div 
-                  key={record.record_id}
-                  className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs space-y-2.5 flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <img 
-                          src={record.image_url} 
-                          alt="" 
-                          className="w-13 h-13 rounded-xl object-cover border border-slate-100 shrink-0"
-                        />
-                        <div>
-                          <span className="text-[10px] font-mono text-slate-400 block">{record.record_id}</span>
-                          <h4 className="font-bold text-xs text-slate-900">{record.user_name || 'ผู้ใช้งาน'}</h4>
-                          <span className="text-[10px] text-slate-400">{record.upload_timestamp}</span>
-                        </div>
-                      </div>
-
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${
-                        record.verification_status === 'อนุมัติแล้ว' ? 'bg-emerald-50 text-emerald-800' :
-                        record.verification_status === 'รอการตรวจสอบ' ? 'bg-amber-50 text-amber-800' :
-                        record.verification_status === 'กรุณาส่งภาพมาใหม่' ? 'bg-sky-50 text-sky-800' :
-                        'bg-rose-50 text-rose-800'
-                      }`}>
-                        {record.verification_status}
-                      </span>
-                    </div>
-
-                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs space-y-0.5">
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-500">ประเภท:</span>
-                        <strong className="text-slate-800">{record.plastic_type} ({record.bottle_count} ขวด)</strong>
-                      </div>
-                      <div className="flex justify-between text-[11px]">
-                        <span className="text-slate-500">จุดทิ้ง:</span>
-                        <strong className="text-slate-700">{record.bin_location || '-'}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-between border-t border-slate-50">
-                    <span className="text-xs font-bold text-emerald-700">
-                      {record.verification_status === 'อนุมัติแล้ว'
-                        ? `+${record.points_awarded} แต้ม`
-                        : 'ยังไม่ให้แต้ม'}
+          <div className="space-y-2">
+            {filteredScans.map((record) => (
+              <div key={record.record_id} className="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-2xs flex flex-col sm:flex-row gap-3.5 items-start sm:items-center">
+                <img src={record.image_url} alt="Waste" className="w-full sm:w-20 h-28 sm:h-20 object-cover rounded-xl bg-slate-100" />
+                <div className="flex-1 space-y-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                      record.verification_status === 'อนุมัติแล้ว' ? 'bg-emerald-50 text-emerald-800' :
+                      record.verification_status === 'รอการตรวจสอบ' ? 'bg-amber-50 text-amber-800' :
+                      'bg-slate-100 text-slate-600'
+                    }`}>
+                      {record.verification_status === 'อนุมัติแล้ว' ? 'ผ่านโมเดลแล้ว' : record.verification_status}
                     </span>
-
-                    <button
-                      id={`verify-btn-${record.record_id}`}
-                      onClick={() => openVerifyDialog(record)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                        isPending
-                          ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-2xs'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                      }`}
-                    >
-                      {isPending ? 'ตรวจสอบ' : 'แก้ไข'}
-                    </button>
+                    <span className="text-[10px] text-slate-400 font-mono">{record.record_id}</span>
                   </div>
+                  <p className="text-xs text-slate-800">
+                    <strong>{record.user_name || record.user_id}</strong>
+                    {' · '}
+                    <strong>{record.plastic_type}</strong> ({record.bottle_count} ชิ้น)
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {record.bin_location || 'ไม่ระบุจุดทิ้ง'} · {record.upload_timestamp}
+                    {record.points_awarded ? ` · +${record.points_awarded} แต้ม` : ''}
+                  </p>
                 </div>
-              );
-            })}
+                <button
+                  type="button"
+                  onClick={() => openScanDetail(record)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"
+                >
+                  ดูรายละเอียด
+                </button>
+              </div>
+            ))}
           </div>
           )}
         </div>
@@ -868,7 +810,7 @@ export const AdminPanel: React.FC = () => {
         >
           <div>
             <h3 className="text-sm font-bold text-slate-900">ค่าเริ่มต้น (ถ้าไม่ตรงชนิดขวด)</h3>
-            <p className="text-[11px] text-slate-500">ใช้เมื่อชนิดขวดในภาพไม่ตรงกับรายการด้านล่าง — แต้มจริงเข้าบัญชีเมื่อแอดมินอนุมัติเท่านั้น</p>
+            <p className="text-[11px] text-slate-500">ใช้เมื่อชนิดขวดในภาพไม่ตรงกับรายการด้านล่าง — แต้มคำนวณอัตโนมัติเมื่อโมเดลตรวจผ่าน</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block text-xs font-semibold text-slate-700">
@@ -891,7 +833,7 @@ export const AdminPanel: React.FC = () => {
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-slate-900">ชนิดขวดและแต้ม</h3>
-              <p className="text-[11px] text-slate-500">เพิ่มขวดใหม่ กำหนดแต้ม/ขวด แก้ไขหรือลบได้ — ตอนอนุมัติระบบจับคู่จากชื่อประเภทในภาพ</p>
+              <p className="text-[11px] text-slate-500">เพิ่มขวดใหม่ กำหนดแต้ม/ขวด แก้ไขหรือลบได้ — ระบบจับคู่จากชื่อประเภทที่โมเดลตรวจได้</p>
             </div>
             <button type="button" onClick={() => openPlasticDialog()} className="flex items-center gap-1 px-3 py-1.5 bg-purple-700 text-white rounded-xl text-xs font-bold">
               <Plus className="w-3.5 h-3.5" />
@@ -1017,17 +959,18 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Review & Verify Modal */}
-      {selectedRecordToVerify && (
+      {/* Scan detail (read-only) */}
+      {selectedScan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-100 space-y-3">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-purple-700" />
-                <h3 className="text-sm font-bold text-slate-900">ตรวจสอบและยืนยันภาพ</h3>
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <h3 className="text-sm font-bold text-slate-900">รายละเอียดการสแกน</h3>
               </div>
-              <button 
-                onClick={() => setSelectedRecordToVerify(null)}
+              <button
+                type="button"
+                onClick={() => setSelectedScan(null)}
                 className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -1035,114 +978,56 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <img 
-                src={selectedRecordToVerify.image_url} 
-                alt="" 
+              <img
+                src={selectedScan.image_url}
+                alt=""
                 className="w-16 h-16 rounded-lg object-cover border border-slate-200"
               />
               <div className="text-xs space-y-0.5 flex-1">
-                <p className="font-bold text-slate-900">{selectedRecordToVerify.user_name}</p>
-                <p className="text-slate-500">ประเภท: {selectedRecordToVerify.plastic_type} ({selectedRecordToVerify.bottle_count} ขวด)</p>
-                <p className="text-[10px] text-slate-400">{selectedRecordToVerify.upload_timestamp}</p>
+                <p className="font-bold text-slate-900">{selectedScan.user_name || selectedScan.user_id}</p>
+                <p className="text-slate-500">ประเภท: {selectedScan.plastic_type} ({selectedScan.bottle_count} ขวด)</p>
+                <p className="text-[10px] text-slate-400">{selectedScan.upload_timestamp}</p>
               </div>
             </div>
 
-            {/* Decision radio */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-slate-700">ผลการพิจารณา:</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setVerifyStatus('อนุมัติแล้ว')}
-                  className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    verifyStatus === 'อนุมัติแล้ว'
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>อนุมัติ</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVerifyStatus('ไม่อนุมัติ')}
-                  className={`p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    verifyStatus === 'ไม่อนุมัติ'
-                      ? 'border-rose-500 bg-rose-50 text-rose-800 ring-2 ring-rose-500/20'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
-                  <span>ไม่อนุมัติ</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVerifyStatus('กรุณาส่งภาพมาใหม่');
-                    setVerifyComment((prev) =>
-                      prev && prev !== 'ตรวจสอบแล้ว ขยะขวดพลาสติกสะอาด ถูกต้อง'
-                        ? prev
-                        : 'ภาพไม่ชัดหรือไม่ตรงเกณฑ์ กรุณาถ่ายใหม่แล้วส่งอีกครั้ง'
-                    );
-                  }}
-                  className={`col-span-2 p-2.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    verifyStatus === 'กรุณาส่งภาพมาใหม่'
-                      ? 'border-sky-500 bg-sky-50 text-sky-800 ring-2 ring-sky-500/20'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  <RefreshCw className="w-3.5 h-3.5 text-sky-600" />
-                  <span>กรุณาส่งภาพมาใหม่</span>
-                </button>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                <p className="text-[10px] text-slate-400">สถานะ</p>
+                <p className="font-bold text-slate-800">
+                  {selectedScan.verification_status === 'อนุมัติแล้ว' ? 'ผ่านโมเดลแล้ว' : selectedScan.verification_status}
+                </p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                <p className="text-[10px] text-slate-400">แต้ม</p>
+                <p className="font-bold text-amber-700">+{selectedScan.points_awarded || 0}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                <p className="text-[10px] text-slate-400">จุดทิ้ง</p>
+                <p className="font-bold text-slate-800">{selectedScan.bin_location || '-'}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                <p className="text-[10px] text-slate-400">CO₂e</p>
+                <p className="font-bold text-teal-700">{(selectedScan.carbon_footprint || 0).toFixed(2)} kg</p>
               </div>
             </div>
 
-            {/* Award Points Input */}
-            {verifyStatus === 'อนุมัติแล้ว' && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  แต้มที่จะมอบให้:
-                </label>
-                <input
-                  type="number"
-                  value={verifyPoints}
-                  onChange={(e) => setVerifyPoints(Number(e.target.value))}
-                  className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-purple-500 font-bold"
-                />
-              </div>
-            )}
+            {selectedScan.admin_comment ? (
+              <p className="text-[11px] text-slate-500 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                {selectedScan.admin_comment}
+              </p>
+            ) : null}
 
-            {/* Comment input */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                บันทึกความเห็น:
-              </label>
-              <textarea
-                value={verifyComment}
-                onChange={(e) => setVerifyComment(e.target.value)}
-                rows={2}
-                className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="ระบุคำแนะนำ..."
-              />
-            </div>
+            <p className="text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
+              ตรวจโดยโมเดล AI (Teachable) — แอดมินไม่ต้องอนุมัติ/ปฏิเสธรูป
+            </p>
 
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setSelectedRecordToVerify(null)}
-                className="flex-1 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveVerification}
-                className="flex-1 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
-              >
-                บันทึก
-              </button>
-            </div>
-
+            <button
+              type="button"
+              onClick={() => setSelectedScan(null)}
+              className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold"
+            >
+              ปิด
+            </button>
           </div>
         </div>
       )}
@@ -1335,7 +1220,7 @@ export const AdminPanel: React.FC = () => {
             <label className="block text-xs font-semibold">ชื่อขวดที่แสดง
               <input required value={plasticForm.display_name_th} onChange={(e) => setPlasticForm({ ...plasticForm, display_name_th: e.target.value })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" placeholder="เช่น ขวด PET ใส 600 ml" />
             </label>
-            <label className="block text-xs font-semibold">ชื่อย่อ (ใช้จับคู่ตอนอนุมัติ)
+            <label className="block text-xs font-semibold">ชื่อย่อ (ใช้จับคู่กับผลจากโมเดล)
               <input value={plasticForm.short_name} onChange={(e) => setPlasticForm({ ...plasticForm, short_name: e.target.value })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" placeholder="เช่น PET" />
             </label>
             <div className="grid grid-cols-2 gap-2">
