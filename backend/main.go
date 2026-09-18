@@ -15,11 +15,13 @@ import (
 func main() {
 	loadBackendEnv()
 	requireSecureSecrets()
+	log.Println("starting EcoBin API…")
 	db, err := openDB()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	log.Println("running migrations…")
 	if err := migrateSoftDelete(db); err != nil {
 		log.Fatal(err)
 	}

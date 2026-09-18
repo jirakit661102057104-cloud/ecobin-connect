@@ -71,6 +71,8 @@ interface AppContextType {
     confidence?: number;
     modelLabel?: string;
     correlationId?: string;
+    captureSource?: 'camera' | 'gallery';
+    imageHash?: string;
   }) => Promise<WasteRecord>;
   addGuestWasteRecord: (data: {
     imageUrl: string;
@@ -436,6 +438,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     confidence?: number;
     modelLabel?: string;
     correlationId?: string;
+    captureSource?: 'camera' | 'gallery';
+    imageHash?: string;
   }): Promise<WasteRecord> => {
     const res = await api<{ record: WasteRecord }>('/api/waste', {
       method: 'POST',
@@ -447,6 +451,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         confidence: data.confidence,
         model_label: data.modelLabel,
         correlation_id: data.correlationId,
+        capture_source: data.captureSource || 'camera',
+        image_hash: data.imageHash,
       }),
     });
     await refreshState();

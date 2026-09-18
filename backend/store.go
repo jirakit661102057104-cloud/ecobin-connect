@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/sha256"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -236,6 +238,84 @@ func (s *Store) saveImage(imageData, id string) (string, error) {
 		return "", err
 	}
 	return "/uploads/" + name, nil
+}
+
+// decodeImagePayload returns raw bytes for a data: URL (or bare base64). Rejects remote http(s) URLs.
+func decodeImagePayload(imageData string) ([]byte, error) {
+	if strings.HasPrefix(imageData, "http://") || strings.HasPrefix(imageData, "https://") {
+		return nil, fmt.Errorf("ไม่รับ URL รูปจากอินเทอร์เน็ต — ต้องถ่ายจากกล้องในแอป")
+	}
+	raw := imageData
+	if i := strings.Index(imageData, ","); i >= 0 && strings.HasPrefix(imageData, "data:") {
+		raw = imageData[i+1:]
+	}
+	b, err := base64.StdEncoding.DecodeString(raw)
+	if err != nil {
+		return nil, fmt.Errorf("รูปแบบรูปไม่ถูกต้อง")
+	}
+	if len(b) < 100 {
+		return nil, fmt.Errorf("ไฟล์รูปสั้นเกินไป")
+	}
+	return b, nil
+}
+
+func hashImageBytes(b []byte) string {
+	sum := sha256.Sum256(b)
+	return hex.EncodeToString(sum[:])
+}
+
+// sniffDownloadedHints looks for common download/edit tool markers in JPEG metadata bytes.
+func sniffDownloadedHints(b []byte) string {
+	n := len(b)
+	if n > 65536 {
+		n = 65536
+	}
+	lower := strings.ToLower(string(b[:n]))
+	suspects := []string{
+		"photoshop", "canva", "gimp", "snipping", "screenshot",
+		"getty", "shutterstock", "unsplash", "pixabay", "wikimedia",
+	}
+	for _, s := range suspects {
+		if strings.Contains(lower, s) {
+			return s
+		}
+	}
+	return ""
+}
+
+func (s *Store) imageHashExists(userID, hash string) (bool, error) {
+	if hash == "" {
+		return false, nil
+	}
+	var n int
+	err := s.db.QueryRow(`SELECT COUNT(*) FROM waste_records
+		WHERE user_id=? AND image_hash=? AND delete_at IS NULL`, userID, hash).Scan(&n)
+	return n > 0, err
+}
+
+func (s *Store) saveWasteImage(imageData, id string) (url string, hash string, err error) {
+	b, err := decodeImagePayload(imageData)
+	if err != nil {
+		return "", "", err
+	}
+	if hint := sniffDownloadedHints(b); hint != "" {
+		return "", "", fmt.Errorf("พบร่องรอยว่าเป็นรูปจากแหล่งดาวน์โหลด/แก้ภาพ (%s) — กรุณาถ่ายจากกล้องใหม่", hint)
+	}
+	hash = hashImageBytes(b)
+	if err := os.MkdirAll(s.uploadDir, 0755); err != nil {
+		return "", "", err
+	}
+	name := id + ".jpg"
+	if strings.Contains(strings.ToLower(imageData), "image/png") {
+		name = id + ".png"
+	} else if strings.Contains(strings.ToLower(imageData), "image/webp") {
+		name = id + ".webp"
+	}
+	path := filepath.Join(s.uploadDir, name)
+	if err := os.WriteFile(path, b, 0644); err != nil {
+		return "", "", err
+	}
+	return "/uploads/" + name, hash, nil
 }
 
 func (s *Store) listBins() ([]SmartBin, error) {

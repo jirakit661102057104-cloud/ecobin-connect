@@ -61,6 +61,23 @@ func migrateSoftDelete(db *sql.DB) error {
 	if err := migrateEventLog(db); err != nil {
 		return err
 	}
+	if err := migrateImageProvenance(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+func migrateImageProvenance(db *sql.DB) error {
+	if err := addColumnIfMissing(db, "waste_records", "image_hash",
+		"CHAR(64) NULL COMMENT 'SHA-256 ของไบต์รูป — กันส่งรูปซ้ำ'"); err != nil {
+		return err
+	}
+	if err := addColumnIfMissing(db, "waste_records", "capture_source",
+		"VARCHAR(16) NULL COMMENT 'camera | gallery'"); err != nil {
+		return err
+	}
+	_, _ = db.Exec(`CREATE INDEX idx_waste_image_hash ON waste_records (image_hash)`)
+	log.Println("waste_records image_hash + capture_source ready")
 	return nil
 }
 

@@ -4,6 +4,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { matchBottleScore } from '../lib/bottleScore';
 import { classifyImageDataUrl } from '../lib/teachableMachine';
+import {
+  type CaptureSource,
+  hashImageDataUrl,
+  sniffDownloadedImageHints,
+} from '../lib/imageProvenance';
 import { 
   Camera, 
   CheckCircle2, 
@@ -39,6 +44,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
   const liveBins = bins.filter((b) => b.status !== 'ปิดปรับปรุง');
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [captureSource, setCaptureSource] = useState<CaptureSource | null>(null);
   const [selectedBin, setSelectedBin] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
@@ -55,6 +61,10 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isOpeningCamera, setIsOpeningCamera] = useState(false);
   const [cameraError, setCameraError] = useState('');
+  /** Mirror preview/capture for selfie / front / laptop webcam */
+  const [mirrorCamera, setMirrorCamera] = useState(false);
+  const [provenanceWarning, setProvenanceWarning] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -87,6 +97,13 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
     }
     setIsCameraOpen(false);
     setIsOpeningCamera(false);
+    setMirrorCamera(false);
+  };
+
+  const shouldMirrorStream = (stream: MediaStream) => {
+    const facing = stream.getVideoTracks()[0]?.getSettings()?.facingMode;
+    // Rear phone camera: natural view. Front / laptop webcam / unknown: mirror like a selfie.
+    return facing !== 'environment';
   };
 
   const openCameraStream = async (): Promise<MediaStream> => {
@@ -144,7 +161,9 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
       await new Promise((resolve) => setTimeout(resolve, 250));
 
       setIsOpeningCamera(true);
-      cameraStreamRef.current = await openCameraStream();
+      const stream = await openCameraStream();
+      cameraStreamRef.current = stream;
+      setMirrorCamera(shouldMirrorStream(stream));
       setIsCameraOpen(true);
     } catch (error) {
       stopCamera();
@@ -166,11 +185,21 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth || 1280;
     canvas.height = video.videoHeight || 720;
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      if (mirrorCamera) {
+        // Match mirrored preview so captured photo = what the user saw
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
     const imageData = canvas.toDataURL('image/jpeg', 0.88);
 
     stopCamera();
     setSelectedImage(imageData);
+    setCaptureSource('camera');
+    setProvenanceWarning('');
     await runTeachableScan(imageData);
   };
 
@@ -266,23 +295,45 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const url = event.target?.result as string;
-        setSelectedImage(url);
-        void runTeachableScan(url);
-      };
-      reader.readAsDataURL(file);
+    e.target.value = '';
+    if (!file) return;
+
+    // Logged-in members must use the live camera to earn points.
+    if (currentUser) {
+      setCameraError(
+        language === 'th'
+          ? 'สมาชิกต้องถ่ายจากกล้องในแอปเท่านั้น จึงจะรับแต้มได้ (กันรูปจากคลัง/อินเทอร์เน็ต)'
+          : 'Members must capture with the in-app camera to earn points (blocks gallery/web photos).',
+      );
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const url = event.target?.result as string;
+      const hint = sniffDownloadedImageHints(url);
+      setCaptureSource('gallery');
+      setSelectedImage(url);
+      setProvenanceWarning(
+        hint ||
+          (language === 'th'
+            ? 'โหมดทดลอง: รูปจากคลังใช้ได้ แต่ไม่ได้แต้มจริง — สมาชิกต้องถ่ายจากกล้อง'
+            : 'Trial mode: gallery photos allowed, but no real points — members must use the camera'),
+      );
+      void runTeachableScan(url);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleReset = () => {
     stopCamera();
     setSelectedImage(null);
+    setCaptureSource(null);
     setScanCompleted(false);
     setIsScanning(false);
     setCameraError('');
+    setProvenanceWarning('');
+    setIsSubmitting(false);
   };
 
   const handleSubmitRecord = async () => {
@@ -297,33 +348,61 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
       return;
     }
 
-    if (currentUser) {
-      await addWasteRecord({
-        imageUrl: selectedImage,
-        plasticType: detectedPlasticType,
-        bottleCount: bottleCount,
-        binLocation: selectedBin,
-        confidence: confidenceScore,
-        modelLabel: modelLabel || undefined,
-        correlationId: correlationId || undefined,
-      });
-    } else {
-      await addGuestWasteRecord({
-        imageUrl: selectedImage,
-        detectedBottles: bottleCount,
-        scanResult: detectionNotes,
-        confidence: confidenceScore,
-        modelLabel: modelLabel || undefined,
-        correlationId: correlationId || undefined,
-      });
+    if (currentUser && captureSource !== 'camera') {
+      alert(
+        language === 'th'
+          ? 'ต้องถ่ายจากกล้องในแอปเท่านั้น จึงจะบันทึกและรับแต้มได้'
+          : 'You must capture with the in-app camera to save and earn points.',
+      );
+      return;
     }
 
-    setTimeout(() => {
-      handleReset();
-      if (onSuccessNavigate) {
-        onSuccessNavigate(currentUser ? 'dashboard' : 'history');
+    const hint = sniffDownloadedImageHints(selectedImage);
+    if (currentUser && hint) {
+      alert(
+        language === 'th'
+          ? `${hint} — กรุณาถ่ายใหม่จากกล้อง`
+          : `${hint} — please retake with the camera`,
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const imageHash = await hashImageDataUrl(selectedImage);
+      if (currentUser) {
+        await addWasteRecord({
+          imageUrl: selectedImage,
+          plasticType: detectedPlasticType,
+          bottleCount: bottleCount,
+          binLocation: selectedBin,
+          confidence: confidenceScore,
+          modelLabel: modelLabel || undefined,
+          correlationId: correlationId || undefined,
+          captureSource: 'camera',
+          imageHash,
+        });
+      } else {
+        await addGuestWasteRecord({
+          imageUrl: selectedImage,
+          detectedBottles: bottleCount,
+          scanResult: detectionNotes,
+          confidence: confidenceScore,
+          modelLabel: modelLabel || undefined,
+          correlationId: correlationId || undefined,
+        });
       }
-    }, 600);
+
+      setTimeout(() => {
+        handleReset();
+        if (onSuccessNavigate) {
+          onSuccessNavigate(currentUser ? 'dashboard' : 'history');
+        }
+      }, 600);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'บันทึกไม่สำเร็จ');
+      setIsSubmitting(false);
+    }
   };
 
   const bottleScore = matchBottleScore(
@@ -364,7 +443,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
           </li>
           <li className="rounded-lg bg-slate-50 px-2.5 py-1.5 border border-slate-100">
             <span className="font-bold text-emerald-700">3.</span>{' '}
-            {language === 'th' ? 'กดบันทึกเพื่อรับแต้มทันที' : 'Save to earn points right away'}
+            {language === 'th' ? 'กดบันทึกเพื่อรับแต้มทันที (ต้องถ่ายจากกล้อง)' : 'Save to earn points (camera capture required)'}
           </li>
         </ol>
       </div>
@@ -403,7 +482,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                   ref={videoRef}
                   muted
                   playsInline
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${mirrorCamera ? 'scale-x-[-1]' : ''}`}
                 />
                 <div className="absolute inset-5 border-2 border-emerald-400/80 rounded-2xl pointer-events-none">
                   <div className="absolute left-1/2 top-1/2 w-2/3 h-2/3 -translate-x-1/2 -translate-y-1/2 border border-dashed border-emerald-300 rounded-xl" />
@@ -495,8 +574,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 </h3>
                 <p className="text-[11px] text-slate-400 mb-5">
                   {language === 'th'
-                    ? 'วางขวดหรือกระป๋องให้อยู่กลางภาพ แสงพอ และพื้นหลังไม่รก'
-                    : 'Place the bottle or can in the center, with good light and a clear background'}
+                    ? currentUser
+                      ? 'สมาชิกต้องถ่ายจากกล้องในแอปเท่านั้น (กันรูปจากคลัง/อินเทอร์เน็ต)'
+                      : 'โหมดทดลอง: ใช้กล้องหรือคลังรูปได้ แต่ไม่ได้แต้มจริง'
+                    : currentUser
+                      ? 'Members must use the in-app camera only (blocks gallery/web photos)'
+                      : 'Trial mode: camera or gallery — no real points'}
                 </p>
 
                 <input 
@@ -520,13 +603,22 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                       : (language === 'th' ? 'เปิดกล้อง' : 'Open camera')}
                   </span>
                 </button>
+                {!currentUser && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="w-full mt-2 flex items-center justify-center gap-2 py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-xl"
                 >
                   <ImageIcon className="w-4 h-4" />
-                  <span>{language === 'th' ? 'เลือกจากคลังรูป' : 'Choose from gallery'}</span>
+                  <span>{language === 'th' ? 'เลือกจากคลังรูป (ทดลอง)' : 'Gallery (trial only)'}</span>
                 </button>
+                )}
+                {currentUser && (
+                  <p className="mt-2 text-[10px] text-amber-200/90 leading-relaxed">
+                    {language === 'th'
+                      ? 'ไม่รับอัปโหลดจากคลังรูปเมื่อล็อกอินแล้ว — ต้องถ่ายสดจากกล้อง'
+                      : 'Gallery upload is disabled while logged in — live camera only'}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -536,7 +628,16 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
               {cameraError}
             </div>
           )}
-
+          {provenanceWarning && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+              {provenanceWarning}
+            </div>
+          )}
+          {captureSource === 'camera' && selectedImage && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px] text-emerald-900 font-semibold">
+              {language === 'th' ? 'แหล่งรูป: กล้องในแอป ✓' : 'Source: in-app camera ✓'}
+            </div>
+          )}
 
         </div>
 
@@ -644,19 +745,21 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({ onSuccessNavigate, o
                 {/* Submit Action */}
                 <button
                   id="scanner-submit-btn"
-                  onClick={handleSubmitRecord}
-                  disabled={!isValidBottle}
+                  onClick={() => void handleSubmitRecord()}
+                  disabled={!isValidBottle || isSubmitting || (Boolean(currentUser) && captureSource !== 'camera')}
                   className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all ${
-                    isValidBottle
+                    isValidBottle && !isSubmitting && (!currentUser || captureSource === 'camera')
                       ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
                       : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                   }`}
                 >
                   <Check className="w-4 h-4" />
                   <span>
-                    {currentUser 
-                      ? (language === 'th' ? `บันทึกและรับ +${estimatedPoints} แต้ม` : `Save and earn +${estimatedPoints} pts`)
-                      : (language === 'th' ? 'บันทึกการทดลอง (ยังไม่ได้รับแต้ม)' : 'Save trial (no points yet)')}
+                    {isSubmitting
+                      ? (language === 'th' ? 'กำลังบันทึก...' : 'Saving...')
+                      : currentUser
+                        ? (language === 'th' ? `บันทึกและรับ +${estimatedPoints} แต้ม` : `Save and earn +${estimatedPoints} pts`)
+                        : (language === 'th' ? 'บันทึกการทดลอง (ยังไม่ได้รับแต้ม)' : 'Save trial (no points yet)')}
                   </span>
                 </button>
                 {!isValidBottle && (

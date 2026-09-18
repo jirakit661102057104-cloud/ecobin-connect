@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoBin Connect — Wireframe ครบทุกหน้า</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* —— Spec (px) ——
+       Phone frame 320 · Desktop 720 · Modal 380
+       Viewport H: phone 580 / desktop 480 / modal 400
+       Box H: sm 28 · md 48 · lg 80 · xl 128 · xxl 192
+       Gap 8 · Stack pad 12 · Device pad 12 · Radius 24/14/8
+    */
+    :root {
+      --ink: #0f2a24;
+      --muted: #5b6f68;
+      --box: #eef6f2;
+      --box-border: #7a9188;
+      --accent: #0d7a66;
+      --accent-soft: #d7f3ea;
+      --page-1: #dceee6;
+      --page-2: #e8f2ec;
+      --frame: #16332c;
+      --admin: #5b4bb6;
+      --admin-soft: #efeafc;
+      --line: #c5d6ce;
+      --surface: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.92);
+      --shadow: 0 16px 40px rgba(15, 42, 36, 0.12);
+      --radius-device: 24px;
+      --radius-viewport: 14px;
+      --radius-box: 8px;
+      --gap: 8px;
+      --pad: 12px;
+      --phone-w: 320px;
+      --desktop-w: 720px;
+      --modal-w: 380px;
+      --content-max: 1120px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Sarabun", "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 12% -10%, #b8e0d0 0%, transparent 55%),
+        radial-gradient(700px 380px at 90% 0%, #c9ddd4 0%, transparent 50%),
+        linear-gradient(180deg, var(--page-1), var(--page-2) 40%, #edf5f1);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .top-shell {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 18px rgba(15, 42, 36, 0.06);
+    }
+    header.doc {
+      padding: 16px 24px 12px;
+      max-width: calc(var(--content-max) + 48px);
+      margin: 0 auto;
+    }
+    header.doc h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+    header.doc .brand-bar {
+      width: 40px;
+      height: 4px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--accent), #2aa88a);
+      margin-bottom: 10px;
+    }
+    header.doc p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 720px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch {
+      width: 18px;
+      height: 12px;
+      border: 1.5px dashed var(--box-border);
+      background: var(--box);
+      border-radius: 3px;
+    }
+    .swatch.solid { border-style: solid; background: #d4e0db; }
+    .swatch.nav { background: #2a3f38; border-color: #2a3f38; border-style: solid; }
+    .swatch.admin { background: var(--admin-soft); border-color: var(--admin); border-style: dashed; }
+
+    .spec-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .spec-chip {
+      font-size: 11px;
+      font-weight: 700;
+      color: #23453c;
+      background: #e7f4ee;
+      border: 1px solid #b9d8cb;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .nav-wrap {
+      padding: 0 24px 14px;
+      max-width: calc(var(--content-max) + 48px);
+      margin: 0 auto;
+    }
+    .nav-group { margin-top: 10px; }
+    .nav-group:first-child { margin-top: 0; }
+    .nav-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .nav-group.admin-g label { color: var(--admin); }
+    #screen-nav,
+    #screen-nav-admin {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    #screen-nav button,
+    #screen-nav-admin button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      padding: 8px 12px;
+      min-height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+    }
+    #screen-nav button:hover,
+    #screen-nav-admin button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    #screen-nav button:focus-visible,
+    #screen-nav-admin button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    #screen-nav button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    #screen-nav-admin button.admin-btn.active {
+      background: var(--admin);
+      border-color: var(--admin);
+      color: #fff;
+    }
+    #screen-nav-admin button.admin-btn:hover {
+      border-color: var(--admin);
+      color: var(--admin);
+    }
+
+    .coverage {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    .coverage strong { color: var(--ink); }
+
+    main {
+      padding: 24px 24px 64px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .screen-panel {
+      display: none;
+      width: 100%;
+      max-width: var(--content-max);
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(15, 42, 36, 0.05);
+    }
+    .screen-panel.active { display: block; }
+    .screen-meta { margin-bottom: 16px; }
+    .screen-meta h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .screen-meta p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .tag.member { background: var(--accent-soft); color: #0b5c4d; }
+    .tag.admin { background: var(--admin-soft); color: #4338a3; }
+    .tag.modal { background: #fff1d6; color: #8a5a00; }
+    .tag.guest { background: #dff0fb; color: #0b5f86; }
+
+    .frames {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+    }
+    .device {
+      background: var(--surface);
+      border: 2px solid var(--frame);
+      border-radius: var(--radius-device);
+      padding: var(--pad);
+      box-shadow: var(--shadow);
+    }
+    .device.phone { width: var(--phone-w); }
+    .device.desktop { width: var(--desktop-w); max-width: 100%; }
+    .device.modal-frame { width: var(--modal-w); }
+    .device-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .viewport {
+      border: 1.5px solid #9bb5ab;
+      border-radius: var(--radius-viewport);
+      background: #f7fbf9;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 480px;
+    }
+    .device.phone .viewport { min-height: 580px; }
+    .device.modal-frame .viewport {
+      min-height: 400px;
+      background: rgba(15, 42, 36, 0.48);
+      padding: 16px;
+      border: none;
+    }
+
+    .box {
+      border: 1.5px dashed var(--box-border);
+      background: var(--box);
+      border-radius: var(--radius-box);
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #2d433c;
+    }
+    .box.solid { border-style: solid; background: #dce8e2; }
+    .box.nav {
+      border-style: solid;
+      background: #2a3f38;
+      color: #e6f2ec;
+      border-color: #16332c;
+    }
+    .box.accent {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #0b5c4d;
+    }
+    .box.admin {
+      border-color: var(--admin);
+      background: var(--admin-soft);
+      color: #4338a3;
+    }
+    .box .hint {
+      display: block;
+      font-weight: 500;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .box.nav .hint { color: #a8c4ba; }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      padding: var(--pad);
+      flex: 1;
+    }
+    .row { display: flex; gap: var(--gap); }
+    .row > * { flex: 1; min-width: 0; }
+    .grow { flex: 1; }
+    .h-sm { min-height: 28px; }
+    .h-md { min-height: 48px; }
+    .h-lg { min-height: 80px; }
+    .h-xl { min-height: 128px; }
+    .h-xxl { min-height: 192px; }
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex-direction: column;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--gap); }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--gap); }
+
+    .footer-note {
+      max-width: var(--content-max);
+      margin: 0 auto 40px;
+      padding: 0 24px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .footer-note code {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    @media (max-width: 760px) {
+      header.doc,
+      .nav-wrap { padding-left: 16px; padding-right: 16px; }
+      main { padding: 16px 16px 48px; }
+      .screen-panel { padding: 14px; border-radius: 16px; }
+      .device.desktop { width: 100%; }
+      .device.phone { width: min(320px, 100%); }
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+      header.doc h1 { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-shell">
+    <header class="doc">
+      <div class="brand-bar" aria-hidden="true"></div>
+      <h1>EcoBin Connect — Wireframe ครบทุกหน้าหลัก</h1>
+      <p>
+        โครงร่างกล่อง (low-fidelity) ครอบคลุม Member / Guest / Admin / Modal สำคัญ ตามระบบจริง —
+        AI (Teachable) ตรวจรูปให้แต้ม · แอดมินไม่อนุมัติรูป · แอดมินสแกน QR จ่ายของรางวัล
+      </p>
+      <div class="legend">
+        <span><i class="swatch"></i> เนื้อหา</span>
+        <span><i class="swatch solid"></i> ปุ่ม</span>
+        <span><i class="swatch nav"></i> Header / Nav</span>
+        <span><i class="swatch admin"></i> โซน Admin</span>
+      </div>
+      <div class="spec-row" aria-label="ขนาดที่ใช้ px">
+        <span class="spec-chip">Phone 320×580</span>
+        <span class="spec-chip">Desktop 720×480</span>
+        <span class="spec-chip">Modal 380×400</span>
+        <span class="spec-chip">Gap 8</span>
+        <span class="spec-chip">Pad 12</span>
+        <span class="spec-chip">H: 28 / 48 / 80 / 128 / 192</span>
+        <span class="spec-chip">Radius 24 / 14 / 8</span>
+      </div>
+    </header>
+
+    <div class="nav-wrap">
+      <div class="nav-group">
+        <label>สมาชิก / Guest</label>
+        <div id="screen-nav">
+          <button type="button" data-screen="login" class="active">1. Login</button>
+          <button type="button" data-screen="dashboard">2. Dashboard</button>
+          <button type="button" data-screen="scan">3. สแกนขยะ</button>
+          <button type="button" data-screen="guest-scan">4. Guest สแกน</button>
+          <button type="button" data-screen="rewards">5. ของรางวัล</button>
+          <button type="button" data-screen="redeem-modal">6. Modal แลก</button>
+          <button type="button" data-screen="history">7. ประวัติ</button>
+          <button type="button" data-screen="guide">8. คู่มือ</button>
+          <button type="button" data-screen="settings">9. ตั้งค่า</button>
+          <button type="button" data-screen="profile-modal">10. กรอกโปรไฟล์</button>
+          <button type="button" data-screen="research-modal">11. เกี่ยวกับโครงการ</button>
+        </div>
+      </div>
+      <div class="nav-group admin-g">
+        <label>Admin</label>
+        <div id="screen-nav-admin">
+          <button type="button" class="admin-btn" data-screen="admin">12. ภาพรวม</button>
+          <button type="button" class="admin-btn" data-screen="admin-qr">13. สแกน QR</button>
+          <button type="button" class="admin-btn" data-screen="admin-scans">14. รายการสแกน</button>
+          <button type="button" class="admin-btn" data-screen="admin-users">15. สมาชิก</button>
+          <button type="button" class="admin-btn" data-screen="admin-rewards">16. จัดการรางวัล</button>
+          <button type="button" class="admin-btn" data-screen="admin-redemptions">17. คิวรับของ</button>
+          <button type="button" class="admin-btn" data-screen="admin-bins">18. จุดทิ้ง</button>
+          <button type="button" class="admin-btn" data-screen="admin-rules">19. กฎระบบ</button>
+          <button type="button" class="admin-btn" data-screen="admin-activity">20. Activity Log</button>
+          <button type="button" class="admin-btn" data-screen="admin-relations">21. ประวัติผู้ใช้</button>
+          <button type="button" class="admin-btn" data-screen="admin-crud">22. Modal CRUD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <p class="coverage">
+      <strong>ครอบคลุม 22 แผ่น</strong> = หน้าหลักทุกแท็บ + modal สำคัญของ flow ·
+      ไม่แยก empty/loading/error (ใช้หมายเหตุในกล่องได้)
+    </p>
+
+
+    <!-- 1 LOGIN -->
+    <section class="screen-panel active" id="screen-login">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>1. เข้าสู่ระบบ (/login)</h2>
+        <p>Google / อีเมล-รหัส / ทดลอง Guest</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport"><div class="stack">
+            <div class="box center h-md">Logo + EcoBin Connect</div>
+            <div class="box h-sm">หัวข้อเข้าสู่ระบบ</div>
+            <div class="box solid h-md center">Google Login</div>
+            <div class="box h-sm center">— หรือ —</div>
+            <div class="box h-md">อีเมล / เบอร์</div>
+            <div class="box h-md">รหัสผ่าน</div>
+            <div class="box solid accent h-md center">เข้าสู่ระบบ</div>
+            <div class="box h-sm">ทดลองแบบ Guest</div>
+            <div class="box grow h-lg">ข้อความช่วยเหลือ</div>
+          </div></div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop 2 คอลัมน์</div>
+          <div class="viewport">
+            <div class="row grow" style="padding:12px;min-height:460px;">
+              <div class="box grow stack" style="flex:1.05;padding:12px;">
+                <div class="box h-sm">Brand</div>
+                <div class="box h-lg">Headline + คำอธิบาย</div>
+                <div class="grid-3">
+                  <div class="box h-md center">KPI</div>
+                  <div class="box h-md center">KPI</div>
+                  <div class="box h-md center">KPI</div>
+                </div>
+                <div class="box grow h-xl">ภาพแคมปัส</div>
+              </div>
+              <div class="stack" style="flex:0.95;">
+                <div class="box h-sm">ฟอร์ม Login</div>
+                <div class="box solid h-md center">Google</div>
+                <div class="box h-md">อีเมล</div>
+                <div class="box h-md">รหัสผ่าน</div>
+                <div class="box solid accent h-md center">เข้าสู่ระบบ</div>
+                <div class="box h-sm">Guest</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 DASHBOARD -->
+    <section class="screen-panel" id="screen-dashboard">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>2. แดชบอร์ด</h2>
+        <p>Header ร่วม · KPI · กราฟ · CTA สแกน · popup รายละเอียดเมตริก</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header: Logo · หน้าหลัก/สแกน/รางวัล/ตั้งค่า · Avatar</div>
+            <div class="stack">
+              <div class="box h-sm">ประกาศ (ถ้ามี)</div>
+              <div class="box accent h-lg">Hero ทักทาย + แต้ม</div>
+              <div class="grid-2">
+                <div class="box h-md center">แต้ม</div>
+                <div class="box h-md center">ขวด</div>
+                <div class="box h-md center">CO₂e</div>
+                <div class="box h-md center">ต้นไม้</div>
+              </div>
+              <div class="box solid accent h-md center">ไปสแกนขยะ</div>
+              <div class="box h-xl">กราฟ 7 วัน</div>
+              <div class="box h-lg">รายการล่าสุด</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Footer ด้านล่างหน้า</div>
+            <div class="stack">
+              <div class="box accent h-lg">Hero</div>
+              <div class="grid-4">
+                <div class="box h-md center">แต้ม</div>
+                <div class="box h-md center">ขวด</div>
+                <div class="box h-md center">CO₂e</div>
+                <div class="box h-md center">ต้นไม้</div>
+              </div>
+              <div class="row">
+                <div class="box grow h-xxl">กราฟ</div>
+                <div class="box" style="flex:0.4;">CTA + ลิงก์ประวัติ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 SCAN -->
+    <section class="screen-panel" id="screen-scan">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>3. สแกนขยะ (Teachable)</h2>
+        <p>กล้อง/อัปโหลด → AI ≥80% → จุดทิ้ง → บันทึกได้แต้มทันที</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">หัวข้อสแกนขยะ</div>
+              <div class="box h-xxl center">พรีวิวกล้อง / รูป</div>
+              <div class="row">
+                <div class="box solid h-md center">เปิดกล้อง</div>
+                <div class="box solid h-md center">อัปโหลด</div>
+              </div>
+              <div class="box accent h-lg">ผล AI + % ความมั่นใจ</div>
+              <div class="box h-md">เลือกจุดทิ้ง</div>
+              <div class="box h-sm">จำนวน / แต้มโดยประมาณ</div>
+              <div class="box solid accent h-md center">ยืนยันบันทึก</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="row grow">
+                <div class="box grow h-xxl center">พรีวิว</div>
+                <div class="stack" style="flex:0.5;">
+                  <div class="box accent h-lg">ผล AI</div>
+                  <div class="box h-md">จุดทิ้ง</div>
+                  <div class="box h-md">จำนวน + แต้ม</div>
+                  <div class="box solid accent h-md center">บันทึก</div>
+                  <div class="box h-sm">คู่มือถ่ายรูป (popup)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 GUEST SCAN -->
+    <section class="screen-panel" id="screen-guest-scan">
+      <div class="screen-meta">
+        <h2><span class="tag guest">Guest</span>4. สแกนทดลอง (ยังไม่ล็อกอิน)</h2>
+        <p>โครงเหมือนสแกนสมาชิก แต่ไม่ได้แต้มจริง · บันทึก guest log · CTA ให้เข้าสู่ระบบ</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header (Guest) · ปุ่มเข้าสู่ระบบ</div>
+            <div class="stack">
+              <div class="box h-sm">แบนเนอร์: โหมดทดลอง — ไม่ได้แต้มจริง</div>
+              <div class="box h-xxl center">พรีวิวกล้อง / รูป</div>
+              <div class="box accent h-lg">ผล AI (ทดลอง)</div>
+              <div class="box h-md">จุดทิ้ง (ถ้าเลือกได้)</div>
+              <div class="box solid h-md center">บันทึกทดลอง</div>
+              <div class="box solid accent h-md center">เข้าสู่ระบบเพื่อได้แต้มจริง</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header Guest</div>
+            <div class="stack">
+              <div class="box h-sm">โหมดทดลอง</div>
+              <div class="row">
+                <div class="box grow h-xxl">พรีวิว</div>
+                <div class="box" style="flex:0.45;">ผล AI + CTA Login</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 REWARDS -->
+    <section class="screen-panel" id="screen-rewards">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>5. แคตตาล็อกของรางวัล</h2>
+        <p>กริดการ์ด · แต้มคงเหลือ · ปุ่มแลก</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">หัวข้อ + แต้มคงเหลือ</div>
+              <div class="box h-xl">การ์ดรางวัล #1 (รูป·ชื่อ·แต้ม·แลก)</div>
+              <div class="box h-xl">การ์ดรางวัล #2</div>
+              <div class="box h-xl">การ์ดรางวัล #3</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop กริด 3</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">หัวข้อ + แต้ม</div>
+              <div class="grid-3">
+                <div class="box h-xl">รางวัล A</div>
+                <div class="box h-xl">รางวัล B</div>
+                <div class="box h-xl">รางวัล C</div>
+              </div>
+              <div class="grid-3">
+                <div class="box h-xl">รางวัล D</div>
+                <div class="box h-xl">รางวัล E</div>
+                <div class="box h-xl">รางวัล F</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 REDEEM MODAL -->
+    <section class="screen-panel" id="screen-redeem-modal">
+      <div class="screen-meta">
+        <h2><span class="tag modal">Modal</span>6. ยืนยันแลกรางวัล → ได้รหัสรับของ / QR</h2>
+        <p>Step 1 ยืนยันหักแต้ม · Step 2 แสดง pickup code + QR ให้แอดมินสแกน</p>
+      </div>
+      <div class="frames">
+        <div class="device modal-frame">
+          <div class="device-label">Step 1 ยืนยัน</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box h-sm">หัวข้อ: ยืนยันการแลก</div>
+              <div class="box h-lg">รูป + ชื่อรางวัล + แต้มที่ใช้</div>
+              <div class="box h-md">แต้มปัจจุบัน / ใช้ / คงเหลือ</div>
+              <div class="row">
+                <div class="box solid h-md center">ยกเลิก</div>
+                <div class="box solid accent h-md center">ยืนยันแลก</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device modal-frame">
+          <div class="device-label">Step 2 สำเร็จ</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box accent h-sm center">แลกสำเร็จ</div>
+              <div class="box h-xl center">QR Code รับของ</div>
+              <div class="box h-md center">รหัสรับของ (pickup code)</div>
+              <div class="box h-sm">คำแนะนำ: แสดงให้แอดมินสแกน</div>
+              <div class="box solid h-md center">ปิด / ไปประวัติ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 HISTORY -->
+    <section class="screen-panel" id="screen-history">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>7. ประวัติ (4 แท็บย่อย)</h2>
+        <p>ขยะ · แต้ม · แลกรางวัล · ทดลอง Guest</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">แท็บขยะ</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="row">
+                <div class="box solid h-sm center">ขยะ</div>
+                <div class="box h-sm center">แต้ม</div>
+                <div class="box h-sm center">แลก</div>
+                <div class="box h-sm center">Guest</div>
+              </div>
+              <div class="box h-sm">ค้นหา</div>
+              <div class="box h-lg">แถว: รูป · ประเภท · ผ่านโมเดล · แต้ม</div>
+              <div class="box h-lg">แถวรายการ</div>
+              <div class="box h-lg">แถวรายการ</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">แท็บอื่น (โครงเดียวกัน)</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="grid-2">
+                <div class="box h-xl">
+                  แท็บแต้ม
+                  <span class="hint">รายการ earn / redeem ใน point_transactions</span>
+                </div>
+                <div class="box h-xl">
+                  แท็บแลก
+                  <span class="hint">ชื่อรางวัล · รหัส · สถานะรอรับ/สำเร็จ</span>
+                </div>
+              </div>
+              <div class="box h-xl">
+                แท็บ Guest
+                <span class="hint">session · ผลทดลอง · แต้มประมาณการ (ไม่จริง)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 GUIDE -->
+    <section class="screen-panel" id="screen-guide">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>8. คู่มือพลาสติก</h2>
+        <p>การ์ดประเภทขวด / เบอร์พลาสติก</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">หัวข้อคู่มือ</div>
+              <div class="box h-xl">PET #1</div>
+              <div class="box h-xl">HDPE #2</div>
+              <div class="box h-xl">อื่นๆ</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">คำอธิบายสั้น</div>
+              <div class="grid-3">
+                <div class="box h-xl">ประเภท A</div>
+                <div class="box h-xl">ประเภท B</div>
+                <div class="box h-xl">ประเภท C</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 SETTINGS -->
+    <section class="screen-panel" id="screen-settings">
+      <div class="screen-meta">
+        <h2><span class="tag member">Member</span>9. ตั้งค่า + Popup เมนู</h2>
+        <p>รายการเมนูเปิด modal: โปรไฟล์ · ภาษา · 3Rs · ประวัติแลก · PDPA · ออกจากระบบ</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">รายการเมนู</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-md">โปรไฟล์ →</div>
+              <div class="box h-md">ภาษา TH/EN →</div>
+              <div class="box h-md">Document 3Rs →</div>
+              <div class="box h-md">ประวัติแลกรางวัล →</div>
+              <div class="box h-md">นโยบาย PDPA →</div>
+              <div class="box solid h-md center">ออกจากระบบ</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">ตัวอย่าง Popup โปรไฟล์</div>
+          <div class="viewport">
+            <div class="stack">
+              <div class="box solid" style="background:#fff;">
+                Modal โปรไฟล์
+                <span class="hint">ชื่อ · รหัสนักศึกษา · คณะ · อวาตาร์ · บันทึก</span>
+              </div>
+              <div class="grid-2">
+                <div class="box h-lg">Modal ภาษา</div>
+                <div class="box h-lg">Modal PDPA</div>
+                <div class="box h-lg">Modal 3Rs เอกสาร</div>
+                <div class="box h-lg">Modal ประวัติแลก + รหัส</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 COMPLETE PROFILE -->
+    <section class="screen-panel" id="screen-profile-modal">
+      <div class="screen-meta">
+        <h2><span class="tag modal">Modal</span>10. กรอกโปรไฟล์หลัง Login (Google/ใหม่)</h2>
+        <p>บังคับกรอกเมื่อ needs_profile</p>
+      </div>
+      <div class="frames">
+        <div class="device modal-frame">
+          <div class="device-label">Complete Profile</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box h-sm">หัวข้อ: กรอกข้อมูลสมาชิก</div>
+              <div class="box h-md">ชื่อ–นามสกุล</div>
+              <div class="box h-md">รหัสนักศึกษา</div>
+              <div class="box h-md">คณะ / ภาควิชา</div>
+              <div class="box solid accent h-md center">บันทึกแล้วเข้าใช้งาน</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 RESEARCH -->
+    <section class="screen-panel" id="screen-research-modal">
+      <div class="screen-meta">
+        <h2><span class="tag modal">Modal</span>11. เกี่ยวกับโครงการวิจัย</h2>
+        <p>เปิดจาก Header / Footer</p>
+      </div>
+      <div class="frames">
+        <div class="device modal-frame">
+          <div class="device-label">Research Info</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box h-sm">หัวข้อโครงการ EcoBin PCRU</div>
+              <div class="box grow h-xl">เนื้อหาวิจัย / วัตถุประสงค์ / ผู้จัดทำ</div>
+              <div class="box solid h-md center">ปิด</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 ADMIN OVERVIEW -->
+    <section class="screen-panel" id="screen-admin">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>12. แผงควบคุม — ภาพรวม</h2>
+        <p>Header แอดมิน: แผงควบคุม · สแกน QR · ตั้งค่า</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header Admin</div>
+            <div class="stack">
+              <div class="box admin h-lg">แบนเนอร์แผงควบคุม</div>
+              <div class="box h-sm">Subnav แท็บย่อย (เลื่อนแนวนอน)</div>
+              <div class="grid-2">
+                <div class="box h-md center">KPI สแกน</div>
+                <div class="box h-md center">KPI สมาชิก</div>
+                <div class="box h-md center">KPI ขวด</div>
+                <div class="box h-md center">KPI รอรับของ</div>
+              </div>
+              <div class="box solid h-md">ทางลัดแท็บต่าง ๆ</div>
+              <div class="box h-xl">กราฟวิทยาเขต</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header: แผงควบคุม | สแกน QR | ตั้งค่า</div>
+            <div class="stack">
+              <div class="box admin h-md">แบนเนอร์</div>
+              <div class="box h-sm">Subnav: ภาพรวม|สแกน|สมาชิก|รางวัล|คิว|จุดทิ้ง|กฎ|Activity|ประวัติผู้ใช้</div>
+              <div class="grid-4">
+                <div class="box h-md center">สแกน</div>
+                <div class="box h-md center">สมาชิก</div>
+                <div class="box h-md center">ขวด</div>
+                <div class="box h-md center">รอรับของ</div>
+              </div>
+              <div class="row">
+                <div class="box grow h-xl">Bar จุดทิ้ง</div>
+                <div class="box" style="flex:0.4;">Pie พลาสติก</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 ADMIN QR -->
+    <section class="screen-panel" id="screen-admin-qr">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>13. สแกน QR แลกรางวัล (เมนูหลักแอดมิน)</h2>
+        <p>คนละหน้ากับสแกนขยะสมาชิก · กล้อง + พิมพ์รหัส · ยืนยันจ่ายของ</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header (แท็บสแกน QR)</div>
+            <div class="stack">
+              <div class="box admin h-sm">หัวข้อ: สแกน QR แลกรางวัล</div>
+              <div class="box h-xxl center">กล้องแอดมิน + กรอบสแกน</div>
+              <div class="row">
+                <div class="box h-md">พิมพ์รหัสรับของ</div>
+                <div class="box solid h-md center">ค้นหา</div>
+              </div>
+              <div class="box h-lg">ผลค้นหา: ของ · สมาชิก · แต้ม</div>
+              <div class="box solid accent h-md center">ยืนยันจ่ายของ</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box admin h-sm">คำอธิบายสั้น</div>
+              <div class="box h-xxl center">วิดีโอกล้อง</div>
+              <div class="row">
+                <div class="box grow h-md">ช่องรหัส</div>
+                <div class="box solid h-md center">ค้นหา</div>
+              </div>
+              <div class="box h-xl">การ์ดผลลัพธ์ + ปุ่มจ่ายของ / สแกนใหม่</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 ADMIN SCANS -->
+    <section class="screen-panel" id="screen-admin-scans">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>14. รายการสแกน (อ่านอย่างเดียว)</h2>
+        <p>ไม่มีอนุมัติ/ปฏิเสธ · ดูรายละเอียดที่โมเดลตรวจแล้ว</p>
+      </div>
+      <div class="frames">
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav</div>
+            <div class="stack">
+              <div class="box accent h-sm">AI ตรวจแล้ว — ไม่อนุมัติมือ</div>
+              <div class="row">
+                <div class="box solid h-sm center">ทั้งหมด</div>
+                <div class="box h-sm center">ผ่านโมเดล</div>
+                <div class="box h-sm center">ค้างเก่า</div>
+              </div>
+              <div class="box h-sm">ค้นหา / กรอง</div>
+              <div class="box h-lg">แถว + ดูรายละเอียด</div>
+              <div class="box h-lg">แถว</div>
+            </div>
+          </div>
+        </div>
+        <div class="device desktop">
+          <div class="device-label">+ Modal รายละเอียด</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-xl">ลิสต์สแกน</div>
+              <div class="box solid">
+                Modal อ่านอย่างเดียว
+                <span class="hint">รูป · สถานะผ่านโมเดล · แต้ม · จุดทิ้ง · CO₂e · ปิด</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 ADMIN USERS -->
+    <section class="screen-panel" id="screen-admin-users">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>15. จัดการสมาชิก</h2>
+        <p>ตารางผู้ใช้ · ค้นหา · ปุ่มจัดการ (แก้ role / ปรับแต้ม / ปิดบัญชี)</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav สมาชิก</div>
+            <div class="stack">
+              <div class="row">
+                <div class="box h-sm grow">หัวข้อรายชื่อผู้ใช้</div>
+                <div class="box h-sm">ค้นหา</div>
+              </div>
+              <div class="box h-xxl">
+                ตาราง: User · รหัส/อีเมล · สิทธิ์ · แต้ม · CO₂e · ปุ่มจัดการ
+              </div>
+              <div class="box solid">
+                Modal จัดการผู้ใช้
+                <span class="hint">role Admin/Member · ปรับแต้ม ± · เหตุผล · ปิดบัญชี</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">ค้นหา</div>
+              <div class="box h-lg">การ์ดผู้ใช้ #1 + จัดการ</div>
+              <div class="box h-lg">การ์ดผู้ใช้ #2</div>
+              <div class="box h-lg">การ์ดผู้ใช้ #3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 ADMIN REWARDS -->
+    <section class="screen-panel" id="screen-admin-rewards">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>16. จัดการของรางวัล</h2>
+        <p>เพิ่ม / แก้ / ลบ · สต็อก · แต้มที่ใช้แลก</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav</div>
+            <div class="stack">
+              <div class="row">
+                <div class="box h-sm grow">รายการของรางวัล</div>
+                <div class="box solid h-sm center">+ เพิ่มของรางวัล</div>
+              </div>
+              <div class="grid-3">
+                <div class="box h-xl">การ์ด (รูป·สต็อก·แต้ม·แก้/ลบ)</div>
+                <div class="box h-xl">การ์ด</div>
+                <div class="box h-xl">การ์ด</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box solid accent h-sm center">+ เพิ่ม</div>
+              <div class="box h-xl">การ์ดรางวัล</div>
+              <div class="box h-xl">การ์ดรางวัล</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 ADMIN REDEMPTIONS -->
+    <section class="screen-panel" id="screen-admin-redemptions">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>17. คิวรับของรางวัล</h2>
+        <p>ตารางแลก · จ่ายของ / ยกเลิกคืนแต้ม · ลิงก์ไปสแกน QR</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav คิวรับของ</div>
+            <div class="stack">
+              <div class="box h-sm">คำอธิบาย: สแกน QR หรือใช้ตารางนี้</div>
+              <div class="box h-xxl">
+                ตาราง: วันที่ · ผู้แลก · ของ · แต้ม · รหัส · สถานะ · จ่าย/ยกเลิก
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-lg">รายการรอรับ #1 + ปุ่ม</div>
+              <div class="box h-lg">รายการรอรับ #2</div>
+              <div class="box h-lg">สำเร็จแล้ว (ย่อ)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 ADMIN BINS -->
+    <section class="screen-panel" id="screen-admin-bins">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>18. จุดทิ้งขยะ (Smart bins)</h2>
+        <p>รายการถัง · เพิ่ม/แก้/ปิด · สมาชิกเลือกตอนสแกน</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav จุดทิ้ง</div>
+            <div class="stack">
+              <div class="row">
+                <div class="box h-sm grow">จุดทิ้งขยะ</div>
+                <div class="box solid h-sm center">+ เพิ่มจุดทิ้ง</div>
+              </div>
+              <div class="grid-2">
+                <div class="box h-lg">ชื่อถัง · สถานะ · ความจุ · แก้/ลบ</div>
+                <div class="box h-lg">จุดทิ้ง #2</div>
+                <div class="box h-lg">จุดทิ้ง #3</div>
+                <div class="box h-lg">จุดทิ้ง #4</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box solid h-sm center">+ เพิ่ม</div>
+              <div class="box h-lg">การ์ดจุดทิ้ง</div>
+              <div class="box h-lg">การ์ดจุดทิ้ง</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 ADMIN RULES -->
+    <section class="screen-panel" id="screen-admin-rules">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>19. กฎระบบ + ชนิดขวด/แต้ม</h2>
+        <p>ค่าเริ่มต้นแต้ม/CO₂ · ประกาศ · ตาราง plastic_types</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav กฎระบบ</div>
+            <div class="stack">
+              <div class="box h-sm">ค่าเริ่มต้น (fallback)</div>
+              <div class="grid-2">
+                <div class="box h-md">แต้มต่อขวด</div>
+                <div class="box h-md">kg CO₂e ต่อขวด</div>
+              </div>
+              <div class="box h-md">ประกาศถึงสมาชิก</div>
+              <div class="box solid h-sm center">บันทึกค่าเริ่มต้น</div>
+              <div class="row">
+                <div class="box h-sm grow">ชนิดขวดและแต้ม</div>
+                <div class="box solid h-sm center">+ เพิ่มชนิด</div>
+              </div>
+              <div class="box h-xl">ตาราง: ชื่อ · ชื่อย่อ · แต้ม/ขวด · carbon factor · แก้/ลบ</div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-lg">ฟอร์มค่าเริ่มต้น</div>
+              <div class="box h-xl">ลิสต์ชนิดขวด</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 ACTIVITY -->
+    <section class="screen-panel" id="screen-admin-activity">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>20. Activity Log</h2>
+        <p>กรองกลุ่มสแกน / โมเดล / ทั้งหมด · ไทม์ไลน์ system_events</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav Activity</div>
+            <div class="stack">
+              <div class="row">
+                <div class="box solid h-sm center">สแกน</div>
+                <div class="box h-sm center">โมเดล</div>
+                <div class="box h-sm center">ทั้งหมด</div>
+              </div>
+              <div class="box h-sm">ช่วงวัน + ค้นหา + ประเภทอีเวนต์</div>
+              <div class="box grow h-xxl">ตาราง / ไทม์ไลน์อีเวนต์</div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-sm">ตัวกรอง</div>
+              <div class="box h-lg">อีเวนต์ #1</div>
+              <div class="box h-lg">อีเวนต์ #2</div>
+              <div class="box h-lg">อีเวนต์ #3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 RELATIONS -->
+    <section class="screen-panel" id="screen-admin-relations">
+      <div class="screen-meta">
+        <h2><span class="tag admin">Admin</span>21. ประวัติผู้ใช้ (1:M relations)</h2>
+        <p>เลือกสมาชิก → ดู waste / transactions / redemptions ที่ผูกกัน</p>
+      </div>
+      <div class="frames">
+        <div class="device desktop">
+          <div class="device-label">Desktop</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header + Subnav ประวัติผู้ใช้</div>
+            <div class="stack">
+              <div class="box h-sm">คำอธิบายความสัมพันธ์ตาราง</div>
+              <div class="row grow">
+                <div class="box" style="flex:0.4;">
+                  รายชื่อผู้ใช้ (1)
+                  <span class="hint">คลิกเลือก parent</span>
+                </div>
+                <div class="box grow">
+                  ลูกของ user ที่เลือก (M)
+                  <span class="hint">waste_records · point_transactions · redemptions</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device phone">
+          <div class="device-label">Mobile</div>
+          <div class="viewport">
+            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="stack">
+              <div class="box h-lg">เลือกผู้ใช้</div>
+              <div class="box h-xl">รายการลูกที่ผูก</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22 CRUD MODALS -->
+    <section class="screen-panel" id="screen-admin-crud">
+      <div class="screen-meta">
+        <h2><span class="tag modal">Modal</span><span class="tag admin">Admin</span>22. Modal CRUD แบบใช้ซ้ำ</h2>
+        <p>โครงเดียวกันสำหรับ รางวัล · จุดทิ้ง · ชนิดขวด · (จัดการผู้ใช้)</p>
+      </div>
+      <div class="frames">
+        <div class="device modal-frame">
+          <div class="device-label">เพิ่ม/แก้ รางวัล</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box h-sm">หัวข้อ Modal</div>
+              <div class="box h-md">ชื่อ</div>
+              <div class="box h-md">แต้มที่ใช้ / สต็อก</div>
+              <div class="box h-md">หมวด / URL รูป</div>
+              <div class="box h-md">คำอธิบาย</div>
+              <div class="row">
+                <div class="box solid h-md center">ยกเลิก</div>
+                <div class="box solid accent h-md center">บันทึก</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="device modal-frame">
+          <div class="device-label">จุดทิ้ง / ชนิดขวด</div>
+          <div class="viewport">
+            <div class="box solid stack" style="background:#fff;min-height:360px;">
+              <div class="box h-sm">หัวข้อ</div>
+              <div class="box h-md">ชื่อ / ชื่อย่อ</div>
+              <div class="box h-md">สถานะ หรือ แต้มต่อขวด</div>
+              <div class="box h-md">ความจุ / carbon factor</div>
+              <div class="row">
+                <div class="box solid h-md center">ยกเลิก</div>
+                <div class="box solid accent h-md center">บันทึก</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="footer-note">
+    ไฟล์: <code>docs/wireframes/index.html</code> · เปิดในเบราว์เซอร์ ·
+    ใช้ประกอบเอกสารโครงร่าง UI (ไม่ใช่หน้า production)
+  </p>
+
+  <script>
+    function bindNav(root) {
+      root.querySelectorAll('button[data-screen]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-screen');
+          document.querySelectorAll('button[data-screen]').forEach((b) => {
+            b.classList.toggle('active', b === btn);
+          });
+          document.querySelectorAll('.screen-panel').forEach((p) => {
+            p.classList.toggle('active', p.id === 'screen-' + id);
+          });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    }
+    bindNav(document.getElementById('screen-nav'));
+    bindNav(document.getElementById('screen-nav-admin'));
+  </script>
+</body>
+</html>

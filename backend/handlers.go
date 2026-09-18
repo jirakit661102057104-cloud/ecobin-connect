@@ -360,18 +360,37 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		Confidence    float64  `json:"confidence"`
 		ModelLabel    string   `json:"model_label"`
 		CorrelationID string   `json:"correlation_id"`
+		CaptureSource string   `json:"capture_source"`
+		ImageHash     string   `json:"image_hash"`
 	}
 	if err := readJSON(r, &body); err != nil {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
+		return
+	}
+	if strings.TrimSpace(strings.ToLower(body.CaptureSource)) != "camera" {
+		writeJSON(w, 400, map[string]string{
+			"error": "ต้องถ่ายจากกล้องในแอปเท่านั้น จึงจะบันทึกและรับแต้มได้ (ไม่รับรูปจากคลัง/อินเทอร์เน็ต)",
+		})
 		return
 	}
 	if body.BottleCount < 1 {
 		body.BottleCount = 1
 	}
 	id := newID("REC")
-	img, err := s.store.saveImage(body.ImageData, id)
+	img, imageHash, err := s.store.saveWasteImage(body.ImageData, id)
 	if err != nil {
-		writeJSON(w, 500, map[string]string{"error": "บันทึกรูปไม่สำเร็จ"})
+		writeJSON(w, 400, map[string]string{"error": err.Error()})
+		return
+	}
+	if body.ImageHash != "" && !strings.EqualFold(body.ImageHash, imageHash) {
+		writeJSON(w, 400, map[string]string{"error": "ลายเซ็นรูปไม่ตรง — กรุณาถ่ายใหม่จากกล้อง"})
+		return
+	}
+	if exists, err := s.store.imageHashExists(me.UserID, imageHash); err != nil {
+		writeJSON(w, 500, map[string]string{"error": "ตรวจสอบรูปซ้ำไม่สำเร็จ"})
+		return
+	} else if exists {
+		writeJSON(w, 409, map[string]string{"error": "รูปนี้เคยส่งแล้ว — กรุณาถ่ายรูปใหม่จากกล้อง"})
 		return
 	}
 
@@ -389,23 +408,26 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 	weightKg := carbonCalc.WeightKg
 	now := time.Now()
 	status := "อนุมัติแล้ว"
-	comment := "Teachable Machine จำแนกแล้ว — คำนวณ GHG แบบ CMH (มวล×EF ของ TGO) และให้แต้มทันที"
+	comment := "ถ่ายจากกล้อง + Teachable Machine จำแนกแล้ว — ให้แต้มทันที (CMH/TGO)"
 
 	_, err = s.store.db.Exec(`INSERT INTO waste_records
 		(record_id, user_id, image_url, plastic_type, plastic_code, bottle_count, upload_timestamp, verification_status,
-		 carbon_saved, weight_kg, carbon_footprint, carbon_avoided, emission_factor_version, points_awarded, admin_comment, bin_location, created_by)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		 carbon_saved, weight_kg, carbon_footprint, carbon_avoided, emission_factor_version, points_awarded, admin_comment, bin_location,
+		 image_hash, capture_source, created_by)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		id, me.UserID, img, body.PlasticType, nullInt(carbonCalc.PlasticCode), body.BottleCount, now, status,
-		carbon, weightKg, footprint, avoided, carbonCalc.EmissionFactorVersion, points, comment, body.BinLocation, me.UserID)
+		carbon, weightKg, footprint, avoided, carbonCalc.EmissionFactorVersion, points, comment, body.BinLocation,
+		imageHash, "camera", me.UserID)
 	if err != nil {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกรายการไม่สำเร็จ"})
 		return
 	}
 
 	s.store.logEvent(EventWasteSubmitted, "backend", me.UserID, body.CorrelationID, "waste_record", id,
-		"สมาชิกส่งรูปขวด/กระป๋อง", map[string]any{
+		"สมาชิกส่งรูปขวด/กระป๋อง (จากกล้อง)", map[string]any{
 			"plastic_type": body.PlasticType, "model_label": body.ModelLabel, "confidence": body.Confidence,
 			"bottle_count": body.BottleCount, "bin_location": body.BinLocation, "image_url": img,
+			"capture_source": "camera", "image_hash": imageHash,
 		})
 
 	txnID := newID("TXN")

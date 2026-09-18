@@ -120,6 +120,8 @@ CREATE TABLE IF NOT EXISTS waste_records (
   admin_comment TEXT NULL,
   bin_location VARCHAR(200) NULL COMMENT 'ชื่อจุดทิ้ง (เก็บข้อความเพื่อแสดงผล)',
   bin_id VARCHAR(16) NULL,
+  image_hash CHAR(64) NULL COMMENT 'SHA-256 ของไบต์รูป — กันส่งรูปซ้ำ',
+  capture_source VARCHAR(16) NULL COMMENT 'camera | gallery',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่สร้าง',
   created_by VARCHAR(32) NULL COMMENT 'ผู้สร้าง (user_id หรือ SYSTEM)',
   delete_at DATETIME NULL COMMENT 'เวลาที่ลบแบบ soft delete — NULL คือยังใช้งาน',
@@ -127,6 +129,7 @@ CREATE TABLE IF NOT EXISTS waste_records (
   KEY idx_waste_user (user_id),
   KEY idx_waste_status (verification_status),
   KEY idx_waste_time (upload_timestamp),
+  KEY idx_waste_image_hash (image_hash),
   KEY idx_waste_deleted (delete_at),
   CONSTRAINT fk_waste_user FOREIGN KEY (user_id) REFERENCES users(user_id)
     ON UPDATE CASCADE ON DELETE RESTRICT,

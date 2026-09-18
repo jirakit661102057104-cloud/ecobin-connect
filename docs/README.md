@@ -20,8 +20,16 @@
 | [dfd/](./diagrams/dfd/) | Data Flow Diagram Level 0–1 |
 | [er/](./diagrams/er/) | ER / schema |
 | [context/](./diagrams/context/) | Context diagram |
+| [README-lucidchart.md](./diagrams/README-lucidchart.md) | วิธี import เข้า Lucidchart |
+| [ecobin-diagrams-for-lucidchart.zip](./diagrams/ecobin-diagrams-for-lucidchart.zip) | รวม `.drawio` ทุกไฟล์สำหรับ import |
 
 เปิด UML หลัก: [`diagrams/uml/ecobin-uml-architecture.drawio`](./diagrams/uml/ecobin-uml-architecture.drawio)
+
+## Wireframe UI (`wireframes/`)
+
+| ไฟล์ | เนื้อหา |
+|---|---|
+| [wireframes/index.html](./wireframes/index.html) | โครงร่างหน้าจอแบบกล่อง **22 แผ่น** (Member/Guest/Admin/Modal) เปิดในเบราว์เซอร์ |
 
 ## งานวิจัย (`research/`)
 
