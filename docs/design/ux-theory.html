@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoBin Connect — UX/UI Theory Mapping (DOC-DS-004)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./shared.css" />
+  <style>
+    .journey {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0;
+      border: 1.5px solid #111827;
+      margin: 12px 0 8px;
+    }
+    @media (max-width: 800px) {
+      .journey { grid-template-columns: 1fr 1fr; }
+    }
+    .journey .step {
+      padding: 12px 10px;
+      border-right: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 12px;
+      min-height: 88px;
+    }
+    .journey .step:last-child { border-right: none; }
+    .journey .step b {
+      display: block;
+      font-size: 11px;
+      font-family: var(--mono);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .flow-box {
+      border: 1.5px solid #111827;
+      padding: 12px 14px;
+      margin: 8px 0;
+      font-size: 13px;
+      background: #fafafa;
+    }
+    .flow-box code {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      padding: 1px 5px;
+    }
+    .ref-note {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 8px 0 0;
+    }
+    .ref-note a { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body class="design-doc">
+  <div class="design-shell">
+    <div class="design-bar">
+      <div class="design-bar-top">
+        <a class="design-brand" href="./index.html">
+          <div class="design-logo" aria-hidden="true"></div>
+          <div>
+            <strong>EcoBin<span class="pcru">PCRU</span></strong>
+            <span class="sub">DS · DOC-DS-004 · UX/UI Theory</span>
+          </div>
+        </a>
+      </div>
+      <nav class="design-tabs" aria-label="Design layers">
+        <a href="../wireframes/index.html"><span class="num">01</span> Wireframe</a>
+        <a href="./patterns.html"><span class="num">02</span> Pattern library</a>
+        <a href="./ui.html"><span class="num">03</span> UI</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="design-main">
+    <article class="ds-doc">
+      <header class="ds-doc-head">
+        <div class="ds-kicker">
+          <span class="ds-id">DOC-DS-004</span>
+          <span class="ds-badge outline">Theory mapping</span>
+          <span class="ds-badge outline">Research support</span>
+        </div>
+        <h1>UX/UI Theory — 12 หัวข้อ map กับ EcoBin</h1>
+        <p class="lede">
+          ผูกทฤษฎีพื้นฐาน UX/UI เข้ากับเอกสารออกแบบ 3 ชั้นของโปรเจกต์
+          (Wireframe · Pattern library · UI) เพื่ออ้างในเอกสารวิจัยได้
+        </p>
+        <dl class="ds-meta">
+          <dt>Project</dt><dd>EcoBin Connect · PCRU</dd>
+          <dt>Version</dt><dd>1.0</dd>
+          <dt>Status</dt><dd>Living reference</dd>
+          <dt>Source</dt><dd>Medium · 12 UX/UI topics</dd>
+        </dl>
+      </header>
+
+      <div class="ds-body">
+        <p class="ref-note">
+          อ้างอิงหลัก:
+          <a href="https://meawzilaz.medium.com/12-topics-you-need-to-learn-for-being-a-ux-ui-designer-cab9a662d715" rel="noopener noreferrer" target="_blank">12 หัวข้อเบื้องต้นสำหรับสายงาน UX/UI (Meawzilaz / Medium)</a>
+          · ใช้ร่วมกับ
+          <a href="./index.html">DOC-DS-000 Index</a>
+        </p>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>01 · Topic → EcoBin → Doc</h2>
+            <p>ตารางสรุปทั้ง 12 หัวข้อ</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Topic</th>
+                <th>EcoBin mapping</th>
+                <th>อ้างเอกสาร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Design Thinking</td>
+                <td>Empathize (ปัญหาขยะในสถาบัน) → Define → Ideate → Prototype (แอป) → Test (ทดลองใช้)</td>
+                <td>เล่มวิจัย บท 1–3 · หน้านี้ §02</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Design Principle (C.R.A.P.)</td>
+                <td>Contrast ปุ่มทึบ/พื้น · Repetition สีเขียว/Header · Alignment กริด KPI · Proximity แต้ม+Avatar</td>
+                <td><a href="./patterns.html">DOC-DS-002</a> · <a href="./ui.html">DOC-DS-003</a></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>10 Usability Heuristics</td>
+                <td>สถานะ AI %, บังคับกล้อง, consistency เมนู, error login, help คู่มือ</td>
+                <td>หน้านี้ §03</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Information Architecture</td>
+                <td>แยกเมนู Member / Guest / Admin · สแกนขยะ ≠ สแกน QR</td>
+                <td><a href="../wireframes/index.html">DOC-DS-001</a></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Laws of UX</td>
+                <td>Hick: เมนูสั้น 3–4 รายการ · Fitts: ปุ่มยืนยันใหญ่เต็มความกว้าง</td>
+                <td>หน้านี้ §04</td>
+              </tr>
+              <tr>
+                <td>6–7</td>
+                <td>Research / User Interview</td>
+                <td>คำถามปลายเปิดเรื่องการคัดแยกขยะ / แรงจูงใจแต้ม (ใส่ในเล่มถ้ามีข้อมูล)</td>
+                <td><a href="../research/thesis-ux-ui-gap-checklist.md">thesis checklist</a></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>User Journey</td>
+                <td>Member: รู้ระบบ → Login → สแกน → แต้ม → แลก → รับของ</td>
+                <td>หน้านี้ §05</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>User Flows</td>
+                <td>Guest สแกน→CTA Login · Redeem→QR · Admin จ่ายของ</td>
+                <td><a href="../wireframes/index.html">DOC-DS-001</a> แผ่น 3–6, 13</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>Wireframing</td>
+                <td>Low-fidelity ขาวดำ 22 แผ่น</td>
+                <td><a href="../wireframes/index.html">DOC-DS-001</a></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>Prototyping</td>
+                <td>UI mock (DOC-DS-003) + interactive prototype = แอปบน Vercel</td>
+                <td><a href="./ui.html">DOC-DS-003</a></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>Usability Testing</td>
+                <td>Task: Login · สแกนได้แต้ม · แลก · Admin QR</td>
+                <td>หน้านี้ §06 · checklist เล่มวิจัย</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>02 · Design Thinking (5 stages)</h2>
+            <p>วนซ้ำ ไม่ใช่เส้นตรงครั้งเดียว</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr><th>Stage</th><th>ใน EcoBin</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Empathize</td><td>ปัญหาบันทึกขยะไม่เป็นระบบ · ขาดแรงจูงใจในสถาบัน</td></tr>
+              <tr><td>Define</td><td>ต้องการบันทึกการคัดแยก + แต้ม + ของรางวัล + รายงาน Admin</td></tr>
+              <tr><td>Ideate</td><td>กล้องในแอป + Teachable Machine · Guest ทดลอง · QR รับของ</td></tr>
+              <tr><td>Prototype</td><td>Wireframe → Pattern → UI → เว็บแอปจริง</td></tr>
+              <tr><td>Test</td><td>ทดลองสแกน / แลก / สแกน QR · เก็บ feedback ปรับเกณฑ์ AI ≥80%</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>03 · Heuristic audit (ย่อ)</h2>
+            <p>Nielsen 10 — เลือกข้อที่ชัดในระบบ</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr><th>Heuristic</th><th>หลักฐานใน EcoBin</th><th>สถานะ</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1. Visibility of system status</td>
+                <td>ผล AI + % ความมั่นใจ · สถานะกำลังวิเคราะห์ · แต้มใน Header</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>2. Match real world</td>
+                <td>คำว่า “แต้ม / แลกรางวัล / จุดทิ้ง / สแกน QR รับของ”</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>3. User control and freedom</td>
+                <td>ยกเลิกแลก · ถ่ายใหม่ · Guest ออกไป Login</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>4. Consistency and standards</td>
+                <td>Header: Logo · EcoBin · PCRU · Nav · แต้ม/Avatar ทุกหน้า</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>5. Error prevention</td>
+                <td>สมาชิกต้องถ่ายจากกล้อง (กันรูปจากเน็ต/แกลเลอรีเพื่อได้แต้ม)</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>6. Recognition rather than recall</td>
+                <td>เมนูชัด · Filter chips · ประวัติแยกแท็บ</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>9. Error recovery</td>
+                <td>ข้อความ login ผิด · AI ไม่ผ่านเกณฑ์ → ถ่ายใหม่</td>
+                <td>ผ่าน</td>
+              </tr>
+              <tr>
+                <td>10. Help and documentation</td>
+                <td>คู่มือพลาสติก · Research modal · คู่มือถ่ายรูป</td>
+                <td>ผ่าน</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>04 · Laws of UX (เลือกใช้)</h2>
+            <p>Fitts · Hick · Miller</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr><th>Law</th><th>การออกแบบ EcoBin</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fitts’s Law</td>
+                <td>ปุ่ม primary เต็มความกว้างบนมือถือ (เข้าสู่ระบบ / ยืนยันบันทึก / ยืนยันแลก)</td>
+              </tr>
+              <tr>
+                <td>Hick’s Law</td>
+                <td>Nav Member 4 รายการ · Admin 3 รายการ — ลดตัวเลือกพร้อมกัน</td>
+              </tr>
+              <tr>
+                <td>Miller’s Law</td>
+                <td>Dashboard โฟกัส KPI หลัก 4 ใบ + CTA เดียว ไปสแกน — ไม่ยัดงานเกินใน viewport แรก</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>05 · User Journey (Member)</h2>
+            <p>เส้นทางประสบการณ์หลัก</p>
+          </div>
+          <div class="journey" aria-label="Member journey">
+            <div class="step"><b>01 Aware</b>รู้ว่ามีจุดทิ้ง / แคมเปญรีไซเคิล</div>
+            <div class="step"><b>02 Enter</b>เปิดเว็บ · Login / Guest</div>
+            <div class="step"><b>03 Scan</b>เปิดกล้อง · AI ≥80%</div>
+            <div class="step"><b>04 Reward</b>ได้แต้ม · ดู Dashboard</div>
+            <div class="step"><b>05 Redeem</b>แลกของ · ได้ QR</div>
+            <div class="step"><b>06 Pickup</b>Admin สแกน QR จ่ายของ</div>
+          </div>
+          <p class="ref-note">Guest journey สั้นกว่า: สแกนทดลอง → เห็นผล AI → CTA เข้าสู่ระบบเพื่อได้แต้มจริง (ไม่มี Redeem)</p>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>06 · User Flows (ในระบบ)</h2>
+            <p>หน้า → หน้า ไม่รวมอารมณ์</p>
+          </div>
+          <div class="flow-box">
+            <strong>Flow A — สมาชิกได้แต้ม</strong><br />
+            Login → Dashboard → สแกนขยะ → เปิดกล้อง → ถ่าย → AI ≥80% → เลือกจุดทิ้ง → ยืนยัน → แต้มเพิ่ม
+            · แผ่น wireframe <code>3</code>
+          </div>
+          <div class="flow-box">
+            <strong>Flow B — Guest ทดลอง</strong><br />
+            Guest → สแกน → (กล้องหรืออัปโหลดได้) → ผลทดลอง → CTA Login
+            · แผ่น <code>4</code>
+          </div>
+          <div class="flow-box">
+            <strong>Flow C — แลกของ + จ่ายของ</strong><br />
+            ของรางวัล → Modal ยืนยัน → QR/pickup code → Admin สแกน QR → ยืนยันจ่าย
+            · แผ่น <code>5–6</code>, <code>13</code>
+          </div>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>07 · Usability Testing tasks</h2>
+            <p>ใช้ในบททดสอบเล่มวิจัย</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr><th>Task</th><th>Scenario</th><th>สำเร็จเมื่อ</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>T1 Login</td>
+                <td>เข้าสู่ระบบด้วยบัญชีทดสอบ</td>
+                <td>เห็น Dashboard + แต้มใน Header</td>
+              </tr>
+              <tr>
+                <td>T2 สแกนได้แต้ม</td>
+                <td>ถ่ายขวดจากกล้องในแอป แล้วบันทึก</td>
+                <td>ได้แต้ม / รายการปรากฏในประวัติ</td>
+              </tr>
+              <tr>
+                <td>T3 แลกรางวัล</td>
+                <td>เลือกรางวัลที่แต้มพอ แล้วยืนยัน</td>
+                <td>ได้ QR หรือรหัสรับของ</td>
+              </tr>
+              <tr>
+                <td>T4 Admin QR</td>
+                <td>แอดมินสแกน QR หรือพิมพ์รหัส แล้วจ่ายของ</td>
+                <td>สถานะเป็นจ่ายแล้ว</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>08 · Fidelity ladder</h2>
+            <p>ตรงกับข้อ Wireframing / Prototyping ในบทความ</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr><th>Fidelity</th><th>เอกสาร EcoBin</th><th>DOC-ID</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Low-fidelity Wireframe</td>
+                <td>ขาวดำ · โครงกล่อง · 22 แผ่น</td>
+                <td><a href="../wireframes/index.html">DOC-DS-001</a></td>
+              </tr>
+              <tr>
+                <td>Mid — Pattern / components</td>
+                <td>Atom · Molecule · Organism</td>
+                <td><a href="./patterns.html">DOC-DS-002</a></td>
+              </tr>
+              <tr>
+                <td>High-fidelity UI</td>
+                <td>สี · โทเคน · หน้าจอตัวอย่าง</td>
+                <td><a href="./ui.html">DOC-DS-003</a></td>
+              </tr>
+              <tr>
+                <td>Interactive prototype</td>
+                <td>เว็บแอป production / preview</td>
+                <td>Vercel app</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <p class="ds-footer">
+    DOC-DS-004 · UX/UI Theory ·
+    <a href="./index.html">Index</a> ·
+    <a href="../wireframes/index.html">01 Wireframe</a> ·
+    <a href="./patterns.html">02 Pattern library</a> ·
+    <a href="./ui.html">03 UI</a> ·
+    <a href="../research/thesis-ux-ui-gap-checklist.md">Thesis checklist</a>
+  </p>
+</body>
+</html>

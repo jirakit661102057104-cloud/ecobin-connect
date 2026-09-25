@@ -37,6 +37,12 @@
       "skillPath": "skills/01-frontend-engineering/design-system-tailwind/SKILL.md",
       "computedHash": "11ebfe8e9b7fdf06ae46de1cfa8955c98f39497bc4de401eb96c5270bc411440"
     },
+    "docx": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/docx/SKILL.md",
+      "computedHash": "3b8f8cf1ca7a427607c78312655e95e21b5f8f2b06a1aad4dc5554cc90eb095c"
+    },
     "form-validation-error-handling": {
       "source": "manish1803/nextjs-fullstack-skills",
       "sourceType": "github",

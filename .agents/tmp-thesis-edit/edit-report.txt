@@ -1,0 +1,2 @@
+NOTE: simple A edits already present in document.xml
+NOTE: DFD 2.3 already updated

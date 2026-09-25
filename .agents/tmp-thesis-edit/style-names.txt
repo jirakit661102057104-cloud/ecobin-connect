@@ -1,0 +1,26 @@
+ส่วนหัวข้อความ | type=1
+ส่วนหัวของบันทึกย่อ | type=1
+สัญลักษณ์แสดงหัวข้อย่อยของรายการ 2 | type=1
+สัญลักษณ์แสดงหัวข้อย่อยของรายการ 3 | type=1
+สัญลักษณ์แสดงหัวข้อย่อยของรายการ 4 | type=1
+สัญลักษณ์แสดงหัวข้อย่อยของรายการ 5 | type=1
+สัญลักษณ์แสดงหัวข้อย่อยรายการ | type=1
+หัวเรื่อง 1 | type=1
+หัวเรื่อง 2 | type=1
+หัวเรื่อง 3 | type=1
+หัวเรื่อง 4 | type=1
+หัวเรื่อง 5 | type=1
+หัวเรื่อง 6 | type=1
+หัวเรื่อง 7 | type=1
+หัวเรื่อง 8 | type=1
+หัวเรื่อง 9 | type=1
+หัวเรื่องดัชนี | type=1
+หัวเรื่องสารบัญ | type=1
+หัวเรื่องสารบัญอ้างอิงทางกฎหมาย | type=1
+หัวกระดาษ | type=1
+--- try set ---
+FAIL Heading 1 : Item with specified name does not exist.
+FAIL heading 1 : Item with specified name does not exist.
+OK หัวเรื่อง 1 -> หัวเรื่อง 1
+FAIL 1 : Item with specified name does not exist.
+FAIL -2 : Unable to cast object of type 'System.Int32' to type 'System.String'.

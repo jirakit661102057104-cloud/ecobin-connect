@@ -1,30 +1,16 @@
 package main
 
 import (
-	"math"
 	"strings"
+
+	"github.com/pcru/ecobin-connect/api/pkg/carbon"
 )
 
-// Carbon accounting follows Circular Material Hub (CMH) activity math,
-// which estimates GHG from TGO emission factors:
-//   https://circularmaterialhub.com/Calculate.php
-//   CO2e (kgCO2eq) = mass_kg × EF (kgCO2e/kg)
-// EcoBin Net Zero credit when a recycle-pathway EF exists:
-//   avoided = mass_kg × max(EF_baseline − EF_recycle, 0)
-// Baseline = virgin_production (e.g. CMH Aluminium Sheet 3.2231)
-// Recycle  = recycled_production (e.g. CMH Aluminium Secondary old scrap 1.4682)
-
-type CarbonCalculation struct {
-	PlasticCode           int
-	PointsPerBottle       int
-	WeightKg              float64
-	CarbonFootprint       float64
-	CarbonAvoided         float64
-	EmissionFactorVersion string
-}
+// CarbonCalculation mirrors pkg/carbon.Calculation for legacy package main callers.
+type CarbonCalculation = carbon.Calculation
 
 func roundCarbon(value float64) float64 {
-	return math.Round(value*100000) / 100000
+	return carbon.Round(value)
 }
 
 func calculateCarbon(
@@ -34,21 +20,7 @@ func calculateCarbon(
 	baselineFactor float64,
 	recycleFactor *float64,
 ) (weightKg, footprint, avoided float64) {
-	if bottleCount < 0 {
-		bottleCount = 0
-	}
-	weightKg = float64(bottleCount) * math.Max(averageWeightKg, 0)
-	if actualWeightKg != nil && *actualWeightKg > 0 {
-		weightKg = *actualWeightKg
-	}
-	weightKg = roundCarbon(weightKg)
-	// CMH: ปริมาณการปล่อย = ปริมาณ(กก.) × EF(KgCO2kg)
-	footprint = roundCarbon(weightKg * math.Max(baselineFactor, 0))
-	if recycleFactor != nil {
-		// เปรียบเทียบสถานการณ์ฐาน (ปัจจุบัน/ผลิตใหม่) กับเส้นทางรีไซเคิล (อนาคต)
-		avoided = roundCarbon(weightKg * math.Max(baselineFactor-*recycleFactor, 0))
-	}
-	return
+	return carbon.Calculate(bottleCount, averageWeightKg, actualWeightKg, baselineFactor, recycleFactor)
 }
 
 func (s *Store) carbonForPlastic(name string, bottleCount int, actualWeightKg *float64) CarbonCalculation {
@@ -60,7 +32,6 @@ func (s *Store) carbonForPlastic(name string, bottleCount int, actualWeightKg *f
 	}
 	matched := matchPlasticType(types, name)
 	if matched == nil {
-		// Legacy fallback has no auditable mass or kg-based TGO factor.
 		out.CarbonFootprint = roundCarbon(float64(bottleCount) * cfg.CarbonPerBottle)
 		out.EmissionFactorVersion = "legacy-per-bottle"
 		return out
@@ -74,7 +45,6 @@ func (s *Store) carbonForPlastic(name string, bottleCount int, actualWeightKg *f
 		recycled = &v
 	}
 	if matched.VirginEmissionFactor == 0 {
-		// Keep old deployments operational if migration factors are unavailable.
 		out.CarbonFootprint = roundCarbon(float64(bottleCount) * matched.CarbonFactor)
 		out.EmissionFactorVersion = "legacy-per-bottle"
 		return out
@@ -95,7 +65,6 @@ func matchPlasticType(types []PlasticType, name string) *PlasticType {
 	if n == "" {
 		return nil
 	}
-	// Beta labels from Teachable Machine / UI.
 	if strings.Contains(n, "กระป๋อง") || strings.Contains(n, "can") || strings.Contains(n, "aluminium") || strings.Contains(n, "aluminum") {
 		for i := range types {
 			if types[i].PlasticCode == 8 || strings.Contains(strings.ToLower(types[i].ShortName), "can") {

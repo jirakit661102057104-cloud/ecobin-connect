@@ -1,0 +1,59 @@
+อนุมัติ
+
+( อาจารย์ อนุพงษ์ สุขประเสริฐ )
+
+ประธานหลักสูตรสาขาเทคโนโลยีสารสนเทศ
+
+( รองศาสตราจารย์ ดร. กาญจน์ คุ้มทรัพย์ )
+
+คณบดีคณะวิทยาศาสตร์และเทคโนโลยี
+
+**ชื่อโครงการวิจัย** เว็บแอปพลิเคชั่น
+
+**ชื่อผู้ทำการวิจัย** นายจิรกิตติ์ ตันตระกูล
+
+> นางสาวศุภณัฐ ปลื้มบุญ
+
+**หลักสูตร** วิทยาศาสตร์บัณฑิต
+
+**สาขาวิชา** เทคโนโลยีสารสนเทศ
+
+คณะวิทยาศาสตร์และเทคโนโลยี
+
+> มหาวิทยาลัยราชภัฏเพชรบูรณ์
+
+**อาจารย์ที่ปรึกษา** อาจารย์ศรัญญา ตรีทศ
+
+**ปีการศึกษา** 2568
+
+# 
+
+# **บทคัดย่อ**
+
+การคัดแยกขยะขวดพลาสติกในสถานศึกษาส่วนใหญ่ยังขาดการบันทึกข้อมูลที่เป็นระบบ และขาดแรงจูงใจให้ผู้ใช้งานมีส่วนร่วมอย่างต่อเนื่อง ส่งผลให้ผู้ดูแลระบบไม่สามารถติดตามปริมาณและประเภทขยะได้อย่างมีประสิทธิภาพ งานวิจัยนี้จึงมีวัตถุประสงค์เพื่อพัฒนาเว็บแอปพลิเคชันต้นแบบ "EcoBin Connect" สำหรับบริหารจัดการข้อมูลการคัดแยกขยะประเภทขวดพลาสติก กรณีศึกษามหาวิทยาลัยราชภัฏเพชรบูรณ์ เพื่อประเมินประสิทธิภาพของระบบในการจัดเก็บข้อมูลและประมวลผลค่าคาร์บอนฟุตพริ้นท์ และเพื่อศึกษาความพึงพอใจของผู้ใช้งานต่อการใช้งานระบบ
+
+ระบบถูกออกแบบให้รองรับผู้ใช้งาน 3 กลุ่ม ได้แก่ ผู้ดูแลระบบ สมาชิกทั่วไป และผู้ใช้งานแบบไม่ลงทะเบียน โดยสมาชิกสามารถสมัครเข้าสู่ระบบ ถ่ายภาพหรืออัปโหลดภาพขวดพลาสติก ติดตามสถิติและแต้มสะสม รวมถึงแลกของรางวัลได้ ส่วนผู้ดูแลระบบสามารถตรวจสอบภาพถ่าย จัดการบัญชีผู้ใช้และแคตตาล็อกของรางวัล รวมทั้งเรียกดูรายงานสถิติภาพรวมได้ การพัฒนาใช้ Next.js (React) และ Tailwind CSS ในส่วนติดต่อผู้ใช้ พัฒนา REST API ด้วยภาษา Go จัดเก็บข้อมูลด้วย MySQL บน Google Cloud SQL และเผยแพร่ผ่าน Vercel กับ Cloud Run
+
+ผลจากการพัฒนาระบบทำให้ได้เครื่องมือต้นแบบที่ช่วยบันทึกและติดตามข้อมูลการคัดแยกขยะได้อย่างเป็นระบบ สร้างแรงจูงใจผ่านแต้มสะสมและการแลกของรางวัล และสนับสนุนนโยบาย Green University ของมหาวิทยาลัย นอกจากนี้ยังช่วยเพิ่มทักษะของผู้พัฒนาด้านการพัฒนาเว็บแอปพลิเคชัน การวิเคราะห์ออกแบบระบบ และการจัดการฐานข้อมูลบนคลาวด์
+
+**Research Title** Waste Sorting WebApplication.
+
+**Name** Mr. Jirakit Tantrakoul
+
+**Program** information technology
+
+> Faculty of Science and Technology
+
+Phetchabun Rajabhat University
+
+**Advisor** professor saranya tritose
+
+**Year** 2025
+
+# **Abstract**
+
+Plastic bottle sorting in educational institutions often lacks systematic data recording and sufficient incentives for continuous participation, making it difficult for administrators to monitor waste volume and types effectively. This research aimed to develop a prototype web application, EcoBin Connect, for managing plastic bottle sorting data, using Phetchabun Rajabhat University as a case study; to evaluate the system's effectiveness in data storage and carbon footprint calculation; and to study user satisfaction regarding usability and environmental awareness.
+
+The system supports three user groups administrators, members, and unregistered (guest) users. Members can register and sign in, capture or upload plastic bottle images, view personal statistics and points, and redeem rewards. Administrators can verify submitted images, manage user accounts and the reward catalog, and view overall statistical reports. The system was developed using Next.js (React) and Tailwind CSS for the user interface, Go for the REST API, MySQL on Google Cloud SQL for data storage, and was deployed on Vercel and Cloud Run.
+
+The developed prototype provides a practical tool for recording and monitoring plastic bottle sorting data, motivates users through a points-and-rewards mechanism, and supports the university's Green University policy. It also enhances the developers' skills in web application development, system analysis and design, and cloud-based database management.

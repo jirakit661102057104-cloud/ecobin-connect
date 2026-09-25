@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoBin Connect — Pattern Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./shared.css" />
+  <style>
+    /* Page-local: pattern frames (board stays; chrome uses shared standard) */
+    body.design-doc { background: var(--canvas); }
+
+    .board-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 0 48px;
+    }
+
+    .frames {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .frames { grid-template-columns: 1fr; }
+    }
+
+    .frame {
+      background: #fff;
+      border: 1.5px solid #111827;
+      border-radius: 0;
+      box-shadow: 4px 4px 0 rgba(17,24,39,.08);
+      padding: 28px 26px 32px;
+      position: relative;
+    }
+    .frame-label {
+      position: absolute;
+      top: -26px;
+      left: 0;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: ui-monospace, Consolas, monospace;
+      color: #6b7280;
+    }
+
+    .frame h2.block {
+      margin: 0 0 14px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    .frame .block + .block-title { margin-top: 28px; }
+    .block-title {
+      margin: 22px 0 12px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    /* —— Frame 1: Atoms —— */
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .swatch-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 4px;
+      border: 1px solid rgba(15, 42, 36, 0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.2);
+    }
+
+    .type-scale {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: #0f2a24;
+    }
+    .type-scale .h1 { font-size: 40px; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; }
+    .type-scale .h2 { font-size: 32px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+    .type-scale .h3 { font-size: 26px; font-weight: 800; line-height: 1.25; }
+    .type-scale .h4 { font-size: 22px; font-weight: 700; line-height: 1.3; }
+    .type-scale .h5 { font-size: 18px; font-weight: 700; }
+    .type-scale .h6 { font-size: 15px; font-weight: 700; }
+    .type-scale .sub1 { font-size: 15px; font-weight: 600; color: #334155; }
+    .type-scale .sub2 { font-size: 13px; font-weight: 600; color: #475569; }
+    .type-scale .body1 { font-size: 15px; font-weight: 400; color: #334155; }
+    .type-scale .body2 { font-size: 13px; font-weight: 400; color: #475569; }
+    .type-scale .btn-label {
+      font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .type-scale .caption { font-size: 12px; font-weight: 500; color: #64748b; }
+    .type-scale .overline {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b;
+    }
+
+    .icon-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      color: #0f2a24;
+    }
+    .icon-row svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 11px 18px;
+      border-radius: 2px;
+      border: 1.5px solid transparent;
+      cursor: default;
+    }
+    .btn-primary { background: #0d7a66; color: #fff; }
+    .btn-outline { background: #fff; color: #0d7a66; border-color: #0d7a66; }
+    .btn-ghost { background: #fff; color: #0f2a24; border-color: #0f2a24; }
+    .btn-sm { padding: 7px 12px; font-size: 10px; background: #0d7a66; color: #fff; }
+
+    .field {
+      max-width: 220px;
+    }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+    .field .box {
+      height: 38px;
+      border: 1.5px solid #94a3b8;
+      border-radius: 2px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #94a3b8;
+      background: #fff;
+    }
+    .field.underline .box {
+      border: none;
+      border-bottom: 1.5px solid #94a3b8;
+      border-radius: 0;
+      padding-left: 0;
+    }
+
+    .radios {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .radios label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .radios i {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1.5px solid #0d7a66;
+      display: inline-grid;
+      place-items: center;
+    }
+    .radios i.on::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #0d7a66;
+    }
+
+    .atom-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 24px;
+    }
+    @media (max-width: 560px) {
+      .atom-cols { grid-template-columns: 1fr; }
+    }
+
+    /* —— Frame 2: Molecules / Organisms —— */
+    .comp-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .comp {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .comp .cap {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.04em;
+    }
+
+    .search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      border: 1.5px solid #94a3b8;
+      border-radius: 2px;
+      padding: 0 12px;
+      color: #64748b;
+      font-size: 13px;
+      max-width: 280px;
+    }
+    .search svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    .follow {
+      display: flex;
+      max-width: 320px;
+      height: 40px;
+    }
+    .follow .in {
+      flex: 1;
+      border: 1.5px solid #94a3b8;
+      border-right: none;
+      border-radius: 2px 0 0 2px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .follow .go {
+      background: #0d7a66;
+      color: #fff;
+      border: none;
+      padding: 0 16px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .icon-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #0f2a24;
+    }
+    .icon-btns span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btns svg {
+      width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .crumbs {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .crumbs b { color: #0f2a24; font-weight: 700; }
+
+    .stepper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      max-width: 420px;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .step::before {
+      content: "";
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      margin: 0 auto 6px;
+      position: relative;
+      z-index: 1;
+    }
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: calc(50% + 8px);
+      right: calc(-50% + 8px);
+      height: 2px;
+      background: #e2e8f0;
+    }
+    .step.on { color: #0d7a66; }
+    .step.on::before { background: #0d7a66; }
+    .step.on:not(:last-child)::after { background: #0d7a66; }
+
+    .pts-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fff7ed, #fff7e6);
+      border: 1px solid #f0d89a;
+      color: #78350f;
+    }
+    .pts-chip i {
+      width: 11px; height: 11px; border-radius: 999px; background: #f59e0b;
+    }
+
+    .nav-pills {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border-radius: 14px;
+      background: #e2e8f0;
+    }
+    .nav-pills span {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 11px;
+      border-radius: 10px;
+      color: #64748b;
+    }
+    .nav-pills span.on {
+      background: #fff;
+      color: #065f46;
+      box-shadow: 0 1px 3px rgba(15,42,36,.08);
+    }
+    .nav-pills.admin span.on {
+      background: #5b4bb6;
+      color: #fff;
+    }
+
+    .header-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #c5d6ce;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(15,42,36,.06);
+    }
+    .header-bar .logo {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(145deg, #0d7a66, #16332c);
+      flex-shrink: 0;
+    }
+    .header-bar .brand { font-size: 13px; font-weight: 800; }
+    .header-bar .brand em {
+      font-style: normal; font-size: 9px; font-weight: 800;
+      margin-left: 4px; padding: 1px 4px; border-radius: 4px;
+      background: #e7f4ee; color: #0b5c4d; border: 1px solid #b9d8cb;
+    }
+    .header-bar .mid { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .header-bar .av {
+      width: 22px; height: 22px; border-radius: 7px;
+      background: linear-gradient(135deg, #94a3b8, #64748b);
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 560px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+    }
+    .kpi {
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    .kpi .v { font-size: 18px; font-weight: 800; color: #0f2a24; }
+    .kpi .l { font-size: 10px; font-weight: 600; color: #64748b; }
+
+    .productish {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 560px) {
+      .productish { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .card .img {
+      height: 100px;
+      background:
+        linear-gradient(135deg, #d7f3ea, #b8e0d0);
+      display: grid;
+      place-items: center;
+      color: #0d7a66;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .card .body { padding: 10px 12px 12px; }
+    .card .tag {
+      font-size: 10px; font-weight: 700; color: #0d7a66; margin-bottom: 4px;
+    }
+    .card .title { font-size: 13px; font-weight: 800; color: #0f2a24; }
+    .card .price { font-size: 13px; font-weight: 700; color: #334155; margin-top: 2px; }
+    .card .cta {
+      margin-top: 8px; font-size: 11px; font-weight: 700; color: #0d7a66;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+    .dots i {
+      width: 18px; height: 18px; border-radius: 999px;
+      border: 1.5px solid #cbd5e1;
+      display: inline-block;
+    }
+    .dots i.on { outline: 2px solid #0d7a66; outline-offset: 2px; }
+
+    .brand-lock {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-lock .mark {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: linear-gradient(145deg, #0d7a66, #16332c);
+    }
+    .brand-lock .name { font-size: 15px; font-weight: 800; }
+    .brand-lock .pill {
+      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 6px;
+      background: #e7f4ee; color: #0b5c4d; border: 1px solid #b9d8cb;
+    }
+
+    .field {
+      display: flex; flex-direction: column; gap: 4px; max-width: 260px;
+    }
+    .field label { font-size: 11px; font-weight: 700; color: #475569; }
+    .field .box {
+      height: 40px; border: 1.5px solid #cbd5e1; border-radius: 12px;
+      background: #f8fafc; padding: 0 12px; display: flex; align-items: center;
+      font-size: 12px; color: #94a3b8;
+    }
+
+    .cta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cta-row .p {
+      padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      background: #0d7a66; color: #fff; border: none;
+    }
+    .cta-row .g {
+      padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      background: #fff; color: #0d7a66; border: 1.5px solid #0d7a66;
+    }
+    .cta-row .google {
+      padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      background: #fff; color: #334155; border: 1.5px solid #cbd5e1;
+    }
+
+    .guest-note {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 14px;
+      background: #fffbeb; border: 1px solid #fde68a;
+      font-size: 11px; color: #78350f; max-width: 420px;
+    }
+    .guest-note .dot {
+      width: 8px; height: 8px; border-radius: 999px; background: #f59e0b; flex-shrink: 0;
+    }
+
+    .ai-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 999px;
+      background: #ecfdf5; border: 1px solid #a7f3d0;
+      font-size: 11px; font-weight: 800; color: #065f46;
+    }
+    .ai-chip.fail {
+      background: #fef2f2; border-color: #fecaca; color: #991b1b;
+    }
+
+    .pickup {
+      display: inline-flex; flex-direction: column; gap: 4px;
+      padding: 10px 14px; border-radius: 12px;
+      background: #f8fafc; border: 1px dashed #94a3b8;
+      font-size: 11px; max-width: 200px;
+    }
+    .pickup .code { font-size: 16px; font-weight: 800; letter-spacing: 0.08em; color: #0f2a24; }
+    .pickup .sub { color: #64748b; font-weight: 600; }
+
+    .subnav {
+      display: inline-flex; gap: 4px; flex-wrap: wrap;
+    }
+    .subnav span {
+      font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 999px;
+      background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;
+    }
+    .subnav span.on {
+      background: #0d7a66; color: #fff; border-color: #0d7a66;
+    }
+    .subnav.admin span.on {
+      background: #5b4bb6; border-color: #5b4bb6;
+    }
+
+    .scanner-org {
+      border: 1px solid #c5d6ce; border-radius: 16px; overflow: hidden; background: #fff;
+    }
+    .scanner-org .preview {
+      height: 140px; background:
+        linear-gradient(160deg, #0f2a24 0%, #16332c 40%, #0d7a66 100%);
+      display: grid; place-items: center; color: #d7f3ea; font-size: 12px; font-weight: 700;
+    }
+    .scanner-org .bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 14px; border-top: 1px solid #e2e8f0;
+    }
+    .scanner-org .bar .meta { font-size: 11px; color: #475569; }
+    .scanner-org .bar .meta b { color: #0d7a66; }
+    .scanner-org .bar button {
+      padding: 8px 14px; border-radius: 10px; border: none;
+      background: #0d7a66; color: #fff; font-size: 11px; font-weight: 800;
+    }
+
+    .table-org {
+      border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; background: #fff;
+      font-size: 11px;
+    }
+    .table-org .th {
+      display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.9fr;
+      gap: 8px; padding: 10px 12px; background: #f8fafc; font-weight: 800; color: #475569;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .table-org .tr {
+      display: grid; grid-template-columns: 1.2fr 1fr 0.8fr 0.9fr;
+      gap: 8px; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: #334155;
+    }
+    .table-org .tr:last-child { border-bottom: none; }
+    .table-org .ok {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      background: #ecfdf5; color: #065f46; font-weight: 700; font-size: 10px;
+    }
+
+    .modal-org {
+      max-width: 320px; margin: 0 auto;
+      border: 1px solid #e2e8f0; border-radius: 20px; background: #fff;
+      box-shadow: 0 16px 40px rgba(15,42,36,.12); padding: 18px; text-align: center;
+    }
+    .modal-org .qr {
+      width: 88px; height: 88px; margin: 12px auto;
+      background:
+        repeating-linear-gradient(0deg, #0f2a24 0 4px, #fff 4px 8px),
+        repeating-linear-gradient(90deg, #0f2a24 0 4px, #fff 4px 8px);
+      background-blend-mode: multiply; border-radius: 8px; border: 1px solid #cbd5e1;
+    }
+    .modal-org h4 { margin: 0; font-size: 14px; font-weight: 800; }
+    .modal-org p { margin: 6px 0 0; font-size: 11px; color: #64748b; }
+    .modal-org .code { margin-top: 8px; font-size: 18px; font-weight: 800; letter-spacing: 0.1em; }
+
+    .hero-org {
+      border-radius: 20px; padding: 18px 16px;
+      background: linear-gradient(135deg, #064e3b, #0f766e 55%, #134e4a);
+      color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .hero-org .who { display: flex; align-items: center; gap: 10px; }
+    .hero-org .av {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #94a3b8, #64748b); border: 2px solid rgba(255,255,255,.25);
+    }
+    .hero-org .nm { font-size: 14px; font-weight: 800; }
+    .hero-org .role {
+      display: inline-block; margin-top: 2px; font-size: 9px; font-weight: 800;
+      padding: 2px 6px; border-radius: 6px; background: rgba(52,211,153,.2); color: #a7f3d0;
+      border: 1px solid rgba(167,243,208,.35);
+    }
+    .hero-org .scan {
+      padding: 9px 14px; border-radius: 12px; border: none;
+      background: linear-gradient(90deg, #34d399, #5eead4); color: #064e3b;
+      font-size: 11px; font-weight: 800; white-space: nowrap;
+    }
+
+    .sec-h {
+      grid-column: 1 / -1;
+      margin: 8px 0 0;
+      font-size: 12px; font-weight: 800; color: #0d7a66;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      padding-top: 8px; border-top: 1px dashed #c5d6ce;
+    }
+    .sec-h:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+
+    .dropdown {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-width: 160px;
+      height: 36px;
+      padding: 0 12px;
+      border: 1.5px solid #94a3b8;
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #0f2a24;
+    }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge {
+      font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    }
+    .badge.mem { background: #d1fae5; color: #047857; }
+    .badge.adm { background: #ede9fe; color: #6d28d9; }
+    .badge.warn { background: #fef3c7; color: #92400e; }
+    .badge.pass { background: #ecfdf5; color: #065f46; }
+    .badge.guest { background: #fff7ed; color: #9a3412; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 20px;
+    }
+    @media (max-width: 560px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="design-doc">
+  <div class="design-shell">
+    <div class="design-bar">
+      <div class="design-bar-top">
+        <a class="design-brand" href="./index.html">
+          <div class="design-logo" aria-hidden="true"></div>
+          <div>
+            <strong>EcoBin<span class="pcru">PCRU</span></strong>
+            <span class="sub">DS · DOC-DS-002 · Pattern library</span>
+          </div>
+        </a>
+      </div>
+      <nav class="design-tabs" aria-label="Design layers">
+        <a href="../wireframes/index.html"><span class="num">01</span> Wireframe</a>
+        <a class="active" href="./patterns.html" aria-current="page"><span class="num">02</span> Pattern library</a>
+        <a href="./ui.html"><span class="num">03</span> UI</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="design-main">
+    <article class="ds-doc">
+      <header class="ds-doc-head">
+        <div class="ds-kicker">
+          <span class="ds-id">DOC-DS-002</span>
+          <span class="ds-badge layer-2">02 · Composition</span>
+          <span class="ds-badge outline">Atomic Design</span>
+        </div>
+        <h1>Pattern library — Atom · Molecule · Organism</h1>
+        <p class="lede">
+          Frame 1 = Atoms (สี · ตัวอักษร · ไอคอน · ปุ่ม · ฟอร์ม) ·
+          Frame 2 = Molecules / Organisms ที่อ้างอิงคอมโพเนนต์จริงใน EcoBin Connect
+          (Header · สแกน · รางวัล · Admin)
+        </p>
+        <dl class="ds-meta">
+          <dt>Project</dt><dd>EcoBin Connect · PCRU</dd>
+          <dt>Version</dt><dd>1.0</dd>
+          <dt>Status</dt><dd>Living library</dd>
+          <dt>Source</dt><dd><code>frontend/src/components</code></dd>
+        </dl>
+      </header>
+      <div class="ds-body">
+        <div class="legend-row">
+          <span><i class="tag-atom">Atom</i> ชิ้นเล็กสุด</span>
+          <span><i class="tag-molecule">Molecule</i> กลุ่มที่ใช้ซ้ำ</span>
+          <span><i class="tag-organism">Organism</i> บล็อกหน้าจอ</span>
+        </div>
+      </div>
+    </article>
+
+  <div class="board-wrap">
+    <div class="frames">
+      <!-- ========== FRAME 1 ========== -->
+      <section class="frame" aria-label="Frame 1 — Atoms">
+        <div class="frame-label">Frame 1 · Atoms</div>
+
+        <h2 class="block">Color</h2>
+        <div class="swatches" aria-label="EcoBin palette">
+          <div class="swatch-box" style="background:#d7f3ea" title="accent soft"></div>
+          <div class="swatch-box" style="background:#0d7a66" title="accent"></div>
+          <div class="swatch-box" style="background:#16332c" title="deep"></div>
+          <div class="swatch-box" style="background:#e2e8f0" title="slate soft"></div>
+          <div class="swatch-box" style="background:#0f2a24" title="ink"></div>
+          <div class="swatch-box" style="background:#64748b" title="muted"></div>
+          <div class="swatch-box" style="background:#5b4bb6" title="admin"></div>
+          <div class="swatch-box" style="background:#f59e0b" title="points amber"></div>
+        </div>
+
+        <div class="block-title">Design Principle · C.R.A.P.</div>
+        <div class="two-col" style="font-size:12px;margin-bottom:8px">
+          <div class="comp">
+            <div class="cap">Contrast</div>
+            <div>ปุ่ม primary ทึบเขียว/ดำ · ข้อความบนพื้นอ่อน · Admin ใช้ม่วงแยกบทบาท</div>
+          </div>
+          <div class="comp">
+            <div class="cap">Repetition</div>
+            <div>Header ซ้ำทุกหน้า · รัศมีการ์ด · โทน emerald / amber แต้ม</div>
+          </div>
+          <div class="comp">
+            <div class="cap">Alignment</div>
+            <div>กริด KPI 2×2 / 4 คอลัมน์ · ฟอร์ม label เหนือ input</div>
+          </div>
+          <div class="comp">
+            <div class="cap">Proximity</div>
+            <div>Brand+PCRU · แต้ม+Avatar · ผล AI ใกล้อุปกรณ์กล้อง</div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:#64748b;margin:0 0 8px">อ้างอิงทฤษฎีเต็ม: <a href="./ux-theory.html">DOC-DS-004</a></p>
+
+        <div class="atom-cols" style="margin-top:22px">
+          <div>
+            <div class="block-title" style="margin-top:0">Typography</div>
+            <div class="type-scale">
+              <div class="h1">H1</div>
+              <div class="h2">H2</div>
+              <div class="h3">H3</div>
+              <div class="h4">H4</div>
+              <div class="h5">H5</div>
+              <div class="h6">H6</div>
+              <div class="sub1">Subtitle 1</div>
+              <div class="sub2">Subtitle 2</div>
+              <div class="body1">Body 1 — ข้อความเนื้อหา</div>
+              <div class="body2">Body 2 — คำอธิบายรอง</div>
+              <div class="btn-label">Button</div>
+              <div class="caption">Caption</div>
+              <div class="overline">Overline</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="block-title" style="margin-top:0">Icons</div>
+            <div class="icon-row" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 8h16v12H4z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><circle cx="12" cy="14" r="1"/></svg>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.5-7 10-7 10z"/></svg>
+              <svg viewBox="0 0 24 24"><path d="m12 3 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.9 7.2 18l.9-5.4L4.2 8.7l5.4-.8z"/></svg>
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3"/><path d="M9 8l1.2-2h3.6L15 8"/></svg>
+              <svg viewBox="0 0 24 24"><path d="M12 3v18M5 8h14M7 21h10"/></svg>
+              <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8"/></svg>
+            </div>
+
+            <div class="block-title">Buttons</div>
+            <div class="btn-row">
+              <span class="btn btn-primary">Button</span>
+              <span class="btn btn-outline">Button</span>
+              <span class="btn btn-ghost">Button</span>
+              <span class="btn btn-sm">Button S</span>
+            </div>
+
+            <div class="block-title">Inputs</div>
+            <div class="field" style="margin-bottom:12px">
+              <label>Name</label>
+              <div class="box">First name</div>
+            </div>
+            <div class="field underline" style="margin-bottom:16px">
+              <label>Name</label>
+              <div class="box">First name</div>
+            </div>
+
+            <div class="block-title">Radio</div>
+            <div class="radios">
+              <label><i class="on"></i> Text item 1</label>
+              <label><i></i> Text item 1</label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== FRAME 2 ========== -->
+      <section class="frame" aria-label="Frame 2 — Molecules & Organisms">
+        <div class="frame-label">Frame 2 · Molecules / Organisms (EcoBin)</div>
+
+        <div class="two-col">
+          <div class="sec-h">Molecules · กลุ่มคอมโพเนนต์ที่ใช้ซ้ำ</div>
+
+          <div class="comp">
+            <div class="cap">Brand lockup</div>
+            <div class="brand-lock">
+              <div class="mark"></div>
+              <span class="name">EcoBin</span>
+              <span class="pill">PCRU</span>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Points chip</div>
+            <span class="pts-chip"><i></i> 120 แต้ม</span>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Badges / สถานะ</div>
+            <div class="badge-row">
+              <span class="badge mem">สมาชิก</span>
+              <span class="badge adm">แอดมิน</span>
+              <span class="badge guest">Guest</span>
+              <span class="badge pass">ผ่านโมเดล</span>
+              <span class="badge warn">รอจ่ายของ</span>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">AI result chip</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <span class="ai-chip">ขวด · 92% · ได้แต้ม</span>
+              <span class="ai-chip fail">ไม่ผ่าน · ถ่ายใหม่</span>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Form field + label</div>
+            <div class="field">
+              <label>อีเมล</label>
+              <div class="box">name@pcru.ac.th</div>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Search (History / Admin)</div>
+            <div class="search">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
+              ค้นหารายการ / สมาชิก
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">CTA buttons</div>
+            <div class="cta-row">
+              <button type="button" class="p">เข้าสู่ระบบ</button>
+              <button type="button" class="google">Google</button>
+              <button type="button" class="g">Guest</button>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Guest notice</div>
+            <div class="guest-note">
+              <span class="dot"></span>
+              โหมดทดลอง — สแกนได้ แต่ไม่ได้แต้มจริง · สมัครเพื่อสะสมแต้ม
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Pickup code</div>
+            <div class="pickup">
+              <span class="sub">รหัสรับของ</span>
+              <span class="code">EB-7K2M</span>
+              <span class="sub">ให้แอดมินสแกน QR</span>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Icon buttons</div>
+            <div class="icon-btns">
+              <span>
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg>
+                ACCOUNT
+              </span>
+              <span>
+                <svg viewBox="0 0 24 24"><path d="M4 8h16v12H4z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>
+                REWARDS
+              </span>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Nav pills (Member / Admin)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <div class="nav-pills">
+                <span class="on">หน้าหลัก</span><span>สแกนขยะ</span><span>ของรางวัล</span><span>ตั้งค่า</span>
+              </div>
+              <div class="nav-pills admin">
+                <span class="on">แผงควบคุม</span><span>สแกน QR</span><span>ตั้งค่า</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Subnav tabs · ประวัติ / Admin</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px">
+              <div class="subnav">
+                <span class="on">ขยะ</span><span>แต้ม</span><span>แลกรางวัล</span><span>Guest</span>
+              </div>
+              <div class="subnav admin">
+                <span class="on">ภาพรวม</span><span>รายการสแกน</span><span>สมาชิก</span><span>คิวรับของ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Scan flow stepper</div>
+            <div class="stepper">
+              <div class="step on">ถ่ายจากกล้อง</div>
+              <div class="step">ผล AI ≥80%</div>
+              <div class="step">บันทึกได้แต้ม</div>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Color / status dots</div>
+            <div class="dots">
+              <i class="on" style="background:#0d7a66"></i>
+              <i style="background:#5b4bb6"></i>
+              <i style="background:#f59e0b"></i>
+              <i style="background:#e2e8f0"></i>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Dropdown (Admin)</div>
+            <div class="dropdown">ADD BIN <span>▾</span></div>
+          </div>
+
+          <div class="sec-h">Organisms · บล็อกหน้าจอ</div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · App header</div>
+            <div class="header-bar">
+              <div class="logo"></div>
+              <div class="brand">EcoBin<em>PCRU</em></div>
+              <div class="mid">
+                <div class="nav-pills">
+                  <span class="on">หน้าหลัก</span><span>สแกน</span><span>รางวัล</span>
+                </div>
+              </div>
+              <span class="pts-chip"><i></i> 120</span>
+              <div class="av"></div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · Dashboard hero</div>
+            <div class="hero-org">
+              <div class="who">
+                <div class="av"></div>
+                <div>
+                  <div class="nm">สมชาย ใจดี</div>
+                  <span class="role">PCRU Member</span>
+                </div>
+              </div>
+              <button type="button" class="scan">สแกนขยะ</button>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · KPI strip</div>
+            <div class="kpi-row">
+              <div class="kpi"><div class="v">120</div><div class="l">แต้ม</div></div>
+              <div class="kpi"><div class="v">48</div><div class="l">ขวด</div></div>
+              <div class="kpi"><div class="v">3.2</div><div class="l">CO₂e</div></div>
+              <div class="kpi"><div class="v">2</div><div class="l">ต้นไม้</div></div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · Scanner module</div>
+            <div class="scanner-org">
+              <div class="preview">พรีวิวกล้อง · Mirror</div>
+              <div class="bar">
+                <div class="meta">ผล AI: <b>ขวด · 92%</b> · ประมาณ 10 แต้ม</div>
+                <button type="button">บันทึกได้แต้ม</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · Reward cards</div>
+            <div class="productish">
+              <div class="card">
+                <div class="img">แก้วน้ำ</div>
+                <div class="body">
+                  <div class="tag">มีหลายสี</div>
+                  <div class="title">Eco Cup PCRU</div>
+                  <div class="price">50 แต้ม</div>
+                  <div class="cta">คลิกเพื่อแลกของรางวัล</div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="img">ถุงผ้า</div>
+                <div class="body">
+                  <div class="tag">สต็อกจำกัด</div>
+                  <div class="title">Tote Bag</div>
+                  <div class="price">80 แต้ม</div>
+                  <div class="cta">คลิกเพื่อดูรายละเอียด</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="comp" style="grid-column:1/-1">
+            <div class="cap">Organism · Admin table (อ่านอย่างเดียว)</div>
+            <div class="table-org">
+              <div class="th"><span>สมาชิก</span><span>ประเภท</span><span>แต้ม</span><span>สถานะ</span></div>
+              <div class="tr"><span>สมชาย</span><span>ขวด PET</span><span>+10</span><span><i class="ok">ผ่านโมเดล</i></span></div>
+              <div class="tr"><span>สมหญิง</span><span>กระป๋อง</span><span>+8</span><span><i class="ok">ผ่านโมเดล</i></span></div>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Organism · Redeem modal + QR</div>
+            <div class="modal-org">
+              <h4>แลกสำเร็จ</h4>
+              <p>แสดงคิวอาร์โค้ดให้แอดมินสแกน</p>
+              <div class="qr"></div>
+              <div class="code">EB-7K2M</div>
+            </div>
+          </div>
+
+          <div class="comp">
+            <div class="cap">Organism · Guest notice block</div>
+            <div class="guest-note" style="max-width:none;min-height:88px;align-items:flex-start">
+              <span class="dot" style="margin-top:4px"></span>
+              <div>
+                <div style="font-weight:800;margin-bottom:4px">ยังไม่ได้เข้าสู่ระบบ</div>
+                ลองสแกนได้ แต่จะยังไม่ได้รับแต้มจริง — กดสมัครหรือเข้าสู่ระบบเพื่อสะสมแต้มและแลกรางวัล
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  </main>
+
+  <p class="ds-footer">
+    DOC-DS-002 · Pattern library ·
+    <a href="./index.html">Index</a> ·
+    <a href="../wireframes/index.html">01 Wireframe</a> ·
+    <a href="./ui.html">03 UI</a> ·
+    <a href="./ux-theory.html">04 Theory</a>
+  </p>
+</body>
+</html>

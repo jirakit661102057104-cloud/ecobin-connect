@@ -80,58 +80,70 @@
   </diagram>
 
   <diagram id="er-full-schema" name="ER Schema (เต็มระบบ)">
-    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1300" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
         <mxCell id="title" value="แผนภาพ ER Schema — EcoBin Connect (MySQL / Cloud SQL)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontStyle=1;fontSize=16;" vertex="1" parent="1">
-          <mxGeometry x="400" y="20" width="700" height="35" as="geometry" />
+          <mxGeometry x="400" y="15" width="700" height="35" as="geometry" />
         </mxCell>
 
         <!-- users -->
         <mxCell id="t-users" value="users&#xa;─────────────&#xa;PK user_id&#xa;   full_name&#xa;UK student_id&#xa;UK email&#xa;   password_hash&#xa;   user_role&#xa;   total_points&#xa;   total_carbon_saved&#xa;   avatar_url&#xa;   department&#xa;UK phone&#xa;   auth_provider&#xa;UK google_sub&#xa;   created_at / created_by&#xa;   delete_at / delete_by" style="shape=table;startSize=28;container=0;collapsible=0;childLayout=0;fontSize=11;align=left;spacingLeft=8;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=0;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="40" y="80" width="210" height="280" as="geometry" />
+          <mxGeometry x="40" y="60" width="210" height="280" as="geometry" />
         </mxCell>
 
         <!-- plastic_types -->
-        <mxCell id="t-plastic" value="plastic_types&#xa;─────────────&#xa;PK plastic_code&#xa;   short_name&#xa;   full_name&#xa;   display_name_th&#xa;   carbon_factor&#xa;   points_per_bottle&#xa;   recycling_tips&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="320" y="80" width="200" height="180" as="geometry" />
+        <mxCell id="t-plastic" value="plastic_types&#xa;─────────────&#xa;PK plastic_code&#xa;   short_name&#xa;   full_name&#xa;   display_name_th&#xa;   carbon_factor&#xa;   average_weight_kg&#xa;   points_per_bottle&#xa;   recycling_tips&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="300" y="60" width="210" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- emission_factors -->
+        <mxCell id="t-ef" value="emission_factors&#xa;─────────────&#xa;PK emission_factor_id&#xa;FK plastic_code&#xa;   factor_type&#xa;   factor_value&#xa;   unit&#xa;   source_name / version&#xa;   is_active" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="210" height="160" as="geometry" />
         </mxCell>
 
         <!-- smart_bins -->
         <mxCell id="t-bins" value="smart_bins&#xa;─────────────&#xa;PK bin_id&#xa;   bin_name&#xa;   status&#xa;   capacity_note&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#d5e8d4;strokeColor=#82b366;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="560" y="80" width="180" height="140" as="geometry" />
+          <mxGeometry x="560" y="60" width="180" height="140" as="geometry" />
         </mxCell>
 
         <!-- waste_records -->
-        <mxCell id="t-waste" value="waste_records&#xa;─────────────&#xa;PK record_id&#xa;FK user_id&#xa;   image_url&#xa;   plastic_type&#xa;FK plastic_code&#xa;   bottle_count&#xa;   upload_timestamp&#xa;   verification_status&#xa;   carbon_saved&#xa;   points_awarded&#xa;   admin_comment&#xa;   bin_location&#xa;FK bin_id&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#fff2cc;strokeColor=#d6b656;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="320" y="320" width="210" height="260" as="geometry" />
+        <mxCell id="t-waste" value="waste_records&#xa;─────────────&#xa;PK record_id&#xa;FK user_id&#xa;   image_url&#xa;   plastic_type&#xa;FK plastic_code&#xa;   bottle_count&#xa;   upload_timestamp&#xa;   verification_status *&#xa;   weight_kg&#xa;   carbon_footprint&#xa;   carbon_saved&#xa;   points_awarded&#xa;   capture_source&#xa;   image_hash&#xa;   admin_comment&#xa;   bin_location&#xa;FK bin_id&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#fff2cc;strokeColor=#d6b656;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="560" y="230" width="220" height="340" as="geometry" />
         </mxCell>
 
         <!-- point_transactions -->
         <mxCell id="t-txn" value="point_transactions&#xa;─────────────&#xa;PK transaction_id&#xa;FK user_id&#xa;FK record_id&#xa;   points_earned&#xa;   transaction_type&#xa;   description&#xa;   transaction_date&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#ffe6cc;strokeColor=#d79b00;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="40" y="420" width="210" height="190" as="geometry" />
+          <mxGeometry x="40" y="400" width="210" height="190" as="geometry" />
         </mxCell>
 
         <!-- rewards -->
         <mxCell id="t-rewards" value="rewards&#xa;─────────────&#xa;PK reward_id&#xa;   reward_name&#xa;   points_required&#xa;   reward_description&#xa;   reward_stock&#xa;   reward_image&#xa;   category&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#e1d5e7;strokeColor=#9673a6;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="800" y="80" width="210" height="180" as="geometry" />
+          <mxGeometry x="850" y="60" width="210" height="180" as="geometry" />
         </mxCell>
 
         <!-- redemptions -->
         <mxCell id="t-redeem" value="redemptions&#xa;─────────────&#xa;PK redeem_id&#xa;FK user_id&#xa;FK reward_id&#xa;   points_used&#xa;   redeem_date&#xa;   redeem_status&#xa;UK pickup_code&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f8cecc;strokeColor=#b85450;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="800" y="320" width="210" height="190" as="geometry" />
+          <mxGeometry x="850" y="280" width="210" height="190" as="geometry" />
         </mxCell>
 
         <!-- guest_logs -->
-        <mxCell id="t-guest" value="guest_logs&#xa;─────────────&#xa;PK guest_session_id&#xa;   device_id&#xa;   temp_image_path&#xa;   temp_scan_result&#xa;   detected_bottles&#xa;   estimated_points&#xa;   timestamp&#xa;   created_at / delete_at" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#666666;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="1100" y="80" width="220" height="180" as="geometry" />
+        <mxCell id="t-guest" value="guest_logs&#xa;─────────────&#xa;PK guest_session_id&#xa;   device_id&#xa;   temp_image_path&#xa;   temp_scan_result&#xa;   detected_bottles&#xa;   estimated_points&#xa;   timestamp&#xa;   created_at / delete_at&#xa;(ไม่มี FK → users)" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#666666;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="60" width="220" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- app_settings -->
+        <mxCell id="t-settings" value="app_settings&#xa;─────────────&#xa;PK setting_key&#xa;   setting_value&#xa;   updated_at&#xa;   updated_by&#xa;เช่น points_per_bottle&#xa;waste_auto_approve" style="shape=table;startSize=28;container=0;collapsible=0;fontSize=11;align=left;spacingLeft=8;fillColor=#f5f5f5;strokeColor=#666666;whiteSpace=wrap;html=1;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="290" width="220" height="160" as="geometry" />
         </mxCell>
 
         <!-- Relations -->
-        <mxCell id="r1" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.35;entryX=0;entryY=0.2;" edge="1" parent="1" source="t-users" target="t-waste">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="r1" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.4;entryX=0;entryY=0.15;" edge="1" parent="1" source="t-users" target="t-waste">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="280" y="172" /><mxPoint x="280" y="281" /></Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="r1l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r1">
           <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
@@ -146,30 +158,37 @@
 
         <mxCell id="r3" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.55;entryX=0;entryY=0.35;" edge="1" parent="1" source="t-users" target="t-redeem">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="280" y="234" /><mxPoint x="280" y="386" /></Array>
+            <Array as="points"><mxPoint x="270" y="214" /><mxPoint x="270" y="346" /></Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="r3l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r3">
           <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
         </mxCell>
 
-        <mxCell id="r4" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-plastic" target="t-waste">
+        <mxCell id="r4" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.25;" edge="1" parent="1" source="t-plastic" target="t-waste">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r4l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r4">
-          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="-16" as="offset" /></mxGeometry>
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
         </mxCell>
 
-        <mxCell id="r5" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0;exitY=1;entryX=1;entryY=0.15;" edge="1" parent="1" source="t-bins" target="t-waste">
+        <mxCell id="r4b" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-plastic" target="t-ef">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4bl" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r4b">
+          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
+        </mxCell>
+
+        <mxCell id="r5" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="t-bins" target="t-waste">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="r5l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r5">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-10" as="offset" /></mxGeometry>
+          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
         </mxCell>
 
-        <mxCell id="r6" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.25;" edge="1" parent="1" source="t-waste" target="t-txn">
+        <mxCell id="r6" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;exitX=0;exitY=0.55;entryX=1;entryY=0.35;" edge="1" parent="1" source="t-waste" target="t-txn">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="280" y="450" /><mxPoint x="280" y="467" /></Array>
+            <Array as="points"><mxPoint x="290" y="417" /><mxPoint x="290" y="466" /></Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="r6l" value="1 : M" style="edgeLabel;html=1;fontSize=11;fontStyle=1;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="r6">
@@ -183,8 +202,8 @@
           <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint x="14" as="offset" /></mxGeometry>
         </mxCell>
 
-        <mxCell id="note" value="หมายเหตุ: guest_logs ไม่มี FK ไป users เพราะเป็นผู้เยี่ยมชมที่ยังไม่สมัคร · Soft delete ใช้ delete_at / delete_by · สอดคล้อง D1–D5 ใน DFD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
-          <mxGeometry x="320" y="640" width="700" height="45" as="geometry" />
+        <mxCell id="note" value="หมายเหตุ: * verification_status ในระบบจริง = ผล AI / ให้แต้มทันที (ไม่ใช่คิวแอดมินอนุมัติรูป) · capture_source = camera|gallery · image_hash กันส่งรูปซ้ำ · guest_logs ไม่มี FK ไป users · Soft delete = delete_at / delete_by · สอดคล้อง D1–D5 ใน DFD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="620" width="1100" height="55" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

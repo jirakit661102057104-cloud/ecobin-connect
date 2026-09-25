@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EcoBin Connect — Design System · Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./shared.css" />
+</head>
+<body class="design-doc">
+  <div class="design-shell">
+    <div class="design-bar">
+      <div class="design-bar-top">
+        <a class="design-brand" href="./index.html">
+          <div class="design-logo" aria-hidden="true"></div>
+          <div>
+            <strong>EcoBin<span class="pcru">PCRU</span></strong>
+            <span class="sub">DS · Design System Docs</span>
+          </div>
+        </a>
+      </div>
+      <nav class="design-tabs" aria-label="Design layers">
+        <a href="../wireframes/index.html"><span class="num">01</span> Wireframe</a>
+        <a href="./patterns.html"><span class="num">02</span> Pattern library</a>
+        <a href="./ui.html"><span class="num">03</span> UI</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="design-main">
+    <article class="ds-doc">
+      <header class="ds-doc-head">
+        <div class="ds-kicker">
+          <span class="ds-id">DOC-DS-000</span>
+          <span class="ds-badge outline">Index</span>
+          <span class="ds-badge outline">Standard format</span>
+        </div>
+        <h1>EcoBin Connect — Design System</h1>
+        <p class="lede">
+          เอกสารออกแบบมาตรฐาน 3 ชั้น ตามลำดับ fidelity: Wireframe → Pattern library (Atom / Molecule / Organism) → UI
+          · ทฤษฎี UX/UI map ที่ <a href="./ux-theory.html">DOC-DS-004</a>
+        </p>
+        <dl class="ds-meta">
+          <dt>Project</dt><dd>EcoBin Connect · PCRU</dd>
+          <dt>Version</dt><dd>1.0</dd>
+          <dt>Status</dt><dd>Approved for docs</dd>
+          <dt>Audience</dt><dd>Dev · Design · Advisor</dd>
+        </dl>
+      </header>
+
+      <div class="ds-body">
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>01 · Layer map</h2>
+            <p>เปิดทีละชั้นตาม workflow</p>
+          </div>
+          <div class="hub-grid">
+            <a class="hub-card" href="../wireframes/index.html">
+              <div class="step">DOC-DS-001 · Structure</div>
+              <h2>1. Wireframe</h2>
+              <p>Low-fidelity · ขาวดำ · layout / flow · 22 แผ่น (Member / Guest / Admin / Modal)</p>
+              <div class="preview">กรอบดำ · ปุ่มทึบ · รูป X</div>
+            </a>
+            <a class="hub-card" href="./patterns.html">
+              <div class="step">DOC-DS-002 · Composition</div>
+              <h2>2. Pattern library</h2>
+              <p>Atomic Design: Atom → Molecule → Organism อ้างอิงคอมโพเนนต์จริงในแอป</p>
+              <div class="preview">
+                <span class="tag-atom">Atom</span>
+                <span class="tag-molecule">Molecule</span>
+                <span class="tag-organism">Organism</span>
+              </div>
+            </a>
+            <a class="hub-card" href="./ui.html">
+              <div class="step">DOC-DS-003 · Presentation</div>
+              <h2>3. UI</h2>
+              <p>High-fidelity · สี / รัศมี / เงา ตาม production — ใช้เทียบตอน implement</p>
+              <div class="preview">Tokens · Screens · States</div>
+            </a>
+          </div>
+          <p style="margin:14px 0 0;font-size:13px">
+            <a href="./ux-theory.html"><strong>DOC-DS-004 · UX/UI Theory mapping</strong></a>
+            — ตาราง 12 หัวข้อทฤษฎี → EcoBin → เอกสารอ้างอิง (รองรับเล่มวิจัย)
+          </p>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>02 · Standard format</h2>
+            <p>ทุกหน้าใช้โครงเดียวกัน</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ความหมาย</th>
+                <th>ตัวอย่าง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>DOC-ID</code></td>
+                <td>รหัสเอกสาร</td>
+                <td><code>DOC-DS-001</code> Wireframe</td>
+              </tr>
+              <tr>
+                <td><code>Layer</code></td>
+                <td>ชั้น fidelity</td>
+                <td>01 Structure · 02 Composition · 03 Presentation</td>
+              </tr>
+              <tr>
+                <td><code>Atomic level</code></td>
+                <td>ระดับ Atomic Design (ใช้ใน Pattern)</td>
+                <td>Atom · Molecule · Organism</td>
+              </tr>
+              <tr>
+                <td><code>Meta</code></td>
+                <td>Project / Version / Status / Audience</td>
+                <td>บล็อกด้านบนทุกหน้า</td>
+              </tr>
+              <tr>
+                <td><code>Section</code></td>
+                <td>หัวข้อ UPPERCASE + เส้นคั่น</td>
+                <td>COLOR · TYPOGRAPHY · ORGANISMS</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="ds-section">
+          <div class="ds-section-head">
+            <h2>03 · Atomic Design mapping</h2>
+            <p>ใช้ใน Pattern library</p>
+          </div>
+          <table class="ds-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>นิยาม</th>
+                <th>ตัวอย่าง EcoBin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tag-atom">Atom</span></td>
+                <td>ชิ้นเล็กสุดที่แยกไม่ได้</td>
+                <td>สี · ตัวอักษร · ไอคอน · ปุ่ม · input · radio</td>
+              </tr>
+              <tr>
+                <td><span class="tag-molecule">Molecule</span></td>
+                <td>กลุ่ม atom ที่ใช้ซ้ำได้</td>
+                <td>Brand lockup · Points chip · Nav pills · Form field</td>
+              </tr>
+              <tr>
+                <td><span class="tag-organism">Organism</span></td>
+                <td>บล็อกหน้าจอจากหลาย molecule</td>
+                <td>App Header · KPI grid · Waste scanner · Admin table</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <p class="ds-footer">
+    EcoBin Connect · Design System ·
+    <a href="../README.md">docs/README.md</a> ·
+    <a href="./README.md">design/README.md</a> ·
+    <a href="./ux-theory.html">DOC-DS-004 Theory</a> ·
+    <a href="../research/thesis-ux-ui-gap-checklist.md">Thesis checklist</a>
+  </p>
+</body>
+</html>

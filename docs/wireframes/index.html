@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EcoBin Connect — Wireframe ครบทุกหน้า</title>
+  <title>EcoBin Connect — Wireframe (22 แผ่น)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./shared.css" />
   <style>
+    /* page-specific overrides keep wireframe device styles below */
     /* —— Spec (px) ——
        Phone frame 320 · Desktop 720 · Modal 380
        Viewport H: phone 580 / desktop 480 / modal 400
@@ -57,36 +59,105 @@
       position: sticky;
       top: 0;
       z-index: 40;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      padding: 12px 16px 0;
+      background: transparent;
+    }
+    .top-shell .eco-bar {
+      max-width: calc(var(--content-max) + 32px);
+      margin: 0 auto;
       background: var(--nav-bg);
-      border-bottom: 1px solid var(--line);
-      box-shadow: 0 4px 18px rgba(15, 42, 36, 0.06);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(197, 214, 206, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 10px 28px rgba(15, 42, 36, 0.1);
+      overflow: hidden;
     }
     header.doc {
-      padding: 16px 24px 12px;
-      max-width: calc(var(--content-max) + 48px);
-      margin: 0 auto;
+      padding: 18px 22px 10px;
+    }
+    header.doc .title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    header.doc .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    header.doc .logo-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background:
+        linear-gradient(145deg, #0d7a66 0%, #16332c 100%);
+      box-shadow: 0 4px 12px rgba(13, 122, 102, 0.35);
+      position: relative;
+    }
+    header.doc .logo-mark::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      border-bottom-color: transparent;
+      transform: rotate(-20deg);
+    }
+    header.doc .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    header.doc .brand-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     header.doc h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: -0.02em;
-      line-height: 1.25;
+      line-height: 1.2;
     }
-    header.doc .brand-bar {
-      width: 40px;
-      height: 4px;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--accent), #2aa88a);
-      margin-bottom: 10px;
+    header.doc .badge-pcru {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: #e7f4ee;
+      color: #0b5c4d;
+      border: 1px solid #b9d8cb;
     }
-    header.doc p {
-      margin: 8px 0 0;
+    header.doc .eyebrow {
+      margin: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    header.doc p.lede {
+      margin: 10px 0 0;
       font-size: 13px;
       color: var(--muted);
-      max-width: 720px;
+      max-width: 640px;
+      line-height: 1.45;
+    }
+    header.doc .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      align-content: flex-start;
     }
     .legend {
       display: flex;
@@ -126,9 +197,9 @@
     }
 
     .nav-wrap {
-      padding: 0 24px 14px;
-      max-width: calc(var(--content-max) + 48px);
-      margin: 0 auto;
+      padding: 8px 16px 14px;
+      border-top: 1px solid rgba(197, 214, 206, 0.7);
+      background: rgba(248, 252, 250, 0.65);
     }
     .nav-group { margin-top: 10px; }
     .nav-group:first-child { margin-top: 0; }
@@ -160,7 +231,7 @@
       line-height: 1;
       padding: 8px 12px;
       min-height: 32px;
-      border-radius: 8px;
+      border-radius: 999px;
       cursor: pointer;
       transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
     }
@@ -189,6 +260,99 @@
       border-color: var(--admin);
       color: var(--admin);
     }
+
+    /* In-device app header — mirrors real Header.tsx composition */
+    .wf-app-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      margin: 6px 6px 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1.5px solid #c5d6ce;
+      box-shadow: 0 4px 14px rgba(15, 42, 36, 0.08);
+      min-height: 44px;
+      flex-shrink: 0;
+    }
+    .viewport > .stack {
+      flex: 1;
+      min-height: 0;
+    }
+    .wf-app-header .wf-logo {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(145deg, #0d7a66, #16332c);
+      flex-shrink: 0;
+    }
+    .wf-app-header .wf-brand {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .wf-app-header .wf-brand span {
+      font-size: 8px;
+      font-weight: 800;
+      margin-left: 4px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #e7f4ee;
+      color: #0b5c4d;
+      border: 1px solid #b9d8cb;
+    }
+    .wf-app-header .wf-nav {
+      flex: 1;
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .wf-app-header .wf-nav i {
+      font-style: normal;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 3px 5px;
+      border-radius: 6px;
+      background: #e8eeeB;
+      color: #4a5c56;
+      white-space: nowrap;
+    }
+    .wf-app-header .wf-nav i.on {
+      background: #fff;
+      color: #0b5c4d;
+      box-shadow: 0 1px 2px rgba(15, 42, 36, 0.08);
+    }
+    .wf-app-header.admin .wf-nav i.on {
+      background: #5b4bb6;
+      color: #fff;
+    }
+    .wf-app-header .wf-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .wf-app-header .wf-pts {
+      font-size: 8px;
+      font-weight: 800;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: #fff7e6;
+      color: #9a6700;
+      border: 1px solid #f0d89a;
+    }
+    .wf-app-header .wf-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #cbd5d1;
+      border: 1px solid #9bb5ab;
+    }
+    .device.phone .wf-app-header .wf-nav { display: none; }
+    .device.phone .wf-app-header { justify-content: space-between; }
 
     .coverage {
       width: 100%;
@@ -276,6 +440,8 @@
       margin-bottom: 8px;
     }
     .viewport {
+      display: flex;
+      flex-direction: column;
       border: 1.5px solid #9bb5ab;
       border-radius: var(--radius-viewport);
       background: #f7fbf9;
@@ -368,85 +534,643 @@
       font-size: 11px;
     }
 
+    
+    /* —— Improved wireframe layer —— */
+    body {
+      background: #b8a8d4 !important;
+      background-image:
+        radial-gradient(circle at 12% 0%, rgba(255,255,255,.28), transparent 42%),
+        radial-gradient(circle at 88% 100%, rgba(13,122,102,.15), transparent 40%) !important;
+    }
+    /* —— Compact sticky chrome (อย่าให้บังเนื้อหา) —— */
+    .top-shell {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      padding: 8px 12px 0;
+      background: transparent;
+    }
+    .top-shell .eco-bar {
+      max-width: calc(var(--content-max) + 48px);
+    }
+    .top-shell .design-bar-top {
+      padding: 10px 14px 0;
+    }
+    .top-shell .design-tabs {
+      padding: 8px 12px 8px;
+    }
+    .top-shell .nav-wrap {
+      padding: 0 12px 10px;
+      border-top: 1px solid rgba(197, 214, 206, 0.7);
+      background: rgba(248, 252, 250, 0.92);
+      max-height: 88px;
+      overflow: auto;
+    }
+    .top-shell .nav-group {
+      margin-top: 6px;
+    }
+    .top-shell .nav-group:first-child { margin-top: 4px; }
+    .top-shell .nav-group label {
+      margin-bottom: 4px;
+      font-size: 10px;
+    }
+    .top-shell #screen-nav button,
+    .top-shell #screen-nav-admin button {
+      padding: 6px 10px;
+      min-height: 28px;
+      font-size: 11px;
+    }
+    .intro-card {
+      max-width: var(--content-max);
+      width: 100%;
+      margin: 0 auto 16px;
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 10px 28px rgba(40, 28, 70, 0.1);
+      padding: 16px 18px;
+    }
+    .intro-card header.doc {
+      padding: 0;
+    }
+    .intro-card .lede {
+      margin-top: 8px;
+    }
+
+    .screen-panel {
+      background: #fff !important;
+      border: none !important;
+      border-radius: 4px !important;
+      box-shadow: 0 18px 48px rgba(40, 28, 70, 0.16) !important;
+      padding: 20px 18px 22px !important;
+    }
+    .screen-meta {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e8eef0;
+    }
+    .screen-meta .flow {
+      margin: 8px 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .screen-meta .flow span {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef6f2;
+      border: 1px solid #c5d6ce;
+      color: #23453c;
+    }
+    .screen-meta .flow span.warn {
+      background: #fff7e6;
+      border-color: #f0d89a;
+      color: #9a6700;
+    }
+    .screen-meta .flow span.admin {
+      background: #efeafc;
+      border-color: #cfc6f0;
+      color: #5b4bb6;
+    }
+    .screen-meta .flow span.ok {
+      background: #d7f3ea;
+      border-color: #9ad4c0;
+      color: #0b5c4d;
+    }
+    .box {
+      position: relative;
+    }
+    .box .hint {
+      display: block;
+      margin-top: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      opacity: 0.75;
+      line-height: 1.35;
+    }
+    .box.state {
+      border-style: dotted;
+      background: #f8faf9;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .wf-footer {
+      display: flex;
+      gap: 4px;
+      margin-top: auto;
+      padding: 6px;
+      border-top: 1.5px solid #c5d6ce;
+      background: #f4faf7;
+      border-radius: 0 0 10px 10px;
+    }
+    .wf-footer i {
+      flex: 1;
+      text-align: center;
+      font-style: normal;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 8px 2px;
+      border-radius: 8px;
+      color: #64748b;
+      background: transparent;
+    }
+    .wf-footer i.on {
+      background: #fff;
+      color: #0b5c4d;
+      box-shadow: 0 1px 3px rgba(15,42,36,.08);
+    }
+    .device.phone .viewport {
+      display: flex;
+      flex-direction: column;
+    }
+    .device.phone .viewport > .stack {
+      flex: 1;
+      padding-bottom: 4px;
+    }
+    .annot {
+      font-size: 11px;
+      color: #5b6f68;
+      margin: 10px 0 0;
+      padding: 8px 10px;
+      background: #f7fbf9;
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+    }
+    .annot.admin { border-left-color: var(--admin); background: #f7f5fc; }
+    .screen-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 16px;
+      max-width: var(--content-max);
+    }
+    .screen-tools button {
+      appearance: none;
+      border: 1px solid #c5d6ce;
+      background: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: #0f2a24;
+    }
+    .screen-tools button:hover { border-color: var(--accent); color: var(--accent); }
+    .coverage {
+      background: #fff !important;
+      border-radius: 4px !important;
+      box-shadow: 0 10px 28px rgba(40,28,70,.1);
+    }
+    main {
+      max-width: calc(var(--content-max) + 48px);
+      margin: 0 auto;
+    }
+    .footer-note {
+      max-width: calc(var(--content-max) + 48px);
+      margin: 0 auto 40px;
+      padding: 0 24px;
+      font-size: 12px;
+      color: #4a4060;
+    }
+    .footer-note a { color: #0d7a66; font-weight: 700; }
+    body.show-all-screens .screen-panel {
+      display: block !important;
+      margin-bottom: 28px;
+    }
+    body.show-all-screens .screen-tools #show-one {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     @media (max-width: 760px) {
-      header.doc,
-      .nav-wrap { padding-left: 16px; padding-right: 16px; }
+      .top-shell { padding: 8px 10px 0; }
+      header.doc { padding: 14px 14px 8px; }
+      .nav-wrap { padding: 8px 12px 12px; }
+      header.doc .meta-pills { justify-content: flex-start; }
       main { padding: 16px 16px 48px; }
       .screen-panel { padding: 14px; border-radius: 16px; }
       .device.desktop { width: 100%; }
       .device.phone { width: min(320px, 100%); }
       .grid-4 { grid-template-columns: 1fr 1fr; }
       header.doc h1 { font-size: 17px; }
+      .wf-app-header .wf-brand { font-size: 9px; }
     }
+  
+    /* ========== Classic B&W lo-fi (reference style) ========== */
+    body {
+      background: #e8e8e8 !important;
+      background-image: none !important;
+      color: #111;
+    }
+    .intro-card, .coverage, .screen-panel {
+      background: #fff !important;
+      border: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+      box-shadow: 4px 4px 0 rgba(0,0,0,.12) !important;
+    }
+    .screen-meta .flow span {
+      background: #fff !important;
+      border: 1px solid #111 !important;
+      color: #111 !important;
+      border-radius: 0 !important;
+    }
+    .screen-meta .flow span.warn,
+    .screen-meta .flow span.ok,
+    .screen-meta .flow span.admin {
+      background: #f3f3f3 !important;
+      border-color: #111 !important;
+      color: #111 !important;
+    }
+    .tag.member, .tag.admin, .tag.modal, .tag.guest {
+      background: #111 !important;
+      color: #fff !important;
+      border-radius: 0 !important;
+    }
+    .annot {
+      background: #f5f5f5 !important;
+      border-left: 3px solid #111 !important;
+      color: #333 !important;
+    }
+    .annot.admin { border-left-color: #111 !important; background: #f0f0f0 !important; }
+
+    .device {
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+    .device-label {
+      color: #555 !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.06em !important;
+      margin-bottom: 10px !important;
+    }
+    .viewport {
+      background: #fff !important;
+      border: 2px solid #111 !important;
+      border-radius: 28px !important;
+      overflow: hidden !important;
+      min-height: 580px !important;
+      position: relative !important;
+      box-shadow: 0 12px 0 rgba(0,0,0,.06) !important;
+    }
+    .device.desktop .viewport {
+      border-radius: 12px !important;
+      min-height: 480px !important;
+    }
+    .device.modal-frame .viewport {
+      background: rgba(0,0,0,.35) !important;
+      border: 2px solid #111 !important;
+      border-radius: 12px !important;
+      padding: 20px !important;
+      min-height: 400px !important;
+    }
+    .device.modal-frame .viewport > .box.solid.stack,
+    .device.modal-frame .viewport > .box.solid {
+      background: #fff !important;
+      color: #111 !important;
+      border: 2px solid #111 !important;
+      border-radius: 0 !important;
+    }
+
+    .device.phone .viewport::before {
+      content: "10:31";
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #111;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .stack { gap: 10px !important; padding: 14px 16px 16px !important; }
+    .row { gap: 10px !important; }
+
+    .box {
+      border: 1.5px solid #111 !important;
+      background: #fff !important;
+      border-radius: 0 !important;
+      color: #111 !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      padding: 10px 12px !important;
+    }
+    .box .hint {
+      color: #666 !important;
+      font-weight: 500 !important;
+      font-size: 11px !important;
+    }
+    .box.solid {
+      background: #111 !important;
+      color: #fff !important;
+      border-color: #111 !important;
+      font-weight: 700 !important;
+    }
+    .box.solid.accent {
+      background: #111 !important;
+      color: #fff !important;
+      border-color: #111 !important;
+    }
+    .box.accent {
+      background: #fff !important;
+      border: 1.5px solid #111 !important;
+      color: #111 !important;
+    }
+    .box.nav {
+      background: #fff !important;
+      color: #111 !important;
+      border: none !important;
+      border-bottom: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+    }
+    .box.admin {
+      background: #f4f4f4 !important;
+      border: 1.5px solid #111 !important;
+      color: #111 !important;
+      border-style: solid !important;
+    }
+    .box.state {
+      border-style: dashed !important;
+      background: #fafafa !important;
+      color: #555 !important;
+    }
+
+    .box.media {
+      position: relative !important;
+      overflow: hidden !important;
+      min-height: 120px !important;
+      background:
+        linear-gradient(to top right, transparent calc(50% - 0.75px), #111 calc(50% - 0.75px), #111 calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        linear-gradient(to top left, transparent calc(50% - 0.75px), #111 calc(50% - 0.75px), #111 calc(50% + 0.75px), transparent calc(50% + 0.75px)),
+        #fff !important;
+      font-weight: 700 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+    }
+
+    .wf-title {
+      font-size: 28px !important;
+      font-weight: 800 !important;
+      border: none !important;
+      background: transparent !important;
+      padding: 8px 0 !important;
+      min-height: 0 !important;
+      letter-spacing: -0.03em;
+    }
+    .wf-sub {
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: #444 !important;
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      min-height: 0 !important;
+    }
+    .wf-link {
+      border: none !important;
+      background: transparent !important;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      font-weight: 600 !important;
+      padding: 8px 0 !important;
+      min-height: 0 !important;
+      text-align: center;
+    }
+    .wf-field-label {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      min-height: 0 !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+    }
+    .wf-input {
+      border: 1.5px solid #111 !important;
+      background: #fff !important;
+      color: #888 !important;
+      font-weight: 500 !important;
+      min-height: 40px !important;
+      border-radius: 0 !important;
+    }
+    .wf-avatar-x {
+      width: 56px;
+      height: 56px;
+      border: 1.5px solid #111;
+      border-radius: 999px;
+      margin: 0 auto 6px;
+      background:
+        linear-gradient(to top right, transparent calc(50% - 0.75px), #111 0, #111 calc(50% + 0.75px), transparent 0),
+        linear-gradient(to top left, transparent calc(50% - 0.75px), #111 0, #111 calc(50% + 0.75px), transparent 0),
+        #fff;
+    }
+
+    .wf-app-header {
+      background: #fff !important;
+      border: none !important;
+      border-bottom: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 !important;
+      padding: 10px 14px !important;
+      min-height: 48px !important;
+    }
+    .wf-app-header .wf-logo {
+      background: #111 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .wf-app-header .wf-brand { color: #111 !important; }
+    .wf-app-header .wf-brand span {
+      background: #fff !important;
+      color: #111 !important;
+      border: 1px solid #111 !important;
+      border-radius: 0 !important;
+    }
+    .wf-app-header .wf-nav i {
+      background: transparent !important;
+      color: #333 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .wf-app-header .wf-nav i.on,
+    .wf-app-header.admin .wf-nav i.on {
+      background: #111 !important;
+      color: #fff !important;
+    }
+    .wf-app-header .wf-pts {
+      background: #fff !important;
+      color: #111 !important;
+      border: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+    }
+    .wf-app-header .wf-avatar {
+      background: #fff !important;
+      border: 1.5px solid #111 !important;
+      border-radius: 999px !important;
+    }
+    .wf-footer {
+      background: #fff !important;
+      border-top: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+    }
+    .wf-footer i { color: #444 !important; }
+    .wf-footer i.on {
+      background: #111 !important;
+      color: #fff !important;
+      box-shadow: none !important;
+    }
+
+    .swatch { border: 1.5px solid #111 !important; background: #fff !important; border-radius: 0 !important; }
+    .swatch.solid { background: #111 !important; }
+    .swatch.nav { background: #111 !important; border-color: #111 !important; }
+    .swatch.admin { background: #f4f4f4 !important; border-color: #111 !important; border-style: solid !important; }
+
+    .top-shell .eco-bar, .design-bar {
+      border: 1.5px solid #111 !important;
+      border-radius: 0 !important;
+      box-shadow: 4px 4px 0 rgba(0,0,0,.1) !important;
+      background: #fff !important;
+    }
+    .design-tabs a.active, #screen-nav button.active,
+    #screen-nav-admin button.admin-btn.active {
+      background: #111 !important;
+      border-color: #111 !important;
+      color: #fff !important;
+      border-radius: 0 !important;
+    }
+    .design-tabs a, #screen-nav button, #screen-nav-admin button, .screen-tools button, .spec-chip {
+      border-radius: 0 !important;
+      border-color: #111 !important;
+    }
+    .spec-chip { background: #fff !important; color: #111 !important; }
+    .design-logo {
+      background: #111 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .badge-pcru, .design-brand .pcru {
+      border-radius: 0 !important;
+      background: #fff !important;
+      color: #111 !important;
+      border-color: #111 !important;
+    }
+
   </style>
 </head>
 <body>
-  <div class="top-shell">
-    <header class="doc">
-      <div class="brand-bar" aria-hidden="true"></div>
-      <h1>EcoBin Connect — Wireframe ครบทุกหน้าหลัก</h1>
-      <p>
-        โครงร่างกล่อง (low-fidelity) ครอบคลุม Member / Guest / Admin / Modal สำคัญ ตามระบบจริง —
-        AI (Teachable) ตรวจรูปให้แต้ม · แอดมินไม่อนุมัติรูป · แอดมินสแกน QR จ่ายของรางวัล
-      </p>
-      <div class="legend">
-        <span><i class="swatch"></i> เนื้อหา</span>
-        <span><i class="swatch solid"></i> ปุ่ม</span>
-        <span><i class="swatch nav"></i> Header / Nav</span>
-        <span><i class="swatch admin"></i> โซน Admin</span>
+  <div class="top-shell design-shell">
+    <div class="eco-bar design-bar">
+      <div class="design-bar-top">
+        <a class="design-brand" href="../design/index.html">
+          <div class="design-logo" aria-hidden="true"></div>
+          <div>
+            <strong>EcoBin<span class="pcru">PCRU</span></strong>
+            <span class="sub">DS · DOC-DS-001 · Wireframe</span>
+          </div>
+        </a>
       </div>
-      <div class="spec-row" aria-label="ขนาดที่ใช้ px">
-        <span class="spec-chip">Phone 320×580</span>
-        <span class="spec-chip">Desktop 720×480</span>
-        <span class="spec-chip">Modal 380×400</span>
-        <span class="spec-chip">Gap 8</span>
-        <span class="spec-chip">Pad 12</span>
-        <span class="spec-chip">H: 28 / 48 / 80 / 128 / 192</span>
-        <span class="spec-chip">Radius 24 / 14 / 8</span>
-      </div>
-    </header>
+      <nav class="design-tabs" aria-label="Design layers">
+        <a class="active" href="./index.html" aria-current="page"><span class="num">01</span> Wireframe</a>
+        <a href="../design/patterns.html"><span class="num">02</span> Pattern library</a>
+        <a href="../design/ui.html"><span class="num">03</span> UI</a>
+      </nav>
 
-    <div class="nav-wrap">
-      <div class="nav-group">
-        <label>สมาชิก / Guest</label>
-        <div id="screen-nav">
-          <button type="button" data-screen="login" class="active">1. Login</button>
-          <button type="button" data-screen="dashboard">2. Dashboard</button>
-          <button type="button" data-screen="scan">3. สแกนขยะ</button>
-          <button type="button" data-screen="guest-scan">4. Guest สแกน</button>
-          <button type="button" data-screen="rewards">5. ของรางวัล</button>
-          <button type="button" data-screen="redeem-modal">6. Modal แลก</button>
-          <button type="button" data-screen="history">7. ประวัติ</button>
-          <button type="button" data-screen="guide">8. คู่มือ</button>
-          <button type="button" data-screen="settings">9. ตั้งค่า</button>
-          <button type="button" data-screen="profile-modal">10. กรอกโปรไฟล์</button>
-          <button type="button" data-screen="research-modal">11. เกี่ยวกับโครงการ</button>
+      <div class="nav-wrap">
+        <div class="nav-group">
+          <label>สมาชิก / Guest</label>
+          <div id="screen-nav">
+            <button type="button" data-screen="login" class="active">1. Login</button>
+            <button type="button" data-screen="dashboard">2. Dashboard</button>
+            <button type="button" data-screen="scan">3. สแกนขยะ</button>
+            <button type="button" data-screen="guest-scan">4. Guest สแกน</button>
+            <button type="button" data-screen="rewards">5. ของรางวัล</button>
+            <button type="button" data-screen="redeem-modal">6. Modal แลก</button>
+            <button type="button" data-screen="history">7. ประวัติ</button>
+            <button type="button" data-screen="guide">8. คู่มือ</button>
+            <button type="button" data-screen="settings">9. ตั้งค่า</button>
+            <button type="button" data-screen="profile-modal">10. กรอกโปรไฟล์</button>
+            <button type="button" data-screen="research-modal">11. เกี่ยวกับโครงการ</button>
+          </div>
         </div>
-      </div>
-      <div class="nav-group admin-g">
-        <label>Admin</label>
-        <div id="screen-nav-admin">
-          <button type="button" class="admin-btn" data-screen="admin">12. ภาพรวม</button>
-          <button type="button" class="admin-btn" data-screen="admin-qr">13. สแกน QR</button>
-          <button type="button" class="admin-btn" data-screen="admin-scans">14. รายการสแกน</button>
-          <button type="button" class="admin-btn" data-screen="admin-users">15. สมาชิก</button>
-          <button type="button" class="admin-btn" data-screen="admin-rewards">16. จัดการรางวัล</button>
-          <button type="button" class="admin-btn" data-screen="admin-redemptions">17. คิวรับของ</button>
-          <button type="button" class="admin-btn" data-screen="admin-bins">18. จุดทิ้ง</button>
-          <button type="button" class="admin-btn" data-screen="admin-rules">19. กฎระบบ</button>
-          <button type="button" class="admin-btn" data-screen="admin-activity">20. Activity Log</button>
-          <button type="button" class="admin-btn" data-screen="admin-relations">21. ประวัติผู้ใช้</button>
-          <button type="button" class="admin-btn" data-screen="admin-crud">22. Modal CRUD</button>
+        <div class="nav-group admin-g">
+          <label>Admin</label>
+          <div id="screen-nav-admin">
+            <button type="button" class="admin-btn" data-screen="admin">12. ภาพรวม</button>
+            <button type="button" class="admin-btn" data-screen="admin-qr">13. สแกน QR</button>
+            <button type="button" class="admin-btn" data-screen="admin-scans">14. รายการสแกน</button>
+            <button type="button" class="admin-btn" data-screen="admin-users">15. สมาชิก</button>
+            <button type="button" class="admin-btn" data-screen="admin-rewards">16. จัดการรางวัล</button>
+            <button type="button" class="admin-btn" data-screen="admin-redemptions">17. คิวรับของ</button>
+            <button type="button" class="admin-btn" data-screen="admin-bins">18. จุดทิ้ง</button>
+            <button type="button" class="admin-btn" data-screen="admin-rules">19. กฎระบบ</button>
+            <button type="button" class="admin-btn" data-screen="admin-activity">20. Activity Log</button>
+            <button type="button" class="admin-btn" data-screen="admin-relations">21. ประวัติผู้ใช้</button>
+            <button type="button" class="admin-btn" data-screen="admin-crud">22. Modal CRUD</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <main>
+    <div class="intro-card ds-doc" style="border:1.5px solid #111;box-shadow:4px 4px 0 rgba(0,0,0,.08)">
+      <header class="ds-doc-head" style="padding:16px 18px;border-bottom:1.5px solid #e5e7eb">
+        <div class="ds-kicker">
+          <span class="ds-id">DOC-DS-001</span>
+          <span class="ds-badge layer-1">01 · Structure</span>
+          <span class="ds-badge outline">Low fidelity · B&amp;W</span>
+        </div>
+        <h1 style="margin:0 0 6px;font-size:22px;font-weight:800">Wireframe — ครบทุกหน้า (22 แผ่น)</h1>
+        <p class="lede" style="margin:0;font-size:14px;color:#6b7280">
+          <strong>Low-fidelity Wireframe</strong> (ตามนิยาม Wireframing ในทฤษฎี UX/UI) —
+          ขาวดำ · กรอบดำ · ปุ่มทึบ/เส้นขอบ · ช่องรูปกากบาท (X) · โฟกัส layout/flow ไม่เน้นสี ·
+          22 แผ่น Member / Guest / Admin / Modal ·
+          <a href="../design/ux-theory.html">DOC-DS-004 Theory</a>
+        </p>
+        <dl class="ds-meta" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid #e5e7eb;margin-top:14px">
+          <dt style="padding:10px 12px 0;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;border-right:1px solid #e5e7eb">Project</dt>
+          <dd style="margin:0;padding:2px 12px 10px;font-size:13px;font-weight:700;border-right:1px solid #e5e7eb">EcoBin · PCRU</dd>
+          <dt style="padding:10px 12px 0;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;border-right:1px solid #e5e7eb">Spec</dt>
+          <dd style="margin:0;padding:2px 12px 10px;font-size:13px;font-weight:700;border-right:1px solid #e5e7eb">320×580 / 720×480</dd>
+          <dt style="padding:10px 12px 0;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;border-right:1px solid #e5e7eb">Screens</dt>
+          <dd style="margin:0;padding:2px 12px 10px;font-size:13px;font-weight:700;border-right:1px solid #e5e7eb">22 panels</dd>
+          <dt style="padding:10px 12px 0;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6b7280">Next</dt>
+          <dd style="margin:0;padding:2px 12px 10px;font-size:13px;font-weight:700"><a href="../design/patterns.html">02 Patterns</a></dd>
+        </dl>
+      </header>
+      <div style="padding:14px 18px">
+        <div class="legend">
+          <span><i class="swatch"></i> เนื้อหา / ฟิลด์</span>
+          <span><i class="swatch solid"></i> ปุ่ม primary (ทึบ)</span>
+          <span><i class="swatch nav"></i> Header / Nav</span>
+          <span><i class="swatch admin"></i> โซน Admin</span>
+        </div>
+      </div>
+    </div>
+
     <p class="coverage">
-      <strong>ครอบคลุม 22 แผ่น</strong> = หน้าหลักทุกแท็บ + modal สำคัญของ flow ·
-      ไม่แยก empty/loading/error (ใช้หมายเหตุในกล่องได้)
+      <strong>Wireframe 22 แผ่น</strong> — low-fidelity ตามระบบจริง ·
+      สมาชิกได้แต้มเฉพาะถ่ายจากกล้องในแอป · AI (Teachable) ≥80% · แอดมินไม่อนุมัติรูป ·
+      แอดมินสแกน QR จ่ายของรางวัล ·
+      <a href="../design/patterns.html">Pattern library</a> ·
+      <a href="../design/ui.html">UI</a>
     </p>
+    <div class="screen-tools" role="group" aria-label="นำทางแผ่น">
+      <button type="button" id="prev-screen">← แผ่นก่อน</button>
+      <button type="button" id="next-screen">แผ่นถัดไป →</button>
+      <button type="button" id="show-all">แสดงทุกแผ่น</button>
+      <button type="button" id="show-one">แสดงทีละแผ่น</button>
+    </div>
 
 
     <!-- 1 LOGIN -->
@@ -454,20 +1178,30 @@
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>1. เข้าสู่ระบบ (/login)</h2>
         <p>Google / อีเมล-รหัส / ทดลอง Guest</p>
+        <div class="flow">
+          <span>Google OAuth</span>
+          <span>อีเมล + รหัส</span>
+          <span class="warn">Guest = ไม่ได้แต้มจริง</span>
+          <span>needs_profile → แผ่น 10</span>
+        </div>
       </div>
+      <p class="annot">ไม่มี App Header · Desktop แยกคอลัมน์แบรนด์ซ้าย / ฟอร์มขวา</p>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
-          <div class="viewport"><div class="stack">
-            <div class="box center h-md">Logo + EcoBin Connect</div>
-            <div class="box h-sm">หัวข้อเข้าสู่ระบบ</div>
-            <div class="box solid h-md center">Google Login</div>
-            <div class="box h-sm center">— หรือ —</div>
-            <div class="box h-md">อีเมล / เบอร์</div>
-            <div class="box h-md">รหัสผ่าน</div>
-            <div class="box solid accent h-md center">เข้าสู่ระบบ</div>
-            <div class="box h-sm">ทดลองแบบ Guest</div>
-            <div class="box grow h-lg">ข้อความช่วยเหลือ</div>
+          <div class="viewport"><div class="stack" style="justify-content:space-between;min-height:520px">
+            <div>
+              <div class="box center h-sm" style="border:none!important;background:transparent!important;min-height:0;padding:0">○</div>
+              <div class="box wf-title center">EcoBin</div>
+              <div class="box wf-link">หน้าหลัก</div>
+              <div class="box wf-link">สแกนขยะ</div>
+              <div class="box wf-link">ของรางวัล</div>
+            </div>
+            <div class="stack" style="padding:0!important;gap:10px!important">
+              <div class="box solid h-md center">เข้าสู่ระบบ</div>
+              <div class="box h-md center">สมัคร / Guest</div>
+              <div class="box state h-sm center">Google · อีเมล · รหัสผ่าน</div>
+            </div>
           </div></div>
         </div>
         <div class="device desktop">
@@ -482,7 +1216,7 @@
                   <div class="box h-md center">KPI</div>
                   <div class="box h-md center">KPI</div>
                 </div>
-                <div class="box grow h-xl">ภาพแคมปัส</div>
+                <div class="box media grow h-xl">ภาพแคมปัส</div>
               </div>
               <div class="stack" style="flex:0.95;">
                 <div class="box h-sm">ฟอร์ม Login</div>
@@ -502,34 +1236,54 @@
     <section class="screen-panel" id="screen-dashboard">
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>2. แดชบอร์ด</h2>
-        <p>Header ร่วม · KPI · กราฟ · CTA สแกน · popup รายละเอียดเมตริก</p>
+        <p>Header: Logo · EcoBin PCRU · เมนูกลาง · แต้ม/Avatar · KPI · กราฟ · CTA สแกน</p>
+        <div class="flow">
+          <span>Hero ทักทาย</span>
+          <span>KPI 4 ใบ</span>
+          <span class="ok">CTA → สแกนขยะ</span>
+          <span>มือถือมี Footer tabs</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header: Logo · หน้าหลัก/สแกน/รางวัล/ตั้งค่า · Avatar</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i class="on">หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
-              <div class="box h-sm">ประกาศ (ถ้ามี)</div>
-              <div class="box accent h-lg">Hero ทักทาย + แต้ม</div>
-              <div class="grid-2">
-                <div class="box h-md center">แต้ม</div>
-                <div class="box h-md center">ขวด</div>
-                <div class="box h-md center">CO₂e</div>
-                <div class="box h-md center">ต้นไม้</div>
+              <div class="box accent">
+                <div class="wf-field-label">สมาชิก</div>
+                <div style="font-size:18px;font-weight:800;margin:4px 0 10px">สวัสดี · สมชาย</div>
+                <div class="box solid h-sm center">ไปสแกนขยะ</div>
               </div>
-              <div class="box solid accent h-md center">ไปสแกนขยะ</div>
-              <div class="box h-xl">กราฟ 7 วัน</div>
-              <div class="box h-lg">รายการล่าสุด</div>
+              <div class="box wf-title center" style="font-size:16px!important">สถิติของฉัน</div>
+              <div class="grid-2">
+                <div class="box center h-md">120<br><span class="hint">แต้ม</span></div>
+                <div class="box center h-md">48<br><span class="hint">ขวด</span></div>
+                <div class="box center h-md">3.2<br><span class="hint">CO₂e</span></div>
+                <div class="box center h-md">2<br><span class="hint">ต้นไม้</span></div>
+              </div>
+              <div class="box media h-xl center">กราฟ 7 วัน</div>
+              <div class="box"><strong>รายการล่าสุด</strong><span class="hint">Body text · PET +5</span></div>
+              <div class="wf-footer" aria-label="Footer tabs"><i class="on">หน้าหลัก</i><i>สแกน</i><i>รางวัล</i><i>ตั้งค่า</i></div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Footer ด้านล่างหน้า</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i class="on">หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
-              <div class="box accent h-lg">Hero</div>
+              <div class="box media accent h-lg">Hero</div>
               <div class="grid-4">
                 <div class="box h-md center">แต้ม</div>
                 <div class="box h-md center">ขวด</div>
@@ -537,7 +1291,7 @@
                 <div class="box h-md center">ต้นไม้</div>
               </div>
               <div class="row">
-                <div class="box grow h-xxl">กราฟ</div>
+                <div class="box media grow h-xxl">กราฟ</div>
                 <div class="box" style="flex:0.4;">CTA + ลิงก์ประวัติ</div>
               </div>
             </div>
@@ -550,40 +1304,58 @@
     <section class="screen-panel" id="screen-scan">
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>3. สแกนขยะ (Teachable)</h2>
-        <p>กล้อง/อัปโหลด → AI ≥80% → จุดทิ้ง → บันทึกได้แต้มทันที</p>
+        <p>เปิดกล้องในแอป (mirror กล้องหน้า) → ถ่าย → AI ≥80% → จุดทิ้ง → บันทึกได้แต้มทันที</p>
+        <div class="flow">
+          <span class="ok">capture_source=camera</span>
+          <span class="ok">image_hash กันซ้ำ</span>
+          <span class="warn">สมาชิกอัปโหลดแกลเลอรี = ไม่ได้แต้ม</span>
+          <span>Teachable ≥80%</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i class="on">สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
-              <div class="box h-sm">หัวข้อสแกนขยะ</div>
-              <div class="box h-xxl center">พรีวิวกล้อง / รูป</div>
-              <div class="row">
-                <div class="box solid h-md center">เปิดกล้อง</div>
-                <div class="box solid h-md center">อัปโหลด</div>
-              </div>
-              <div class="box accent h-lg">ผล AI + % ความมั่นใจ</div>
-              <div class="box h-md">เลือกจุดทิ้ง</div>
-              <div class="box h-sm">จำนวน / แต้มโดยประมาณ</div>
-              <div class="box solid accent h-md center">ยืนยันบันทึก</div>
+              <div class="box wf-title" style="font-size:18px!important;text-align:left">สแกนขยะ</div>
+              <div class="box wf-sub" style="text-align:left">ถ่ายจากกล้องในแอป · AI ≥80%</div>
+              <div class="box media h-xxl center">Camera preview</div>
+              <div class="box solid h-md center">เปิดกล้อง / ถ่ายรูป</div>
+              <div class="box">ผล AI 92%<span class="hint">ผ่านโมเดล · ได้แต้มทันที</span></div>
+              <div class="box wf-field-label">จุดทิ้ง</div>
+              <div class="box wf-input">เลือกจุดทิ้ง…</div>
+              <div class="box solid h-md center">ยืนยันบันทึก</div>
+              <div class="wf-footer" aria-label="Footer tabs"><i>หน้าหลัก</i><i class="on">สแกน</i><i>รางวัล</i><i>ตั้งค่า</i></div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i class="on">สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="row grow">
-                <div class="box grow h-xxl center">พรีวิว</div>
+                <div class="box media grow h-xxl center">พรีวิวกล้อง
+                  <span class="hint">capture_source=camera · image_hash</span>
+                </div>
                 <div class="stack" style="flex:0.5;">
-                  <div class="box accent h-lg">ผล AI</div>
+                  <div class="box media solid accent h-md center">เปิดกล้อง / ถ่าย</div>
+                  <div class="box accent h-lg">ผล AI ≥80%</div>
                   <div class="box h-md">จุดทิ้ง</div>
-                  <div class="box h-md">จำนวน + แต้ม</div>
-                  <div class="box solid accent h-md center">บันทึก</div>
-                  <div class="box h-sm">คู่มือถ่ายรูป (popup)</div>
+                  <div class="box h-md">จำนวน + แต้มโดยประมาณ</div>
+                  <div class="box solid accent h-md center">ยืนยันบันทึกได้แต้ม</div>
+                  <div class="box media state h-sm">คู่มือถ่ายรูป (popup)</div>
                 </div>
               </div>
             </div>
@@ -596,31 +1368,53 @@
     <section class="screen-panel" id="screen-guest-scan">
       <div class="screen-meta">
         <h2><span class="tag guest">Guest</span>4. สแกนทดลอง (ยังไม่ล็อกอิน)</h2>
-        <p>โครงเหมือนสแกนสมาชิก แต่ไม่ได้แต้มจริง · บันทึก guest log · CTA ให้เข้าสู่ระบบ</p>
+        <p>ทดลองได้ทั้งกล้อง/แกลเลอรี · ไม่ได้แต้มจริง · บันทึก guest log · CTA เข้าสู่ระบบ</p>
+        <div class="flow">
+          <span class="warn">ไม่มีแต้มจริง</span>
+          <span>อนุญาตอัปโหลดได้</span>
+          <span>CTA Login</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header (Guest) · ปุ่มเข้าสู่ระบบ</div>
+            <div class="wf-app-header" aria-label="App header guest">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i class="on">สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts" style="background:#e7f4ee;color:#0b5c4d;border-color:#b9d8cb">เข้าสู่ระบบ</span></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">แบนเนอร์: โหมดทดลอง — ไม่ได้แต้มจริง</div>
-              <div class="box h-xxl center">พรีวิวกล้อง / รูป</div>
+              <div class="box media h-xxl center">พรีวิวกล้องหรือรูปแกลเลอรี
+                <span class="hint">โหมดทดลอง — อัปโหลดได้ แต่ไม่มีแต้ม</span>
+              </div>
+              <div class="row">
+                <div class="box media solid h-md center">เปิดกล้อง</div>
+                <div class="box solid h-md center">อัปโหลด (ทดลอง)</div>
+              </div>
               <div class="box accent h-lg">ผล AI (ทดลอง)</div>
               <div class="box h-md">จุดทิ้ง (ถ้าเลือกได้)</div>
               <div class="box solid h-md center">บันทึกทดลอง</div>
               <div class="box solid accent h-md center">เข้าสู่ระบบเพื่อได้แต้มจริง</div>
+              <div class="wf-footer" aria-label="Footer tabs"><i>หน้าหลัก</i><i class="on">สแกน</i><i>รางวัล</i><i>ตั้งค่า</i></div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header Guest</div>
+            <div class="wf-app-header" aria-label="App header guest">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i class="on">สแกนขยะ</i><i>ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts" style="background:#e7f4ee;color:#0b5c4d;border-color:#b9d8cb">เข้าสู่ระบบ</span></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">โหมดทดลอง</div>
               <div class="row">
-                <div class="box grow h-xxl">พรีวิว</div>
+                <div class="box media grow h-xxl">พรีวิว</div>
                 <div class="box" style="flex:0.45;">ผล AI + CTA Login</div>
               </div>
             </div>
@@ -633,25 +1427,44 @@
     <section class="screen-panel" id="screen-rewards">
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>5. แคตตาล็อกของรางวัล</h2>
-        <p>กริดการ์ด · แต้มคงเหลือ · ปุ่มแลก</p>
+        <p>กริดการ์ด · แต้มคงเหลือ · ปุ่มแลก → Modal ยืนยัน + QR</p>
+        <div class="flow">
+          <span>แต้มคงเหลือ</span>
+          <span>การ์ดรางวัล</span>
+          <span class="ok">แลก → Modal 6</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i class="on">ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
-              <div class="box h-sm">หัวข้อ + แต้มคงเหลือ</div>
-              <div class="box h-xl">การ์ดรางวัล #1 (รูป·ชื่อ·แต้ม·แลก)</div>
-              <div class="box h-xl">การ์ดรางวัล #2</div>
-              <div class="box h-xl">การ์ดรางวัล #3</div>
+              <div class="box wf-title" style="font-size:18px!important;text-align:left">ของรางวัล</div>
+              <div class="box wf-sub" style="text-align:left">แต้มคงเหลือ 120</div>
+              <div class="box media h-xl center">Product image</div>
+              <div class="box" style="border:none!important;padding:0!important"><strong>Eco Cup</strong><span class="hint">Body text · 50 แต้ม</span></div>
+              <div class="box media h-xl center">Product image</div>
+              <div class="box" style="border:none!important;padding:0!important"><strong>Tote Bag</strong><span class="hint">Body text · 80 แต้ม</span></div>
+              <div class="box solid h-md center">คลิกเพื่อแลก / ดูรายละเอียด</div>
+              <div class="wf-footer" aria-label="Footer tabs"><i>หน้าหลัก</i><i>สแกน</i><i class="on">รางวัล</i><i>ตั้งค่า</i></div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">Desktop กริด 3</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i class="on">ของรางวัล</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">หัวข้อ + แต้ม</div>
               <div class="grid-3">
@@ -675,17 +1488,22 @@
       <div class="screen-meta">
         <h2><span class="tag modal">Modal</span>6. ยืนยันแลกรางวัล → ได้รหัสรับของ / QR</h2>
         <p>Step 1 ยืนยันหักแต้ม · Step 2 แสดง pickup code + QR ให้แอดมินสแกน</p>
+        <div class="flow">
+          <span>หักแต้ม</span>
+          <span class="ok">QR + pickup code</span>
+          <span class="admin">แอดมินสแกนที่แผ่น 13</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device modal-frame">
           <div class="device-label">Step 1 ยืนยัน</div>
           <div class="viewport">
             <div class="box solid stack" style="background:#fff;min-height:360px;">
-              <div class="box h-sm">หัวข้อ: ยืนยันการแลก</div>
-              <div class="box h-lg">รูป + ชื่อรางวัล + แต้มที่ใช้</div>
-              <div class="box h-md">แต้มปัจจุบัน / ใช้ / คงเหลือ</div>
+              <div class="box wf-title" style="font-size:18px!important;text-align:left;border:none!important">ยืนยันการแลก</div>
+              <div class="box media h-lg center">Product image</div>
+              <div class="box"><strong>Eco Cup</strong><span class="hint">ใช้ 50 แต้ม · คงเหลือ 70</span></div>
               <div class="row">
-                <div class="box solid h-md center">ยกเลิก</div>
+                <div class="box h-md center">ยกเลิก</div>
                 <div class="box solid accent h-md center">ยืนยันแลก</div>
               </div>
             </div>
@@ -696,7 +1514,7 @@
           <div class="viewport">
             <div class="box solid stack" style="background:#fff;min-height:360px;">
               <div class="box accent h-sm center">แลกสำเร็จ</div>
-              <div class="box h-xl center">QR Code รับของ</div>
+              <div class="box media h-xl center">QR Code รับของ</div>
               <div class="box h-md center">รหัสรับของ (pickup code)</div>
               <div class="box h-sm">คำแนะนำ: แสดงให้แอดมินสแกน</div>
               <div class="box solid h-md center">ปิด / ไปประวัติ</div>
@@ -711,12 +1529,22 @@
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>7. ประวัติ (4 แท็บย่อย)</h2>
         <p>ขยะ · แต้ม · แลกรางวัล · ทดลอง Guest</p>
+        <div class="flow">
+          <span>ผ่านโมเดล (อ่านอย่างเดียว)</span>
+          <span>earn / redeem</span>
+          <span class="warn">Guest = ประมาณการ</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">แท็บขยะ</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="row">
                 <div class="box solid h-sm center">ขยะ</div>
@@ -725,16 +1553,24 @@
                 <div class="box h-sm center">Guest</div>
               </div>
               <div class="box h-sm">ค้นหา</div>
-              <div class="box h-lg">แถว: รูป · ประเภท · ผ่านโมเดล · แต้ม</div>
+              <div class="box media h-lg">แถว: รูป · ประเภท · ผ่านโมเดล · แต้ม
+                  <span class="hint">ไม่มีปุ่มอนุมัติ/ปฏิเสธ</span>
+                </div>
               <div class="box h-lg">แถวรายการ</div>
               <div class="box h-lg">แถวรายการ</div>
+              <div class="wf-footer" aria-label="Footer tabs"><i>หน้าหลัก</i><i>สแกน</i><i>รางวัล</i><i class="on">ตั้งค่า</i></div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">แท็บอื่น (โครงเดียวกัน)</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="grid-2">
                 <div class="box h-xl">
@@ -760,13 +1596,19 @@
     <section class="screen-panel" id="screen-guide">
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>8. คู่มือพลาสติก</h2>
-        <p>การ์ดประเภทขวด / เบอร์พลาสติก</p>
+        <p>การ์ดประเภทขวด / เบอร์พลาสติก (PlasticGuide)</p>
+        <div class="flow"><span>PET #1</span><span>HDPE #2</span><span>อื่นๆ</span></div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">หัวข้อคู่มือ</div>
               <div class="box h-xl">PET #1</div>
@@ -778,7 +1620,12 @@
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">คำอธิบายสั้น</div>
               <div class="grid-3">
@@ -797,12 +1644,23 @@
       <div class="screen-meta">
         <h2><span class="tag member">Member</span>9. ตั้งค่า + Popup เมนู</h2>
         <p>รายการเมนูเปิด modal: โปรไฟล์ · ภาษา · 3Rs · ประวัติแลก · PDPA · ออกจากระบบ</p>
+        <div class="flow">
+          <span>โปรไฟล์</span>
+          <span>TH / EN</span>
+          <span>PDPA</span>
+          <span class="warn">Logout</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">รายการเมนู</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header" aria-label="App header">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>หน้าหลัก</i><i>สแกนขยะ</i><i>ของรางวัล</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><span class="wf-pts">120 แต้ม</span><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-md">โปรไฟล์ →</div>
               <div class="box h-md">ภาษา TH/EN →</div>
@@ -837,17 +1695,24 @@
     <section class="screen-panel" id="screen-profile-modal">
       <div class="screen-meta">
         <h2><span class="tag modal">Modal</span>10. กรอกโปรไฟล์หลัง Login (Google/ใหม่)</h2>
-        <p>บังคับกรอกเมื่อ needs_profile</p>
+        <p>บังคับกรอกเมื่อ needs_profile หลัง Google / สมัครใหม่</p>
+        <div class="flow">
+          <span class="warn">บล็อกจนกว่าจะบันทึก</span>
+          <span>ชื่อ · รหัสนักศึกษา · คณะ</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device modal-frame">
           <div class="device-label">Complete Profile</div>
           <div class="viewport">
             <div class="box solid stack" style="background:#fff;min-height:360px;">
-              <div class="box h-sm">หัวข้อ: กรอกข้อมูลสมาชิก</div>
-              <div class="box h-md">ชื่อ–นามสกุล</div>
-              <div class="box h-md">รหัสนักศึกษา</div>
-              <div class="box h-md">คณะ / ภาควิชา</div>
+              <div class="box wf-title" style="font-size:18px!important;text-align:left;border:none!important">กรอกโปรไฟล์</div>
+              <div class="box wf-field-label">ชื่อ–นามสกุล</div>
+              <div class="box wf-input">Text field in empty state</div>
+              <div class="box wf-field-label">รหัสนักศึกษา</div>
+              <div class="box wf-input">Text field in empty state</div>
+              <div class="box wf-field-label">คณะ / ภาควิชา</div>
+              <div class="box wf-input">Text field in empty state</div>
               <div class="box solid accent h-md center">บันทึกแล้วเข้าใช้งาน</div>
             </div>
           </div>
@@ -859,7 +1724,8 @@
     <section class="screen-panel" id="screen-research-modal">
       <div class="screen-meta">
         <h2><span class="tag modal">Modal</span>11. เกี่ยวกับโครงการวิจัย</h2>
-        <p>เปิดจาก Header / Footer</p>
+        <p>เปิดจากปุ่ม Sparkles ใน Header</p>
+        <div class="flow"><span>ข้อมูลโครงการวิจัย PCRU</span></div>
       </div>
       <div class="frames">
         <div class="device modal-frame">
@@ -879,13 +1745,23 @@
     <section class="screen-panel" id="screen-admin">
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>12. แผงควบคุม — ภาพรวม</h2>
-        <p>Header แอดมิน: แผงควบคุม · สแกน QR · ตั้งค่า</p>
+        <p>Header Admin: Logo · EcoBin PCRU · แผงควบคุม / สแกน QR / ตั้งค่า · Avatar</p>
+        <div class="flow">
+          <span class="admin">KPI วิทยาเขต</span>
+          <span>Subnav แท็บย่อย</span>
+          <span>ทางลัดไปสแกน / สมาชิก / คิว</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header Admin</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i class="on">แผงควบคุม</i><i>สแกน QR</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box admin h-lg">แบนเนอร์แผงควบคุม</div>
               <div class="box h-sm">Subnav แท็บย่อย (เลื่อนแนวนอน)</div>
@@ -896,17 +1772,22 @@
                 <div class="box h-md center">KPI รอรับของ</div>
               </div>
               <div class="box solid h-md">ทางลัดแท็บต่าง ๆ</div>
-              <div class="box h-xl">กราฟวิทยาเขต</div>
+              <div class="box media h-xl">กราฟวิทยาเขต</div>
             </div>
           </div>
         </div>
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header: แผงควบคุม | สแกน QR | ตั้งค่า</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i class="on">แผงควบคุม</i><i>สแกน QR</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box admin h-md">แบนเนอร์</div>
-              <div class="box h-sm">Subnav: ภาพรวม|สแกน|สมาชิก|รางวัล|คิว|จุดทิ้ง|กฎ|Activity|ประวัติผู้ใช้</div>
+              <div class="box media h-sm">Subnav: ภาพรวม|สแกน|สมาชิก|รางวัล|คิว|จุดทิ้ง|กฎ|Activity|ประวัติผู้ใช้</div>
               <div class="grid-4">
                 <div class="box h-md center">สแกน</div>
                 <div class="box h-md center">สมาชิก</div>
@@ -928,15 +1809,25 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>13. สแกน QR แลกรางวัล (เมนูหลักแอดมิน)</h2>
         <p>คนละหน้ากับสแกนขยะสมาชิก · กล้อง + พิมพ์รหัส · ยืนยันจ่ายของ</p>
+        <div class="flow">
+          <span class="admin">สแกน QR รับของ</span>
+          <span>พิมพ์ pickup code</span>
+          <span class="ok">ยืนยันจ่ายแล้ว</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header (แท็บสแกน QR)</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i class="on">สแกน QR</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
-              <div class="box admin h-sm">หัวข้อ: สแกน QR แลกรางวัล</div>
-              <div class="box h-xxl center">กล้องแอดมิน + กรอบสแกน</div>
+              <div class="box media admin h-sm">หัวข้อ: สแกน QR แลกรางวัล</div>
+              <div class="box media h-xxl center">กล้องแอดมิน + กรอบสแกน</div>
               <div class="row">
                 <div class="box h-md">พิมพ์รหัสรับของ</div>
                 <div class="box solid h-md center">ค้นหา</div>
@@ -949,10 +1840,15 @@
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i class="on">สแกน QR</i><i>ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box admin h-sm">คำอธิบายสั้น</div>
-              <div class="box h-xxl center">วิดีโอกล้อง</div>
+              <div class="box media h-xxl center">วิดีโอกล้อง</div>
               <div class="row">
                 <div class="box grow h-md">ช่องรหัส</div>
                 <div class="box solid h-md center">ค้นหา</div>
@@ -969,12 +1865,23 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>14. รายการสแกน (อ่านอย่างเดียว)</h2>
         <p>ไม่มีอนุมัติ/ปฏิเสธ · ดูรายละเอียดที่โมเดลตรวจแล้ว</p>
+        <div class="flow">
+          <span class="admin">อ่านอย่างเดียว</span>
+          <span class="ok">AI ตรวจแล้ว</span>
+          <span>ฟิลเตอร์ทั้งหมด / ผ่าน / ค้างเก่า</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: สแกน / จัดการ</div>
             <div class="stack">
               <div class="box accent h-sm">AI ตรวจแล้ว — ไม่อนุมัติมือ</div>
               <div class="row">
@@ -991,7 +1898,12 @@
         <div class="device desktop">
           <div class="device-label">+ Modal รายละเอียด</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-xl">ลิสต์สแกน</div>
               <div class="box solid">
@@ -1009,12 +1921,23 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>15. จัดการสมาชิก</h2>
         <p>ตารางผู้ใช้ · ค้นหา · ปุ่มจัดการ (แก้ role / ปรับแต้ม / ปิดบัญชี)</p>
+        <div class="flow">
+          <span class="admin">role Admin/Member</span>
+          <span>ปรับแต้ม ±</span>
+          <span class="warn">ปิดบัญชี</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav สมาชิก</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: สมาชิก</div>
             <div class="stack">
               <div class="row">
                 <div class="box h-sm grow">หัวข้อรายชื่อผู้ใช้</div>
@@ -1033,7 +1956,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">ค้นหา</div>
               <div class="box h-lg">การ์ดผู้ใช้ #1 + จัดการ</div>
@@ -1050,19 +1978,26 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>16. จัดการของรางวัล</h2>
         <p>เพิ่ม / แก้ / ลบ · สต็อก · แต้มที่ใช้แลก</p>
+        <div class="flow"><span class="admin">CRUD</span><span>สต็อก</span><span>Modal 22</span></div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: สแกน / จัดการ</div>
             <div class="stack">
               <div class="row">
                 <div class="box h-sm grow">รายการของรางวัล</div>
                 <div class="box solid h-sm center">+ เพิ่มของรางวัล</div>
               </div>
               <div class="grid-3">
-                <div class="box h-xl">การ์ด (รูป·สต็อก·แต้ม·แก้/ลบ)</div>
+                <div class="box media h-xl">การ์ด (รูป·สต็อก·แต้ม·แก้/ลบ)</div>
                 <div class="box h-xl">การ์ด</div>
                 <div class="box h-xl">การ์ด</div>
               </div>
@@ -1072,11 +2007,16 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box solid accent h-sm center">+ เพิ่ม</div>
-              <div class="box h-xl">การ์ดรางวัล</div>
-              <div class="box h-xl">การ์ดรางวัล</div>
+              <div class="box media h-xl">การ์ดรางวัล</div>
+              <div class="box media h-xl">การ์ดรางวัล</div>
             </div>
           </div>
         </div>
@@ -1088,14 +2028,25 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>17. คิวรับของรางวัล</h2>
         <p>ตารางแลก · จ่ายของ / ยกเลิกคืนแต้ม · ลิงก์ไปสแกน QR</p>
+        <div class="flow">
+          <span class="warn">รอรับ</span>
+          <span class="ok">จ่ายแล้ว</span>
+          <span class="admin">ยกเลิก = คืนแต้ม</span>
+        </div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav คิวรับของ</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: คิวรับของ</div>
             <div class="stack">
-              <div class="box h-sm">คำอธิบาย: สแกน QR หรือใช้ตารางนี้</div>
+              <div class="box media h-sm">คำอธิบาย: สแกน QR หรือใช้ตารางนี้</div>
               <div class="box h-xxl">
                 ตาราง: วันที่ · ผู้แลก · ของ · แต้ม · รหัส · สถานะ · จ่าย/ยกเลิก
               </div>
@@ -1105,7 +2056,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-lg">รายการรอรับ #1 + ปุ่ม</div>
               <div class="box h-lg">รายการรอรับ #2</div>
@@ -1121,12 +2077,19 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>18. จุดทิ้งขยะ (Smart bins)</h2>
         <p>รายการถัง · เพิ่ม/แก้/ปิด · สมาชิกเลือกตอนสแกน</p>
+        <div class="flow"><span class="admin">CRUD จุดทิ้ง</span><span>สถานะเปิด/ปิด</span></div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav จุดทิ้ง</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: จุดทิ้ง</div>
             <div class="stack">
               <div class="row">
                 <div class="box h-sm grow">จุดทิ้งขยะ</div>
@@ -1144,7 +2107,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box solid h-sm center">+ เพิ่ม</div>
               <div class="box h-lg">การ์ดจุดทิ้ง</div>
@@ -1160,12 +2128,19 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>19. กฎระบบ + ชนิดขวด/แต้ม</h2>
         <p>ค่าเริ่มต้นแต้ม/CO₂ · ประกาศ · ตาราง plastic_types</p>
+        <div class="flow"><span>fallback แต้ม/ขวด</span><span>carbon factor</span><span>ประกาศสมาชิก</span></div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav กฎระบบ</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: กฎระบบ</div>
             <div class="stack">
               <div class="box h-sm">ค่าเริ่มต้น (fallback)</div>
               <div class="grid-2">
@@ -1185,7 +2160,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-lg">ฟอร์มค่าเริ่มต้น</div>
               <div class="box h-xl">ลิสต์ชนิดขวด</div>
@@ -1200,12 +2180,19 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>20. Activity Log</h2>
         <p>กรองกลุ่มสแกน / โมเดล / ทั้งหมด · ไทม์ไลน์ system_events</p>
+        <div class="flow"><span class="admin">system_events</span><span>ช่วงวัน</span><span>ประเภทอีเวนต์</span></div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav Activity</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: Activity Log</div>
             <div class="stack">
               <div class="row">
                 <div class="box solid h-sm center">สแกน</div>
@@ -1220,7 +2207,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-sm">ตัวกรอง</div>
               <div class="box h-lg">อีเวนต์ #1</div>
@@ -1237,12 +2229,19 @@
       <div class="screen-meta">
         <h2><span class="tag admin">Admin</span>21. ประวัติผู้ใช้ (1:M relations)</h2>
         <p>เลือกสมาชิก → ดู waste / transactions / redemptions ที่ผูกกัน</p>
+        <div class="flow"><span>1 → M</span><span>waste_records</span><span>point_transactions</span><span>redemptions</span></div>
       </div>
       <div class="frames">
         <div class="device desktop">
           <div class="device-label">Desktop</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header + Subnav ประวัติผู้ใช้</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
+            <div class="box admin h-sm">Subnav: ประวัติผู้ใช้</div>
             <div class="stack">
               <div class="box h-sm">คำอธิบายความสัมพันธ์ตาราง</div>
               <div class="row grow">
@@ -1261,7 +2260,12 @@
         <div class="device phone">
           <div class="device-label">Mobile</div>
           <div class="viewport">
-            <div class="box nav h-md" style="border-radius:0;">Header</div>
+            <div class="wf-app-header admin" aria-label="App header admin">
+              <div class="wf-logo" aria-hidden="true"></div>
+              <div class="wf-brand">EcoBin <span>PCRU</span></div>
+              <div class="wf-nav"><i>แผงควบคุม</i><i>สแกน QR</i><i class="on">ตั้งค่า</i></div>
+              <div class="wf-right"><div class="wf-avatar" aria-hidden="true"></div></div>
+            </div>
             <div class="stack">
               <div class="box h-lg">เลือกผู้ใช้</div>
               <div class="box h-xl">รายการลูกที่ผูก</div>
@@ -1276,6 +2280,7 @@
       <div class="screen-meta">
         <h2><span class="tag modal">Modal</span><span class="tag admin">Admin</span>22. Modal CRUD แบบใช้ซ้ำ</h2>
         <p>โครงเดียวกันสำหรับ รางวัล · จุดทิ้ง · ชนิดขวด · (จัดการผู้ใช้)</p>
+        <div class="flow"><span class="admin">Modal ใช้ซ้ำ</span><span>ยกเลิก / บันทึก</span><span class="warn">ลบ = confirm</span></div>
       </div>
       <div class="frames">
         <div class="device modal-frame">
@@ -1285,7 +2290,7 @@
               <div class="box h-sm">หัวข้อ Modal</div>
               <div class="box h-md">ชื่อ</div>
               <div class="box h-md">แต้มที่ใช้ / สต็อก</div>
-              <div class="box h-md">หมวด / URL รูป</div>
+              <div class="box media h-md">หมวด / URL รูป</div>
               <div class="box h-md">คำอธิบาย</div>
               <div class="row">
                 <div class="box solid h-md center">ยกเลิก</div>
@@ -1314,28 +2319,66 @@
 
   </main>
 
-  <p class="footer-note">
-    ไฟล์: <code>docs/wireframes/index.html</code> · เปิดในเบราว์เซอร์ ·
-    ใช้ประกอบเอกสารโครงร่าง UI (ไม่ใช่หน้า production)
+  <p class="footer-note ds-footer">
+    DOC-DS-001 · <code>docs/wireframes/index.html</code> ·
+    <a href="../design/index.html">Index</a> ·
+    <a href="../design/patterns.html">02 Pattern library</a> ·
+    <a href="../design/ui.html">03 UI</a> ·
+    <a href="../design/ux-theory.html">04 Theory</a>
   </p>
 
   <script>
+    const panels = () => Array.from(document.querySelectorAll('.screen-panel'));
+    const buttons = () => Array.from(document.querySelectorAll('button[data-screen]'));
+
+    function activate(id) {
+      buttons().forEach((b) => b.classList.toggle('active', b.getAttribute('data-screen') === id));
+      panels().forEach((p) => p.classList.toggle('active', p.id === 'screen-' + id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function currentId() {
+      const active = document.querySelector('.screen-panel.active');
+      return active ? active.id.replace(/^screen-/, '') : 'login';
+    }
+
     function bindNav(root) {
       root.querySelectorAll('button[data-screen]').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-screen');
-          document.querySelectorAll('button[data-screen]').forEach((b) => {
-            b.classList.toggle('active', b === btn);
-          });
-          document.querySelectorAll('.screen-panel').forEach((p) => {
-            p.classList.toggle('active', p.id === 'screen-' + id);
-          });
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.body.classList.remove('show-all-screens');
+          activate(btn.getAttribute('data-screen'));
         });
       });
     }
     bindNav(document.getElementById('screen-nav'));
     bindNav(document.getElementById('screen-nav-admin'));
+
+    const order = buttons().map((b) => b.getAttribute('data-screen'));
+
+    document.getElementById('prev-screen')?.addEventListener('click', () => {
+      document.body.classList.remove('show-all-screens');
+      const i = Math.max(0, order.indexOf(currentId()) - 1);
+      activate(order[i]);
+    });
+    document.getElementById('next-screen')?.addEventListener('click', () => {
+      document.body.classList.remove('show-all-screens');
+      const i = Math.min(order.length - 1, order.indexOf(currentId()) + 1);
+      activate(order[i]);
+    });
+    document.getElementById('show-all')?.addEventListener('click', () => {
+      document.body.classList.add('show-all-screens');
+      panels().forEach((p) => p.classList.add('active'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.getElementById('show-one')?.addEventListener('click', () => {
+      document.body.classList.remove('show-all-screens');
+      activate(currentId());
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') document.getElementById('prev-screen')?.click();
+      if (e.key === 'ArrowRight') document.getElementById('next-screen')?.click();
+    });
   </script>
 </body>
 </html>

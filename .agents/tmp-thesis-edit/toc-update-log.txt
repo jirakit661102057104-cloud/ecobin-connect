@@ -1,0 +1,3 @@
+﻿path=c:\Users\Lenovo\OneDrive\Desktop\à¸ªà¸³à¸£à¸­à¸‡.docx
+exists=False
+ERROR: ขออภัย เราหาไฟล์ของคุณไม่พบ ไฟล์ถูกย้าย เปลี่ยนชื่อ หรือถูกลบไปแล้วหรือไม่ (c:\Users\Lenovo\...\à¸ªà¸³à¸£à¸­à¸‡.docx)

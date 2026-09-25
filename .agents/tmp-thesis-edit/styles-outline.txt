@@ -1,0 +1,10 @@
+1	name=heading 1	ol=0	based=a0	resolved=0
+2	name=heading 2	ol=1	based=a0	resolved=1
+3	name=heading 3	ol=2	based=a0	resolved=2
+4	name=heading 4	ol=3	based=a0	resolved=3
+5	name=heading 5	ol=4	based=a0	resolved=4
+6	name=heading 6	ol=5	based=a0	resolved=5
+7	name=heading 7	ol=6	based=a0	resolved=6
+8	name=heading 8	ol=7	based=a0	resolved=7
+9	name=heading 9	ol=8	based=a0	resolved=8
+af9	name=TOC Heading	ol=9	based=1	resolved=9

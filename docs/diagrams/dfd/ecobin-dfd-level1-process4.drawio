@@ -1,217 +1,173 @@
 <mxfile host="app.diagrams.net" agent="EcoBin Connect" version="24.7.17">
   <diagram id="ecobin-dfd1-p40" name="DFD Level 1 Process 4.0">
-    <mxGraphModel dx="1200" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1400" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1050" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-
-        <mxCell id="title" value="แผนภาพกระแสข้อมูล (DFD Level 1 of Process 4.0)&#xa;ประมวลผลสถิติและรายงาน — EcoBin Connect" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="180" y="20" width="740" height="45" as="geometry" />
+        <mxCell id="0" /><mxCell id="1" parent="0" />
+        <mxCell id="title" value="DFD Level 1 of Process 4.0 — ประมวลผลสถิติและรายงาน" style="text;html=1;align=center;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="12" width="840" height="28" as="geometry" />
         </mxCell>
 
-        <!-- ========== 4.1 Admin reports ========== -->
-        <mxCell id="e41-admin" value="ผู้ดูแลระบบ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
-          <mxGeometry x="60" y="140" width="130" height="45" as="geometry" />
+        <!-- 4.1 -->
+        <mxCell id="b1" value="" style="rounded=0;fillColor=#fafafa;strokeColor=#e8e8e8;" vertex="1" parent="1">
+          <mxGeometry x="20" y="50" width="1360" height="250" as="geometry" />
         </mxCell>
-
+        <mxCell id="a41" value="ผู้ดูแลระบบ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="120" height="40" as="geometry" />
+        </mxCell>
         <mxCell id="p41" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="400" y="120" width="220" height="90" as="geometry" />
+          <mxGeometry x="520" y="120" width="210" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="p41-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="400" y="148" as="sourcePoint" />
-            <mxPoint x="620" y="148" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="p41h" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="520" y="142" as="sourcePoint" /><mxPoint x="730" y="142" as="targetPoint" /></mxGeometry>
         </mxCell>
-        <mxCell id="p41-id" value="4.1" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="400" y="122" width="220" height="22" as="geometry" />
+        <mxCell id="p41id" value="4.1" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="120" width="210" height="18" as="geometry" />
         </mxCell>
-        <mxCell id="p41-name" value="ประมวลผลรายงาน&#xa;ภาพรวมระบบ" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="400" y="150" width="220" height="50" as="geometry" />
+        <mxCell id="p41n" value="ประมวลผลรายงาน&#xa;ภาพรวมระบบ" style="text;html=1;align=center;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="142" width="210" height="42" as="geometry" />
         </mxCell>
-
-        <mxCell id="d1a" value="D1 ข้อมูลผู้ใช้งาน" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="70" width="180" height="40" as="geometry" />
+        <mxCell id="d41a" value="D1 users" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="70" width="150" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="d2a" value="D2 ประวัติการทิ้งขยะ" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="125" width="180" height="40" as="geometry" />
+        <mxCell id="d41b" value="D2 waste_records" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="130" width="180" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="d3a" value="D3 แต้ม ของรางวัล การแลก" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="180" width="200" height="40" as="geometry" />
+        <mxCell id="d41c" value="D3 แต้ม/รางวัล/แลก" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="190" width="180" height="32" as="geometry" />
         </mxCell>
-
-        <mxCell id="f41-in" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="e41-admin" target="p41">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="f41a" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="a41" target="p41">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="154" /><mxPoint x="280" y="144" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f41-inl" value="คำร้องขอดูรายงานสถิติ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f41-in">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f41at" value="ขอดูรายงานสถิติ" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="125" width="100" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f41-out" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.7;" edge="1" parent="1" source="p41" target="e41-admin">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="280" y="192" /><mxPoint x="280" y="171" /></Array>
-          </mxGeometry>
+        <mxCell id="f41b" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.8;entryX=1;entryY=0.8;" edge="1" parent="1" source="p41" target="a41">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="176" /><mxPoint x="220" y="172" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f41-outl" value="รายงานสถิติปริมาณขยะ&#xa;และแต้มภาพรวม" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f41-out">
-          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="16" as="offset" /></mxGeometry>
+        <mxCell id="f41bt" value="รายงานภาพรวม" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="230" y="185" width="100" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f41-d1" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.2;" edge="1" parent="1" source="d1a" target="p41">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="760" y="90" /><mxPoint x="760" y="138" /></Array>
-          </mxGeometry>
+        <mxCell id="f41c" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.2;" edge="1" parent="1" source="d41a" target="p41">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840" y="86" /><mxPoint x="840" y="134" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f41-d1l" value="จำนวนสมาชิก / แต้มรวม" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f41-d1">
-          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f41ct" value="อ่าน D1" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="855" y="95" width="55" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f41-d2" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.45;" edge="1" parent="1" source="d2a" target="p41">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="f41d" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="d41b" target="p41">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="880" y="146" /><mxPoint x="880" y="155" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f41-d2l" value="สถิติรายการขยะตามสถานะ" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f41-d2">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f41dt" value="อ่าน D2" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="895" y="140" width="55" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="f41e" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.85;" edge="1" parent="1" source="d41c" target="p41">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="920" y="206" /><mxPoint x="920" y="179" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="f41et" value="อ่าน D3" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="935" y="185" width="55" height="16" as="geometry" />
         </mxCell>
 
-        <mxCell id="f41-d3" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.75;" edge="1" parent="1" source="d3a" target="p41">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="740" y="200" /><mxPoint x="740" y="187" /></Array>
-          </mxGeometry>
+        <!-- 4.2 -->
+        <mxCell id="b2" value="" style="rounded=0;fillColor=#ffffff;strokeColor=#e8e8e8;" vertex="1" parent="1">
+          <mxGeometry x="20" y="310" width="1360" height="250" as="geometry" />
         </mxCell>
-        <mxCell id="f41-d3l" value="สถิติการแลกของรางวัล" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f41-d3">
-          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        <mxCell id="m42" value="สมาชิกทั่วไป" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="120" height="40" as="geometry" />
         </mxCell>
-
-        <!-- ========== 4.2 Member dashboard ========== -->
-        <mxCell id="e42-member" value="สมาชิกทั่วไป" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
-          <mxGeometry x="60" y="380" width="130" height="45" as="geometry" />
-        </mxCell>
-
         <mxCell id="p42" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="400" y="360" width="220" height="90" as="geometry" />
+          <mxGeometry x="520" y="380" width="210" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="p42-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="400" y="388" as="sourcePoint" />
-            <mxPoint x="620" y="388" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="p42h" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="520" y="402" as="sourcePoint" /><mxPoint x="730" y="402" as="targetPoint" /></mxGeometry>
         </mxCell>
-        <mxCell id="p42-id" value="4.2" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="400" y="362" width="220" height="22" as="geometry" />
+        <mxCell id="p42id" value="4.2" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="380" width="210" height="18" as="geometry" />
         </mxCell>
-        <mxCell id="p42-name" value="แสดงสถิติส่วนตัว&#xa;(Dashboard)" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="400" y="390" width="220" height="50" as="geometry" />
+        <mxCell id="p42n" value="แสดงสถิติส่วนตัว&#xa;(Dashboard)" style="text;html=1;align=center;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="402" width="210" height="42" as="geometry" />
         </mxCell>
-
-        <mxCell id="d1b" value="D1 ข้อมูลผู้ใช้งาน" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="320" width="180" height="40" as="geometry" />
+        <mxCell id="d42a" value="D1 users" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="330" width="150" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="d2b" value="D2 ประวัติการทิ้งขยะ" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="375" width="180" height="40" as="geometry" />
+        <mxCell id="d42b" value="D2 waste_records" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="390" width="180" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="d3b" value="D3 ธุรกรรมแต้ม / การแลก" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=12;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="430" width="200" height="40" as="geometry" />
+        <mxCell id="d42c" value="D3 ธุรกรรมแต้ม / การแลก" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="450" width="200" height="32" as="geometry" />
         </mxCell>
-
-        <mxCell id="f42-in" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="e42-member" target="p42">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="f42a" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="m42" target="p42">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="414" /><mxPoint x="280" y="404" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f42-inl" value="คำร้องขอดูสถิติส่วนตัว" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f42-in">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f42at" value="ขอดูสถิติส่วนตัว" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="385" width="100" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f42-out" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.7;" edge="1" parent="1" source="p42" target="e42-member">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="280" y="432" /><mxPoint x="280" y="411" /></Array>
-          </mxGeometry>
+        <mxCell id="f42b" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.8;entryX=1;entryY=0.8;" edge="1" parent="1" source="p42" target="m42">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="436" /><mxPoint x="220" y="432" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f42-outl" value="ข้อมูลกระดานสถิติส่วนตัว&#xa;(แต้ม ประวัติสแกน การแลก)" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f42-out">
-          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="16" as="offset" /></mxGeometry>
+        <mxCell id="f42bt" value="Dashboard (แต้ม / ประวัติ)" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="230" y="445" width="150" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f42-d1" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.25;" edge="1" parent="1" source="d1b" target="p42">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="760" y="340" /><mxPoint x="760" y="382" /></Array>
-          </mxGeometry>
+        <mxCell id="f42c" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.2;" edge="1" parent="1" source="d42a" target="p42">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840" y="346" /><mxPoint x="840" y="394" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f42-d1l" value="แต้มสะสม / โปรไฟล์" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f42-d1">
-          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f42ct" value="อ่าน D1" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="855" y="355" width="55" height="16" as="geometry" />
         </mxCell>
-
-        <mxCell id="f42-d2" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="d2b" target="p42">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="f42d" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="d42b" target="p42">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="880" y="406" /><mxPoint x="880" y="415" /></Array></mxGeometry>
         </mxCell>
-        <mxCell id="f42-d2l" value="ประวัติการทิ้งขยะของสมาชิก" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f42-d2">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
+        <mxCell id="f42dt" value="อ่าน D2" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="895" y="400" width="55" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="f42e" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.5;entryX=1;entryY=0.85;" edge="1" parent="1" source="d42c" target="p42">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="920" y="466" /><mxPoint x="920" y="439" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="f42et" value="อ่าน D3" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="935" y="445" width="55" height="16" as="geometry" />
         </mxCell>
 
-        <mxCell id="f42-d3" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.8;" edge="1" parent="1" source="d3b" target="p42">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="740" y="450" /><mxPoint x="740" y="432" /></Array>
-          </mxGeometry>
+        <!-- 4.3 -->
+        <mxCell id="b3" value="" style="rounded=0;fillColor=#fafafa;strokeColor=#e8e8e8;" vertex="1" parent="1">
+          <mxGeometry x="20" y="570" width="1360" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="f42-d3l" value="ประวัติแต้มและการแลก" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f42-d3">
-          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
+        <mxCell id="a43" value="ผู้ดูแลระบบ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="630" width="120" height="40" as="geometry" />
         </mxCell>
-
-        <!-- ========== 4.3 Manage bins/settings ========== -->
-        <mxCell id="e43-admin" value="ผู้ดูแลระบบ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;" vertex="1" parent="1">
-          <mxGeometry x="60" y="600" width="130" height="45" as="geometry" />
-        </mxCell>
-
         <mxCell id="p43" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="400" y="580" width="220" height="90" as="geometry" />
+          <mxGeometry x="520" y="615" width="210" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="p43-line" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="400" y="608" as="sourcePoint" />
-            <mxPoint x="620" y="608" as="targetPoint" />
-          </mxGeometry>
+        <mxCell id="p43h" value="" style="endArrow=none;html=1;strokeColor=#6c8ebf;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="520" y="637" as="sourcePoint" /><mxPoint x="730" y="637" as="targetPoint" /></mxGeometry>
         </mxCell>
-        <mxCell id="p43-id" value="4.3" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
-          <mxGeometry x="400" y="582" width="220" height="22" as="geometry" />
+        <mxCell id="p43id" value="4.3" style="text;html=1;align=center;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="615" width="210" height="18" as="geometry" />
         </mxCell>
-        <mxCell id="p43-name" value="จัดการถัง ประเภทขวด&#xa;และตั้งค่า" style="text;html=1;align=center;fontStyle=1;fontSize=13;" vertex="1" parent="1">
-          <mxGeometry x="400" y="610" width="220" height="50" as="geometry" />
+        <mxCell id="p43n" value="จัดการถัง ประเภทขวด&#xa;และตั้งค่า" style="text;html=1;align=center;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="637" width="210" height="42" as="geometry" />
         </mxCell>
-
-        <mxCell id="d5" value="D5 ถังขยะ / ประเภทขวด / ตั้งค่า&#xa;(bins / plastic_types / settings)" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="590" width="260" height="55" as="geometry" />
+        <mxCell id="d43" value="D5 ถัง / ประเภทขวด / ตั้งค่า" style="shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=8;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="625" width="230" height="40" as="geometry" />
         </mxCell>
-
-        <mxCell id="f43-in" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="e43-admin" target="p43">
+        <mxCell id="f43a" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=1;exitY=0.35;entryX=0;entryY=0.35;" edge="1" parent="1" source="a43" target="p43">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="280" y="644" /><mxPoint x="280" y="639" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="f43at" value="จัดการถัง / ประเภทขวด / กฎ" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="615" width="160" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="f43b" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;html=1;rounded=0;strokeWidth=1.4;exitX=0;exitY=0.8;entryX=1;entryY=0.8;" edge="1" parent="1" source="p43" target="a43">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="220" y="671" /><mxPoint x="220" y="662" /></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="f43bt" value="รายการถัง / กฎที่อัปเดต" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="230" y="680" width="130" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="f43c" style="edgeStyle=orthogonalEdgeStyle;endArrow=classic;startArrow=classic;html=1;rounded=0;strokeWidth=1.4;" edge="1" parent="1" source="p43" target="d43">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="f43-inl" value="ข้อมูลจัดการถัง / ประเภทขวด&#xa;/ กฎคะแนน" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f43-in">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-14" as="offset" /></mxGeometry>
+        <mxCell id="f43ct" value="อ่าน / บันทึกตั้งค่า" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="860" y="610" width="110" height="16" as="geometry" />
         </mxCell>
 
-        <mxCell id="f43-out" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.7;" edge="1" parent="1" source="p43" target="e43-admin">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="280" y="652" /><mxPoint x="280" y="631" /></Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f43-outl" value="รายการถัง / กฎคะแนนที่อัปเดต" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f43-out">
-          <mxGeometry x="-0.2" relative="1" as="geometry"><mxPoint y="14" as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="f43-d5r" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.35;" edge="1" parent="1" source="d5" target="p43">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="f43-d5rl" value="ดึงข้อมูลถังและตั้งค่า" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f43-d5r">
-          <mxGeometry x="-0.1" relative="1" as="geometry"><mxPoint y="-12" as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="f43-d5w" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.6;entryX=0;entryY=0.7;" edge="1" parent="1" source="p43" target="d5">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="760" y="634" /><mxPoint x="760" y="628" /></Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="f43-d5wl" value="บันทึก/อัปเดตถัง ประเภทขวด ตั้งค่า" style="edgeLabel;html=1;fontSize=10;labelBackgroundColor=#ffffff;" vertex="1" connectable="0" parent="f43-d5w">
-          <mxGeometry x="-0.15" relative="1" as="geometry"><mxPoint y="12" as="offset" /></mxGeometry>
-        </mxCell>
-
-        <mxCell id="note" value="หมายเหตุ&#xa;• Level 1 ของ 4.0 แตกเป็น 4.1 รายงานภาพรวม · 4.2 สถิติส่วนตัว · 4.3 จัดการถัง/ประเภทขวด/ตั้งค่า&#xa;• 4.1 และ 4.2 อ่านข้อมูลจาก D1–D3 เป็นหลัก (ไม่เขียนกลับยกเว้นการตั้งค่าใน 4.3)&#xa;• D5 ใช้ร่วมกับกระบวนการ 2.0 เมื่อประมาณการแต้มจากประเภทขวด" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;fontSize=11;verticalAlign=top;" vertex="1" parent="1">
-          <mxGeometry x="160" y="740" width="760" height="90" as="geometry" />
+        <mxCell id="note" value="4.1 รายงานภาพรวม · 4.2 Dashboard สมาชิก · 4.3 จัดการถัง/ประเภทขวด/ตั้งค่า · แต่ละแถวใช้เลนเส้นแยก · D1–D3 อ่านเป็นหลัก" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;align=left;spacingLeft=10;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="770" width="1300" height="36" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

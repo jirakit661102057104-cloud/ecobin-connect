@@ -1,0 +1,13 @@
+desktop=สำรอง.docx
+H1=บทที่ 3 style=หัวเรื่อง 1
+demote=3.4 ผลลัพธ์การวิเคราะห์และออกแบบ to=เนื้อความ
+demote=3.5 ภาษาและเครื่องมือที่ใช้ในการพัฒนา to=เนื้อความ
+H2 keep=3.1 ศึกษาปัญหาและความต้องการ (Analysis & Requirement) style=หัวเรื่อง 2
+H2 keep=3.2 การวิเคราะห์ระบบ (System Analysis) style=หัวเรื่อง 2
+H2 keep=3.3 การออกแบบระบบ (System Design) style=หัวเรื่อง 2
+H2 keep=3.4 ผลลัพธ์การวิเคราะห์และออกแบบระบบ style=หัวเรื่อง 2
+H2 keep=3.5 ภาษาและเครื่องมือที่ใช้ในการพัฒนา style=หัวเรื่อง 2
+counts h1=1 h2=5 demoted=2
+TOC updated
+saved
+copied back

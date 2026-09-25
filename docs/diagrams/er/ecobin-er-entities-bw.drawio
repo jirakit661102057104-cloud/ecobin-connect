@@ -45,6 +45,9 @@
         <mxCell id="a10" value="points_awarded" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="520" y="540" width="140" height="55" as="geometry" /></mxCell>
         <mxCell id="a11" value="bin_id" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=13;align=center;" vertex="1" parent="1"><mxGeometry x="340" y="540" width="110" height="55" as="geometry" /></mxCell>
         <mxCell id="a12" value="admin_comment" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="160" y="460" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="a13" value="capture_source" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="40" y="340" width="130" height="55" as="geometry" /></mxCell>
+        <mxCell id="a14" value="image_hash" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="50" y="450" width="120" height="55" as="geometry" /></mxCell>
+        <mxCell id="a15" value="weight_kg" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="200" y="560" width="110" height="55" as="geometry" /></mxCell>
         <mxCell id="l1" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a1" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l2" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a2" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l3" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a3" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
@@ -57,6 +60,9 @@
         <mxCell id="l10" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a10" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l11" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a11" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l12" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a12" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l13" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a13" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l14" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a14" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l15" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a15" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
       </root>
     </mxGraphModel>
   </diagram>
@@ -173,8 +179,9 @@
         <mxCell id="a3" value="full_name" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=13;align=center;" vertex="1" parent="1"><mxGeometry x="330" y="50" width="120" height="55" as="geometry" /></mxCell>
         <mxCell id="a4" value="display_name_th" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="480" y="50" width="150" height="55" as="geometry" /></mxCell>
         <mxCell id="a5" value="carbon_factor" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="650" y="120" width="130" height="55" as="geometry" /></mxCell>
-        <mxCell id="a6" value="points_per_bottle" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="700" y="250" width="150" height="55" as="geometry" /></mxCell>
-        <mxCell id="a7" value="recycling_tips" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="640" y="400" width="140" height="55" as="geometry" /></mxCell>
+        <mxCell id="a8" value="average_weight_kg" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="720" y="220" width="150" height="55" as="geometry" /></mxCell>
+        <mxCell id="a6" value="points_per_bottle" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=11;align=center;" vertex="1" parent="1"><mxGeometry x="700" y="320" width="150" height="55" as="geometry" /></mxCell>
+        <mxCell id="a7" value="recycling_tips" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontColor=#000000;fontSize=12;align=center;" vertex="1" parent="1"><mxGeometry x="640" y="440" width="140" height="55" as="geometry" /></mxCell>
         <mxCell id="l1" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a1" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l2" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a2" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l3" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a3" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
@@ -182,6 +189,7 @@
         <mxCell id="l5" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a5" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l6" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a6" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
         <mxCell id="l7" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a7" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="l8" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="1" source="a8" target="e"><mxGeometry relative="1" as="geometry" /></mxCell>
       </root>
     </mxGraphModel>
   </diagram>
