@@ -1,8 +1,8 @@
 {
   "framework": "nextjs",
   "env": {
-    "API_PROXY_TARGET": "https://ecobin-api-568301593385.asia-southeast1.run.app",
     "NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL": "/models/ecobin-bottle-can/",
-    "NEXT_PUBLIC_TEACHABLE_MACHINE_CONFIDENCE": "0.80"
+    "NEXT_PUBLIC_TEACHABLE_MACHINE_CONFIDENCE": "0.80",
+    "NEXT_PUBLIC_DEMO_LOGIN": "false"
   }
 }

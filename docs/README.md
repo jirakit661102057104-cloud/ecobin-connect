@@ -11,6 +11,8 @@
 | [05-พัฒนาบนเครื่อง.md](./guides/05-พัฒนาบนเครื่อง.md) | รัน local ด้วย `run.bat` |
 | [06-uml-architecture.md](./guides/06-uml-architecture.md) | Architecture + UML |
 | [07-event-log-model-recovery.md](./guides/07-event-log-model-recovery.md) | Event log + กู้โมเดล Teachable |
+| [08-go-layered-architecture.md](./guides/08-go-layered-architecture.md) | ปรับโครงสร้าง Go Backend (Standard Layout + Clean/Layered) + แผน migrate |
+| [09-gcp-billing-credit-request.md](./guides/09-gcp-billing-credit-request.md) | ร่างคำขอเครดิต/ยกเลิกบิล Google Cloud (ก.ย. 2569) |
 
 ## ไดอะแกรม (`diagrams/`)
 
@@ -25,11 +27,21 @@
 
 เปิด UML หลัก: [`diagrams/uml/ecobin-uml-architecture.drawio`](./diagrams/uml/ecobin-uml-architecture.drawio)
 
-## Wireframe UI (`wireframes/`)
+## Design System (`design/` + `wireframes/`)
 
-| ไฟล์ | เนื้อหา |
-|---|---|
-| [wireframes/index.html](./wireframes/index.html) | โครงร่างหน้าจอแบบกล่อง **22 แผ่น** (Member/Guest/Admin/Modal) เปิดในเบราว์เซอร์ |
+Format มาตรฐาน 3 ชั้น — เปิด [design/index.html](./design/index.html)
+
+| DOC-ID | Layer | ไฟล์ |
+|---|---|---|
+| DOC-DS-000 | Index | [design/index.html](./design/index.html) |
+| DOC-DS-001 | 01 Wireframe | [wireframes/index.html](./wireframes/index.html) |
+| DOC-DS-002 | 02 Pattern library (Atom → Molecule → Organism) | [design/patterns.html](./design/patterns.html) |
+| DOC-DS-003 | 03 UI | [design/ui.html](./design/ui.html) |
+| DOC-DS-004 | UX/UI Theory mapping (12 topics) | [design/ux-theory.html](./design/ux-theory.html) |
+
+Checklist ช่องว่างเล่มวิจัย: [research/thesis-ux-ui-gap-checklist.md](./research/thesis-ux-ui-gap-checklist.md)
+
+รายละเอียด format: [design/README.md](./design/README.md)
 
 ## งานวิจัย (`research/`)
 
@@ -39,6 +51,6 @@
 
 - เว็บ: https://ecobin-connect-8ap5.vercel.app
 - หน้า login: https://ecobin-connect-8ap5.vercel.app/login
-- API (Cloud Run): https://ecobin-api-568301593385.asia-southeast1.run.app
-- ตรวจ API: https://ecobin-api-568301593385.asia-southeast1.run.app/health ต้องได้ `{"status":"ok"}`
+- API production: **ปิดแล้ว** (Cloud Run ถูกระงับ — ไม่ตั้ง `API_PROXY_TARGET` บน Vercel)
+- พัฒนาบนเครื่อง: `.\run.bat` → http://localhost:3000/login + API `http://127.0.0.1:8080/health`
 - โค้ด: https://github.com/jirakit661102057104-cloud/ecobin-connect

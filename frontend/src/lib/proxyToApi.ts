@@ -21,8 +21,8 @@ const FORWARDED_REQUEST_HEADERS = [
   'user-agent',
 ] as const;
 
-const DEFAULT_API =
-  'https://ecobin-api-568301593385.asia-southeast1.run.app';
+/** Local default — Cloud Run was suspended; do not fall back to a paid/dead URL. */
+const DEFAULT_LOCAL_API = 'http://127.0.0.1:8080';
 
 function isUsableApiTarget(url: string) {
   if (!url) return false;
@@ -32,7 +32,7 @@ function isUsableApiTarget(url: string) {
     if (url.includes('trycloudflare.com')) return false;
     return /^https:\/\//.test(url);
   }
-  // Local Next.js: allow http://localhost:8080 so new API routes work before Cloud Run deploy.
+  // Local Next.js: Go API on this machine.
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(url)) return true;
   if (url.includes('trycloudflare.com')) return false;
   return /^https:\/\//.test(url);
@@ -41,7 +41,9 @@ function isUsableApiTarget(url: string) {
 export function apiProxyTarget() {
   const fromEnv = (process.env.API_PROXY_TARGET || '').replace(/\/$/, '');
   if (isUsableApiTarget(fromEnv)) return fromEnv;
-  return DEFAULT_API;
+  // On Vercel, missing/invalid target must fail loudly (no silent localhost).
+  if (process.env.VERCEL) return '';
+  return DEFAULT_LOCAL_API;
 }
 
 export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', path: string[]) {
@@ -50,7 +52,8 @@ export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', pa
     return NextResponse.json(
       {
         error:
-          'ยังไม่ได้ตั้ง API_PROXY_TARGET บน Vercel — เว็บเรียก API บนเครื่อง local ไม่ได้',
+          'API ฝั่งเซิร์ฟเวอร์ยังไม่พร้อม (Cloud Run ปิดแล้ว) — ตอนนี้ให้รันบนเครื่องด้วย run.bat',
+        code: 'API_PROXY_TARGET_UNSET',
       },
       { status: 503 }
     );

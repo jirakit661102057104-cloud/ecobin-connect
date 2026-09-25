@@ -26,7 +26,7 @@ git push origin main
 
 | ชื่อ | ค่า | หมายเหตุ |
 |---|---|---|
-| `API_PROXY_TARGET` | URL Cloud Run ไม่มี `/` ท้าย | ตอนนี้ใส่ใน `frontend/vercel.json` ด้วย |
+| `API_PROXY_TARGET` | *(ว่าง / ลบออก)* | Cloud Run ถูกระงับแล้ว — อย่าใส่ URL เก่า; ตั้งใหม่เมื่อมี API ออนไลน์ |
 | `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Client ID ของ OAuth Web | ค่าสาธารณะ |
 | `NEXT_PUBLIC_DEMO_LOGIN` | `false` | ปิดโหมดเดโมบนเว็บจริง |
 
@@ -36,7 +36,14 @@ git push origin main
 
 หน้าเว็บ: https://ecobin-connect-8ap5.vercel.app
 
-## Cloud Run (API)
+## Cloud Run (API) — ระงับแล้ว (ก.ย. 2569)
+
+> บัญชี GCP billing ถูกปิด — **อย่ารัน** `deploy-cloud-run.bat` จนกว่าเคลียร์บิลและตั้ง `min-instances=0`  
+> Vercel **ไม่ควร** มี `API_PROXY_TARGET` ชี้ Cloud Run เก่า
+
+เมื่อพร้อมขึ้น API ใหม่ (เจ้าอื่นหรือ GCP แบบประหยัด) ค่อยตั้ง `API_PROXY_TARGET` ใน Vercel แล้ว Redeploy
+
+### วิธี deploy เดิม (เก็บไว้เป็นคู่มือ)
 
 สคริปต์: `deploy-cloud-run.bat` เรียก `deploy-cloud-run.ps1`
 
