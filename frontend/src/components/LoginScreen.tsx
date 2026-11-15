@@ -32,7 +32,8 @@ import { BrandLogo } from './BrandLogo';
 import { StrongPasswordFields } from './StrongPasswordFields';
 import { isStrongPassword } from '../lib/password';
 import { APP_NAME, APP_VERSION } from '../lib/brand';
-import { SCAN_DROP_SITES } from '../lib/scanCheckpoint';
+import { SCAN_DROP_SITES, getScanDropSite } from '../lib/scanCheckpoint';
+import { peekPendingBin } from '../lib/pendingBin';
 
 const STEPS = [
   { icon: QrCode, title: 'สแกน QR จุดทิ้ง', desc: 'เลือก 1 ใน 3 จุดในตึกคณะวิทยาศาสตร์ฯ' },
@@ -57,6 +58,12 @@ export const LoginScreen: React.FC = () => {
   const [emailOrStudentId, setEmailOrStudentId] = useState('');
   const [password, setPassword] = useState('');
   const [developerMode, setDeveloperMode] = useState(false);
+  const [pendingBinLabel, setPendingBinLabel] = useState('');
+
+  useEffect(() => {
+    const id = peekPendingBin();
+    setPendingBinLabel(id ? getScanDropSite(id).labelTh : '');
+  }, []);
 
   useEffect(() => {
     if (authReady && currentUser) {
@@ -284,6 +291,16 @@ export const LoginScreen: React.FC = () => {
                 </div>
                 <BrandLogo className="w-12 h-12 rounded-2xl shrink-0" />
               </div>
+
+              {pendingBinLabel && (
+                <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+                  <QrCode className="w-4 h-4 mt-0.5 shrink-0 text-emerald-700" />
+                  <div>
+                    <p className="font-bold">สแกน QR ถังแล้ว: {pendingBinLabel}</p>
+                    <p className="text-emerald-800/80 mt-0.5">เข้าสู่ระบบหรือสมัครสมาชิก แล้วระบบจะพาไปหน้าถ่ายของถังนี้ทันที</p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex bg-slate-100 p-1 rounded-2xl text-xs font-semibold">
                 <button

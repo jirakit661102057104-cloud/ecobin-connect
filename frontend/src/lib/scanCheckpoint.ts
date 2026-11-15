@@ -45,9 +45,27 @@ export function binQrPayload(siteId: ScanDropSiteId): string {
 }
 
 /** Parse bin QR / typed code → drop site id, or null. */
+/** Public site that bin QR links open (printed on the stickers). */
+export const BIN_QR_BASE_URL = 'https://ecobin-connect-8ap5.vercel.app/';
+
+/** QR link printed on each bin: opening it with the phone camera jumps to the scan page for that bin. */
+export function binQrLink(siteId: ScanDropSiteId): string {
+  return `${BIN_QR_BASE_URL}?bin=${siteId}`;
+}
+
 export function parseBinQr(raw: string): ScanDropSiteId | null {
   const text = (raw || '').trim();
   if (!text) return null;
+  // New stickers: a link such as https://…/?bin=sci-f1
+  if (/^https?:\/\//i.test(text)) {
+    try {
+      const id = (new URL(text).searchParams.get('bin') || '').toLowerCase();
+      const site = SCAN_DROP_SITES.find((s) => s.id === id);
+      return site ? site.id : null;
+    } catch {
+      return null;
+    }
+  }
   const upper = text.toUpperCase();
   const prefixed = upper.startsWith(BIN_QR_PREFIX.toUpperCase())
     ? text.slice(BIN_QR_PREFIX.length).trim().toLowerCase()
@@ -82,7 +100,7 @@ export function formatCheckpointPhrase(words: readonly string[] = CHECKPOINT_WOR
 
 /** Public URL helper to preview/print a bin QR (for stickers). */
 export function binQrImageUrl(siteId: ScanDropSiteId, size = 180) {
-  const data = encodeURIComponent(binQrPayload(siteId));
+  const data = encodeURIComponent(binQrLink(siteId));
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${data}`;
 }
 

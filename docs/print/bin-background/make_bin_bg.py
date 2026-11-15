@@ -19,6 +19,8 @@ BINS = [
     ("sci-f7", "ชั้น 7 หน้าห้องสาขาสิ่งแวดล้อม", "#f59e0b"),
 ]
 BUILDING = "ตึกคณะวิทยาศาสตร์และเทคโนโลยี"
+# QR = link: opening it with the phone camera jumps straight to the scan page for that bin
+BIN_LINK = "https://ecobin-connect-8ap5.vercel.app/?bin="
 
 
 def qr_svg(payload: str) -> str:
@@ -31,12 +33,12 @@ def sticker(site_id: str, label: str, accent: str) -> str:
     return f"""
     <div class="card" style="--accent:{accent}">
       <div class="c-top"><span class="dot"></span>จุดทิ้งขวดน้ำพลาสติก</div>
-      <div class="qr-box">{qr_svg("PCRU-CFO-BIN:" + site_id)}</div>
+      <div class="qr-box">{qr_svg(BIN_LINK + site_id)}</div>
       <div class="c-site">{label}<span class="c-bld">{BUILDING}</span></div>
       <ol>
-        <li>สแกน QR นี้ในแอป</li>
-        <li>ถือขวดไว้หน้าป้ายพื้นหลัง</li>
-        <li>ถ่ายให้เห็นตัวอักษรใหญ่ครบ 2 คำ</li>
+        <li>สแกน QR นี้ด้วยกล้องมือถือ</li>
+        <li>แอปจะเปิดกล้องของถังนี้ให้ทันที</li>
+        <li>ส่องป้าย SAVE CFO ด้านหลังถังให้เห็นครบ 2 คำ</li>
       </ol>
       <div class="cut">ตัดตามเส้นแล้วติดที่ตัวถัง</div>
     </div>"""

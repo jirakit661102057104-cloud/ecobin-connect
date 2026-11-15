@@ -21,6 +21,7 @@ import { allowGuestBrowse } from './lib/config';
 import { APP_NAME } from './lib/brand';
 import { persistMainTab, restoreMainTab, allowedMainTabs, defaultMainTab } from './lib/navState';
 import { useCanScanWaste } from './hooks/useCanScanWaste';
+import { captureBinFromUrl, peekPendingBin } from './lib/pendingBin';
 import {
   ShieldAlert,
 } from 'lucide-react';
@@ -34,13 +35,43 @@ function MainAppContent() {
   const openLogin = () => router.push('/login');
   const { canScan, ready: deviceReady } = useCanScanWaste();
 
+  // The first tab is decided after auth loads; show the loader until then so the page
+  // opens directly on it (no dashboard flash, no tab-switch animation to wait for).
+  const [tabReady, setTabReady] = useState(false);
   const setActiveTab = (tab: string) => {
     setActiveTabState(tab);
     persistMainTab(tab, currentUser?.user_id, currentRole);
   };
 
+  // Bin QR link (?bin=sci-f1) opened with the phone camera: remember the bin right away.
+  useEffect(() => {
+    captureBinFromUrl();
+  }, []);
+
   useEffect(() => {
     if (!authReady) return;
+    const pendingBin = peekPendingBin();
+    if (pendingBin && currentRole !== 'Admin') {
+      if (!currentUser) {
+        // Points need an account: ask to log in once, then come back to this bin's scan page.
+        // If they chose to browse without logging in, continue to the scan page as Guest.
+        let prompted = false;
+        try {
+          prompted = sessionStorage.getItem('pcru_bin_login_prompted') === '1';
+          sessionStorage.setItem('pcru_bin_login_prompted', '1');
+        } catch {
+          prompted = true;
+        }
+        if (!prompted) {
+          router.replace('/login?from=bin');
+          return;
+        }
+        allowGuestBrowse();
+      }
+      setActiveTab('scan');
+      setTabReady(true);
+      return;
+    }
     // Public home: unauthenticated visitors browse as Guest on dashboard
     if (!currentUser) {
       allowGuestBrowse();
@@ -48,13 +79,14 @@ function MainAppContent() {
     const restored = restoreMainTab(currentRole, currentUser?.user_id);
     const allowed = allowedMainTabs(currentRole);
     setActiveTabState(allowed.includes(restored) ? restored : defaultMainTab(currentRole));
+    setTabReady(true);
   }, [authReady, currentUser?.user_id, currentRole]);
 
   // If desktop user lands on waste-scan tab, keep tab but show notice (Admin QR still allowed)
   const wasteScanBlocked =
     deviceReady && !canScan && activeTab === 'scan' && currentRole !== 'Admin';
 
-  if (!authReady) {
+  if (!authReady || !tabReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-sm text-slate-500">
         <div className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 px-5 py-3 shadow-sm">

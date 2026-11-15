@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { takePendingBin } from '../lib/pendingBin';
 import { useApp } from '../context/AppContext';
 import { matchBottleScore } from '../lib/bottleScore';
 import { hashImageDataUrl } from '../lib/imageProvenance';
@@ -381,6 +382,23 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
       /* camera error already set */
     }
   };
+
+  // Opened from a bin QR link (?bin=…): lock that bin and go straight to the SAVE CFO camera.
+  const autoStartOcrRef = useRef(false);
+  useEffect(() => {
+    const pending = takePendingBin();
+    if (!pending) return;
+    autoStartOcrRef.current = true;
+    lockBin(pending, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!autoStartOcrRef.current || !dropSiteId || phase !== 'scan_words') return;
+    autoStartOcrRef.current = false;
+    // If the browser blocks opening the camera without a tap, the "open camera" button stays.
+    void startWordScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dropSiteId, phase]);
 
   const handleManualCapture = async () => {
     if (ocrBusyRef.current || submittedRef.current) return;
