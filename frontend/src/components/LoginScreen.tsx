@@ -35,7 +35,7 @@ import { APP_NAME, APP_VERSION } from '../lib/brand';
 import { SCAN_DROP_SITES } from '../lib/scanCheckpoint';
 
 const STEPS = [
-  { icon: QrCode, title: 'สแกน QR จุดทิ้ง', desc: 'เลือก 1 ใน 3 จุดทิ้งขวดในมหาวิทยาลัย' },
+  { icon: QrCode, title: 'สแกน QR จุดทิ้ง', desc: 'เลือก 1 ใน 3 จุดในตึกคณะวิทยาศาสตร์ฯ' },
   { icon: Camera, title: 'ส่องป้าย SAVE CFO', desc: 'ระบบอ่านคำบนป้ายหลังถังอัตโนมัติ' },
   { icon: Coins, title: 'ได้แต้มทันที', desc: 'สะสมแต้ม รับของรางวัลตามเช็คพอยต์' },
 ];
@@ -154,7 +154,7 @@ export const LoginScreen: React.FC = () => {
           <div className="mt-8 grid grid-cols-3 gap-3">
             {[
               { icon: Recycle, value: '10', label: 'แต้มต่อขวด' },
-              { icon: MapPin, value: String(SCAN_DROP_SITES.length), label: 'จุดทิ้งใน มรภ.พช.' },
+              { icon: MapPin, value: String(SCAN_DROP_SITES.length), label: 'จุดทิ้งในตึกคณะวิทย์ฯ' },
               { icon: Coins, value: '+50', label: 'แต้มโบนัสสมาชิกใหม่' },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl bg-white/8 border border-white/12 p-3.5 backdrop-blur-sm">
@@ -193,7 +193,7 @@ export const LoginScreen: React.FC = () => {
               <div className="rounded-3xl bg-white/10 border border-white/12 p-3.5 backdrop-blur-sm flex-1 flex flex-col justify-center">
                 <div className="flex items-center gap-2 text-emerald-200 text-[11px] font-semibold mb-2">
                   <TreePine className="w-3.5 h-3.5" />
-                  จุดทิ้งขวดใน มรภ.พช.
+                  จุดทิ้งขวด · ตึกคณะวิทยาศาสตร์ฯ
                 </div>
                 <ul className="space-y-1.5">
                   {SCAN_DROP_SITES.map((s) => (

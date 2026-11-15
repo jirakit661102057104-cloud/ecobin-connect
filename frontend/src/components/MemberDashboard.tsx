@@ -103,7 +103,7 @@ export const MemberDashboard: React.FC<MemberDashboardProps> = ({ setActiveTab }
   );
 
   const dropSiteStats = useMemo(() => {
-    const base: Record<string, number> = { science: 0, library: 0, canteen: 0 };
+    const base: Record<string, number> = Object.fromEntries(SCAN_DROP_SITES.map((s) => [s.id, 0]));
     for (const r of approvedRecords) {
       if (!isPlasticWaterBottle(r.plastic_type)) continue;
       const id = matchDropSiteId(r.bin_location);

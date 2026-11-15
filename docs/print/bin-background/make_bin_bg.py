@@ -2,7 +2,7 @@
 
 Page 1: background behind the bin - ONLY the words SAVE and CFO, on one line in the upper part (OCR tests showed
         any other text or a QR next to the words lowers recognition).
-Page 2: three QR stickers (one per drop site) with Thai labels/steps, to stick on
+Page 2: three QR stickers (floors 1, 2, 7 of the Faculty of Science and Technology building) with Thai labels/steps, to stick on
         the bin itself - away from the background words.
 
 Usage: python make_bin_bg.py <out_dir>
@@ -14,10 +14,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "pyl
 import segno  # noqa: E402
 
 BINS = [
-    ("science", "ตึกคณะวิทยาศาสตร์และเทคโนโลยี", "#0ea5e9"),
-    ("library", "หอสมุด (อาคารบรรณราชนครินทร์)", "#8b5cf6"),
-    ("canteen", "โรงอาหารกลาง", "#f59e0b"),
+    ("sci-f1", "ชั้น 1 หน้าห้องสำนักงาน", "#0ea5e9"),
+    ("sci-f2", "ชั้น 2 หน้าห้องสโมสรนักศึกษา", "#8b5cf6"),
+    ("sci-f7", "ชั้น 7 หน้าห้องสาขาสิ่งแวดล้อม", "#f59e0b"),
 ]
+BUILDING = "ตึกคณะวิทยาศาสตร์และเทคโนโลยี"
 
 
 def qr_svg(payload: str) -> str:
@@ -31,7 +32,7 @@ def sticker(site_id: str, label: str, accent: str) -> str:
     <div class="card" style="--accent:{accent}">
       <div class="c-top"><span class="dot"></span>จุดทิ้งขวดน้ำพลาสติก</div>
       <div class="qr-box">{qr_svg("PCRU-CFO-BIN:" + site_id)}</div>
-      <div class="c-site">{label}</div>
+      <div class="c-site">{label}<span class="c-bld">{BUILDING}</span></div>
       <ol>
         <li>สแกน QR นี้ในแอป</li>
         <li>ถือขวดไว้หน้าป้ายพื้นหลัง</li>
@@ -67,6 +68,7 @@ HTML = """<!doctype html>
   .qr-box { width: 62mm; height: 62mm; }
   .qr { width: 100%; height: 100%; display: block; }
   .c-site { font-size: 5mm; font-weight: 700; text-align: center; line-height: 1.3; min-height: 13mm; }
+  .c-bld { display: block; font-size: 3.6mm; font-weight: 400; color: #4b5563; }
   ol { font-size: 4.2mm; line-height: 1.6; padding-left: 6mm; align-self: stretch; color: #1f2937; }
   .cut { font-size: 3.2mm; color: #9ca3af; }
 </style></head><body>

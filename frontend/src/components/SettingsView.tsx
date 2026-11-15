@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import { redeemQrImageUrl } from '../lib/redeemQr';
 import { APP_NAME } from '../lib/brand';
+import { SCAN_DROP_SITES, DROP_BUILDING_TH, DROP_BUILDING_EN } from '../lib/scanCheckpoint';
 import { 
   User as UserIcon, 
   Globe, 
@@ -697,25 +698,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                     <Building className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900">{language === 'th' ? 'แผนผังตู้ขยะอัจฉริยะในมหาวิทยาลัย' : 'Smart Bin Campus Map'}</h4>
-                    <p className="text-[10px] text-slate-500">{language === 'th' ? 'จุดติดตั้ง 5 อาคารหลัก มรภ.เพชรบูรณ์' : '5 main locations at PCRU'}</p>
+                    <h4 className="text-xs font-bold text-slate-900">{language === 'th' ? 'จุดทิ้งขวดน้ำพลาสติก' : 'Bottle drop points'}</h4>
+                    <p className="text-[10px] text-slate-500">{language === 'th' ? `${SCAN_DROP_SITES.length} จุด · ${DROP_BUILDING_TH}` : `${SCAN_DROP_SITES.length} points · ${DROP_BUILDING_EN}`}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => setViewingDoc({
-                      title: language === 'th' ? 'แผนผังจุดติดตั้งตู้ขยะอัจฉริยะ (Smart Bins Campus Map)' : 'Smart Bins Campus Map',
-                      subtitle: language === 'th' ? 'มหาวิทยาลัยราชภัฏเพชรบูรณ์' : 'PCRU',
+                      title: language === 'th' ? 'จุดทิ้งขวดน้ำพลาสติก' : 'Bottle drop points',
+                      subtitle: language === 'th' ? `${DROP_BUILDING_TH} · มรภ.เพชรบูรณ์` : `${DROP_BUILDING_EN} · PCRU`,
                       content: (
                         <div className="space-y-2 text-xs text-slate-700">
-                          <p className="font-bold">{language === 'th' ? 'จุดบริการตู้รับขยะขวดพลาสติกอัจฉริยะ:' : 'Smart Plastic Bin Locations:'}</p>
+                          <p className="font-bold">{language === 'th' ? 'แต่ละจุดมีถัง สติกเกอร์ QR และป้าย SAVE CFO ด้านหลัง:' : 'Each point has a bin, a QR sticker and a SAVE CFO sign behind it:'}</p>
                           <ul className="space-y-1.5">
-                            <li className="p-2 rounded-lg bg-slate-100">1. {language === 'th' ? 'อาคาร 1 คณะวิทยาศาสตร์และเทคโนโลยี' : 'Building 1 Faculty of Science'}</li>
-                            <li className="p-2 rounded-lg bg-slate-100">2. {language === 'th' ? 'โรงอาหารกลาง (Main Canteen)' : 'Main Canteen'}</li>
-                            <li className="p-2 rounded-lg bg-slate-100">3. {language === 'th' ? 'อาคารเทคโนโลยีสารสนเทศ (IT Center)' : 'IT Center'}</li>
-                            <li className="p-2 rounded-lg bg-slate-100">4. {language === 'th' ? 'สำนักวิทยบริการและหอสมุดกลาง' : 'Library'}</li>
-                            <li className="p-2 rounded-lg bg-slate-100">5. {language === 'th' ? 'อาคารคณะวิทยาการจัดการ' : 'Faculty of Management Science'}</li>
+                            {SCAN_DROP_SITES.map((s, i) => (
+                              <li key={s.id} className="p-2 rounded-lg bg-slate-100 flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                                {i + 1}. {language === 'th' ? s.labelTh : s.labelEn}
+                              </li>
+                            ))}
                           </ul>
                         </div>
                       )
