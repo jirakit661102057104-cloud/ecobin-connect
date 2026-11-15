@@ -24,3 +24,4 @@ frontend/scripts/_tm-accuracy-out/
 legacy/vite-mockup/node_modules/
 legacy/vite-mockup/dist/
 *.tsbuildinfo
+.vercel

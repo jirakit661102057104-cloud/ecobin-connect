@@ -1,0 +1,8 @@
+# Keep local-only config out of Vercel CLI uploads
+.env*
+frontend.env
+node_modules
+.next
+scripts/_data
+scripts/_tm-accuracy-out
+*.tsbuildinfo

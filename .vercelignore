@@ -1,0 +1,12 @@
+# Vercel project root directory is "frontend": upload only that folder,
+# never backend env files, thesis/docs, or local build output.
+/*
+!/frontend
+/frontend/.env*
+/frontend/frontend.env
+/frontend/node_modules
+/frontend/.next
+/frontend/.vercel
+/frontend/scripts/_data
+/frontend/scripts/_tm-accuracy-out
+/frontend/*.tsbuildinfo
