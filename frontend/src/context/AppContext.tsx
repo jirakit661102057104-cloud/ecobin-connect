@@ -473,12 +473,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (record.verification_status === 'รอการตรวจสอบ') {
       addToast('info', 'ส่งข้อมูลแล้ว', 'รอผู้ดูแลระบบตรวจสอบภาพก่อนได้รับแต้ม');
     } else {
+      // The scanner shows a "ยินดีด้วย" popup with points and carbon avoided
       triggerConfetti();
-      addToast(
-        'success',
-        'บันทึกสำเร็จ!',
-        `ได้รับ +${record.points_awarded} แต้ม · คาร์บอน ${record.carbon_saved} kgCO₂e (TGO / Net Zero)`,
-      );
     }
     return record;
   };
@@ -504,7 +500,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
     const mapped = { ...log, temp_image_path: mediaUrl(log.temp_image_path) };
     setGuestLogs((prev) => [mapped, ...prev]);
-    addToast('info', 'จำลองการตรวจสอบสำเร็จ (Guest)', `ตรวจพบขวดพลาสติก ${data.detectedBottles} ขวด (สมัครสมาชิกเพื่อสะสมแต้มจริง)`);
     return mapped;
   };
 

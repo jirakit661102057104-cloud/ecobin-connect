@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { takePendingBin } from '../lib/pendingBin';
+import { ScanSuccessModal, type ScanSuccessInfo } from './ScanSuccessModal';
 import { useApp } from '../context/AppContext';
 import { matchBottleScore } from '../lib/bottleScore';
 import { hashImageDataUrl } from '../lib/imageProvenance';
@@ -79,6 +80,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastError, setLastError] = useState('');
+  const [successInfo, setSuccessInfo] = useState<ScanSuccessInfo | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
@@ -248,7 +250,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
       try {
         const imageHash = await hashImageDataUrl(imageDataUrl);
         if (currentUser) {
-          await addWasteRecord({
+          const record = await addWasteRecord({
             imageUrl: imageDataUrl,
             plasticType: PLASTIC_WATER_BOTTLE_LABEL,
             bottleCount: 1,
@@ -258,6 +260,12 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
             captureSource: 'camera',
             imageHash,
           });
+          setSuccessInfo({
+            guest: false,
+            points: record.points_awarded,
+            carbonAvoidedKg: record.carbon_avoided || 0,
+            siteLabel,
+          });
         } else {
           await addGuestWasteRecord({
             imageUrl: imageDataUrl,
@@ -266,12 +274,9 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
             confidence: score,
             modelLabel: 'CHECKPOINT_OCR',
           });
+          setSuccessInfo({ guest: true, points: estimatedPoints, carbonAvoidedKg: 0, siteLabel });
         }
         setPhase('done');
-        setTimeout(() => {
-          handleFullReset();
-          onSuccessNavigate?.(currentUser ? 'dashboard' : 'history');
-        }, 900);
       } catch (e) {
         submittedRef.current = false;
         setPhase('scan_words');
@@ -280,7 +285,7 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addGuestWasteRecord, addWasteRecord, currentUser, dropSite, dropSiteId, onSuccessNavigate, siteLabel],
+    [addGuestWasteRecord, addWasteRecord, currentUser, dropSite, dropSiteId, estimatedPoints, siteLabel],
   );
 
   const captureFrame = () => {
@@ -764,6 +769,40 @@ export const WasteScanner: React.FC<WasteScannerProps> = ({
           {th ? 'ความครบของคำ' : 'Word completeness'}: {confidenceScore}% ·{' '}
           <Check className="w-3 h-3 inline" aria-hidden /> SAVE + CFO
         </p>
+      )}
+
+      {successInfo && (
+        <ScanSuccessModal
+          info={successInfo}
+          onScanAgain={() => {
+            // Same bin, straight back to the SAVE CFO camera
+            const sameBin = dropSiteId;
+            setSuccessInfo(null);
+            setIsSubmitting(false);
+            setSelectedImage(null);
+            if (sameBin) {
+              autoStartOcrRef.current = true;
+              lockBin(sameBin, binLockedByQr);
+            } else {
+              handleFullReset();
+            }
+          }}
+          onGoHome={() => {
+            setSuccessInfo(null);
+            handleFullReset();
+            onSuccessNavigate?.('dashboard');
+          }}
+          onGoRewards={() => {
+            setSuccessInfo(null);
+            handleFullReset();
+            onSuccessNavigate?.('rewards');
+          }}
+          onRegister={() => {
+            setSuccessInfo(null);
+            handleFullReset();
+            openAuthModal();
+          }}
+        />
       )}
     </div>
   );
