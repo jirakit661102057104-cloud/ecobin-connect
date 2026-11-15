@@ -282,16 +282,18 @@ func migrateCarbonAccounting(db *sql.DB) error {
 		{"CMH-AL-SHEET-2565", 8, "virgin_production", 3.2231, "CMH: Aluminium Sheet (นำกลับมาใช้ประโยชน์)", cmhURL, "CMH-AL-Sheet-2565", true, nil},
 		{"CMH-AL-SEC-OLD-SCRAP-2565", 8, "recycled_production", 1.4682, "CMH: Aluminium Secondary (from old scrap)", cmhURL, "CMH-AL-OldScrap-2565", true, nil},
 		{"CMH-AL-SEC-NEW-SCRAP-2565", 8, "recycled_production", 0.4329, "CMH: Aluminium Secondary (from new scrap)", cmhURL, "CMH-AL-NewScrap-2565", false, nil},
+		// PET recycled: the CFP certificate expired 2025-11-28 but no replacement factor is published,
+		// so V1.0 keeps 1.10 as a disclosed estimate (research decision 2026-11-15) for Carbon Avoided.
+		{"TGO-PET-RECYCLED-2023", 1, "recycled_production", 1.1000, "TGO CFP FY23-043-0259 (InnoEco TN080FB) — ค่าประมาณ ใช้ต่อหลังการรับรองหมดอายุ 2025-11-28", tgoEFPDF, "FY23-043-0259-est", true, nil},
 		// ค่าเดิม/อ้างอิง — ไม่ใช้คำนวณอัตโนมัติ
 		{"TGO-AL-FLAT-ROLLED-2026", 8, "virgin_production", 5.8236, "Thai National LCI Database / TGO (legacy)", tgoEFPDF, "Update_April2026-AL-legacy", false, nil},
-		{"TGO-PET-RECYCLED-2023", 1, "recycled_production", 1.1000, "TGO CFP FY23-043-0259 (InnoEco TN080FB)", tgoEFPDF, "FY23-043-0259", false, "2025-11-28"},
 	}
 	for _, f := range factors {
 		_, _ = db.Exec(`INSERT INTO emission_factors
 			(emission_factor_id, plastic_code, factor_type, factor_value, source_name, source_url, source_version, effective_date, expires_at, is_active, created_by)
 			VALUES (?,?,?,?,?,?,?,'2026-04-01',?,?,?)
 			ON DUPLICATE KEY UPDATE factor_value=VALUES(factor_value), source_name=VALUES(source_name),
-				source_url=VALUES(source_url), is_active=VALUES(is_active), expires_at=VALUES(expires_at)`,
+				source_url=VALUES(source_url), source_version=VALUES(source_version), is_active=VALUES(is_active), expires_at=VALUES(expires_at)`,
 			f.id, f.code, f.kind, f.value, f.source, f.url, f.version, f.expires, f.active, actorSystem)
 	}
 	// ให้ CMH Aluminium Sheet เป็น baseline ที่ active เพียงตัวเดียวสำหรับรหัส 8
