@@ -64,14 +64,33 @@ async function getWorker() {
   return workerPromise;
 }
 
+/**
+ * Page segmentation modes tried in order. PSM 3 (auto layout) is the default;
+ * PSM 11 (sparse text) recovers large words on posters when auto layout fails
+ * (e.g. slightly tilted photos). Tested on the SAVE/CFO bin background:
+ * 10/12 simulated photos with PSM 3 alone, 11/12 with the PSM 11 fallback.
+ */
+const PAGE_SEG_MODES = ['3', '11'] as const;
+
 /** OCR an image (data URL or canvas) and check for SAVE + CFO. */
 export async function ocrCheckpointFromImage(
   source: HTMLCanvasElement | string,
   required: readonly string[] = CHECKPOINT_WORDS,
 ): Promise<CheckpointOcrResult> {
   const worker = await getWorker();
-  const { data } = await worker.recognize(source);
-  return matchCheckpointWords(data.text || '', required);
+  const texts: string[] = [];
+  let result = matchCheckpointWords('', required);
+  for (const psm of PAGE_SEG_MODES) {
+    await worker.setParameters({
+      tessedit_pageseg_mode: psm as unknown as import('tesseract.js').PSM,
+    });
+    const { data } = await worker.recognize(source);
+    texts.push(data.text || '');
+    // Words found in any pass of the same frame count together.
+    result = matchCheckpointWords(texts.join('\n'), required);
+    if (result.complete) break;
+  }
+  return result;
 }
 
 export async function terminateCheckpointOcr() {
