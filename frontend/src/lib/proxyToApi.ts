@@ -91,10 +91,16 @@ export async function proxyToApi(req: NextRequest, prefix: 'api' | 'uploads', pa
       destination: dest,
       error: error instanceof Error ? error.message : String(error),
     });
+    const isLocal =
+      !process.env.VERCEL &&
+      (base.includes('127.0.0.1') || base.includes('localhost'));
     return NextResponse.json(
       {
-        error:
-          'เชื่อมต่อ Go API ผ่าน Vercel ไม่ได้ กรุณาตรวจ Deployment Logs ของฟังก์ชัน /api',
+        error: isLocal
+          ? 'เชื่อมต่อ Go API บนเครื่องไม่ได้ — รัน backend ด้วย run.bat หรือ go run . ในโฟลเดอร์ backend (พอร์ต 8080)'
+          : 'เชื่อมต่อ Go API ไม่ได้ — ตรวจ API_PROXY_TARGET / Deployment Logs ของฟังก์ชัน /api',
+        code: 'UPSTREAM_UNREACHABLE',
+        target: isLocal ? base : undefined,
       },
       { status: 502 }
     );

@@ -9,14 +9,18 @@ import { WasteScanner } from './components/WasteScanner';
 import { RewardsCatalog } from './components/RewardsCatalog';
 import { PlasticGuide } from './components/PlasticGuide';
 import { HistoryView } from './components/HistoryView';
+import { ReportView } from './components/ReportView';
 import { SettingsView } from './components/SettingsView';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminQRScanner } from './components/AdminQRScanner';
 import { ResearchInfoModal } from './components/ResearchInfoModal';
 import { CompleteProfileModal } from './components/CompleteProfileModal';
+import { ScanPhoneOnlyNotice } from './components/ScanPhoneOnlyNotice';
 import { BrandLogo } from './components/BrandLogo';
-import { isGuestBrowse } from './lib/config';
+import { allowGuestBrowse } from './lib/config';
+import { APP_NAME } from './lib/brand';
 import { persistMainTab, restoreMainTab, allowedMainTabs, defaultMainTab } from './lib/navState';
+import { useCanScanWaste } from './hooks/useCanScanWaste';
 import {
   ShieldAlert,
 } from 'lucide-react';
@@ -28,6 +32,7 @@ function MainAppContent() {
   const [activeTab, setActiveTabState] = useState<string>('dashboard');
   const [isResearchOpen, setIsResearchOpen] = useState(false);
   const openLogin = () => router.push('/login');
+  const { canScan, ready: deviceReady } = useCanScanWaste();
 
   const setActiveTab = (tab: string) => {
     setActiveTabState(tab);
@@ -36,36 +41,26 @@ function MainAppContent() {
 
   useEffect(() => {
     if (!authReady) return;
+    // Public home: unauthenticated visitors browse as Guest on dashboard
+    if (!currentUser) {
+      allowGuestBrowse();
+    }
     const restored = restoreMainTab(currentRole, currentUser?.user_id);
     const allowed = allowedMainTabs(currentRole);
     setActiveTabState(allowed.includes(restored) ? restored : defaultMainTab(currentRole));
   }, [authReady, currentUser?.user_id, currentRole]);
 
-  useEffect(() => {
-    if (!authReady) return;
-    if (!currentUser && !isGuestBrowse()) {
-      router.replace('/login');
-    }
-  }, [authReady, currentUser, router]);
+  // If desktop user lands on waste-scan tab, keep tab but show notice (Admin QR still allowed)
+  const wasteScanBlocked =
+    deviceReady && !canScan && activeTab === 'scan' && currentRole !== 'Admin';
 
-  if (!authReady || (!currentUser && !isGuestBrowse())) {
+  if (!authReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-sm text-slate-500">
         <div className="flex items-center gap-3 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/70 px-5 py-3 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          กำลังไปหน้าเข้าสู่ระบบ...
+          กำลังโหลดหน้าหลัก...
         </div>
-        <button
-          type="button"
-          className="text-xs font-semibold text-emerald-700 hover:underline"
-          onClick={() => {
-            document.cookie = 'ecobin_token=; Max-Age=0; path=/';
-            document.cookie = 'ecobin_guest=; Max-Age=0; path=/';
-            window.location.href = '/login';
-          }}
-        >
-          ถ้าค้างนาน กดที่นี่เพื่อเข้าสู่ระบบใหม่
-        </button>
       </div>
     );
   }
@@ -92,15 +87,14 @@ function MainAppContent() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === 'dashboard' && (
-              <MemberDashboard 
-                setActiveTab={setActiveTab} 
-                openAuthModal={openLogin} 
-              />
+              <MemberDashboard setActiveTab={setActiveTab} />
             )}
 
             {activeTab === 'scan' && (
               currentRole === 'Admin' ? (
                 <AdminQRScanner />
+              ) : wasteScanBlocked ? (
+                <ScanPhoneOnlyNotice setActiveTab={setActiveTab} />
               ) : (
                 <WasteScanner 
                   onSuccessNavigate={(tab) => setActiveTab(tab)} 
@@ -122,6 +116,10 @@ function MainAppContent() {
 
             {activeTab === 'history' && (
               <HistoryView />
+            )}
+
+            {activeTab === 'report' && (
+              <ReportView />
             )}
 
             {activeTab === 'settings' && (
@@ -160,7 +158,7 @@ function MainAppContent() {
           <div className="eco-card rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <BrandLogo className="w-7 h-7 rounded-lg" />
-            <span className="font-bold text-slate-800 text-xs tracking-tight">EcoBin PCRU</span>
+            <span className="font-bold text-slate-800 text-xs tracking-tight">{APP_NAME}</span>
             <span className="text-slate-300">•</span>
             <span className="text-[11px] text-slate-500">Green Campus & Smart Recycling</span>
           </div>

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
-import { GOOGLE_CLIENT_ID } from '../lib/config';
+import { GOOGLE_AUTH_ENABLED, GOOGLE_CLIENT_ID } from '../lib/config';
 
 declare global {
   interface Window {
@@ -71,6 +71,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onCreden
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!GOOGLE_AUTH_ENABLED) return;
     let cancelled = false;
     (async () => {
       try {
@@ -86,7 +87,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onCreden
   }, []);
 
   useEffect(() => {
-    if (!clientId || !hostRef.current) {
+    if (!GOOGLE_AUTH_ENABLED || !clientId || !hostRef.current) {
       setReady(false);
       return;
     }
@@ -141,7 +142,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ onCreden
     };
   }, [clientId, mode]);
 
-  if (!clientId) {
+  if (!GOOGLE_AUTH_ENABLED || !clientId) {
     return null;
   }
 

@@ -1,4 +1,4 @@
-// Package carbon implements CMH/TGO mass×EF math used by EcoBin Connect.
+// Package carbon implements CMH/TGO mass×EF math used by PCRU CFO SAVEPOINT.
 //
 //	https://circularmaterialhub.com/Calculate.php
 //	CO2e (kgCO2eq) = mass_kg × EF (kgCO2e/kg)
@@ -17,7 +17,7 @@ type Calculation struct {
 	EmissionFactorVersion string
 }
 
-// Round keeps five decimal places (matches existing EcoBin storage).
+// Round keeps five decimal places (matches existing storage).
 func Round(value float64) float64 {
 	return math.Round(value*100000) / 100000
 }

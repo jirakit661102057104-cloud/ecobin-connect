@@ -69,7 +69,7 @@ func (s *Server) finishAuth(w http.ResponseWriter, u *User, status int) {
 func (s *Server) grantWelcomeBonus(userID string) {
 	txnID := newID("TXN")
 	_, _ = s.store.db.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
-		VALUES (?,?,NULL,50,'bonus',?,?,?)`, txnID, userID, "โบนัสต้อนรับสมาชิกใหม่ โครงการ EcoBin Connect", time.Now(), userID)
+		VALUES (?,?,NULL,50,'bonus',?,?,?)`, txnID, userID, "โบนัสต้อนรับสมาชิกใหม่ โครงการ PCRU CFO SAVEPOINT", time.Now(), userID)
 }
 
 func (s *Store) getUserByEmail(email string) (*User, error) {
@@ -148,11 +148,13 @@ func (s *Server) insertMember(fullName, studentID, email, phone, provider, googl
 	}
 	first, last := splitPersonName(fullName)
 	if strings.TrimSpace(fullName) == "" {
-		fullName = strings.TrimSpace(first + " " + last)
-	}
-	if fullName == "" {
-		fullName = strings.Split(email, "@")[0]
-		first, last = splitPersonName(fullName)
+		// Incomplete signup: placeholder display name only; keep first/last empty → needs_profile
+		if studentID != "" && !strings.Contains(studentID, "@") {
+			fullName = studentID
+		} else {
+			fullName = strings.Split(email, "@")[0]
+		}
+		first, last = "", ""
 	}
 	id := newID("USR")
 	if studentID == "" {
@@ -173,9 +175,16 @@ func (s *Server) insertMember(fullName, studentID, email, phone, provider, googl
 	} else {
 		subArg = googleSub
 	}
-	_, err := s.store.db.Exec(`INSERT INTO users (user_id, full_name, first_name, last_name, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, created_by, phone, auth_provider, google_sub)
-		VALUES (?,?,?,?,?,?,?,'Member',50,0,?,?,?,?,?,?)`,
-		id, fullName, first, last, studentID, email, passwordHash, avatar, "คณะวิทยาศาสตร์และเทคโนโลยี", id, phoneArg, provider, subArg)
+	var usernameArg any
+	if provider == "username" {
+		uname := strings.ToLower(strings.TrimSpace(studentID))
+		if uname != "" {
+			usernameArg = uname
+		}
+	}
+	_, err := s.store.db.Exec(`INSERT INTO users (user_id, full_name, first_name, last_name, username, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, created_by, phone, auth_provider, google_sub)
+		VALUES (?,?,?,?,?,?,?,?,'Member',50,0,?,?,?,?,?,?)`,
+		id, fullName, first, last, usernameArg, studentID, email, passwordHash, avatar, "คณะวิทยาศาสตร์และเทคโนโลยี", id, phoneArg, provider, subArg)
 	if err != nil {
 		return nil, err
 	}
@@ -220,6 +229,13 @@ func verifyGoogleIDToken(idToken string) (*googleTokenInfo, error) {
 }
 
 func (s *Server) handleGoogleConfig(w http.ResponseWriter, r *http.Request) {
+	if !envTrue("GOOGLE_AUTH_ENABLED", false) {
+		writeJSON(w, 200, map[string]any{
+			"enabled":   false,
+			"client_id": "",
+		})
+		return
+	}
 	clientID := strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID"))
 	writeJSON(w, 200, map[string]any{
 		"enabled":   clientID != "",
@@ -228,6 +244,10 @@ func (s *Server) handleGoogleConfig(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleGoogleAuth(w http.ResponseWriter, r *http.Request) {
+	if !envTrue("GOOGLE_AUTH_ENABLED", false) {
+		writeJSON(w, 403, map[string]string{"error": "การเข้าสู่ระบบด้วย Google ถูกปิดใช้งานชั่วคราว"})
+		return
+	}
 	var body struct {
 		IDToken   string `json:"id_token"`
 		DemoEmail string `json:"demo_email"`

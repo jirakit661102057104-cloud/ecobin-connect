@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { PLASTIC_TYPES_DATA } from '../data/mockData';
 import { PlasticInfo } from '../types';
+import { APP_NAME } from '../lib/brand';
 import { 
   BookOpen, 
   Leaf, 
@@ -231,7 +232,7 @@ export const PlasticGuide: React.FC = () => {
           </div>
           <h4 className="font-bold text-xs text-slate-900">Recycle (แปรรูปใหม่)</h4>
           <p className="text-xs text-slate-500 leading-relaxed">
-            แยกขวดพลาสติก PET และ HDPE สะอาด แล้วนำมาหย่อนที่ตู้ EcoBin
+            แยกขวดพลาสติก PET และ HDPE สะอาด แล้วนำมาคัดแยกผ่านแอป {APP_NAME}
           </p>
         </div>
       </div>

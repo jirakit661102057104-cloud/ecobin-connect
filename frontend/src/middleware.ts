@@ -12,13 +12,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasSession = Boolean(req.cookies.get('ecobin_token')?.value);
-  const isGuest = req.cookies.get('ecobin_guest')?.value === '1';
-
   if (pathname === '/') {
-    if (!hasSession && !isGuest) {
-      return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
-    }
+    // Public home = Guest campus dashboard (no login required)
     return NextResponse.next();
   }
 

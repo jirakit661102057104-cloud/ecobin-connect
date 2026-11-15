@@ -101,6 +101,33 @@ export const INITIAL_REWARDS: Reward[] = [
     reward_stock: 20,
     reward_image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500&auto=format&fit=crop&q=80',
     category: 'อุปกรณ์การเรียน'
+  },
+  {
+    reward_id: 'REW007',
+    reward_name: 'ปากกาเจล Eco Ink (แพ็ก 3 ด้าม)',
+    points_required: 35,
+    reward_description: 'ปากกาเจลหมึกน้ำเงิน/ดำ/แดง เขียนลื่น เหมาะกับจดเลคเชอร์และรายงาน',
+    reward_stock: 60,
+    reward_image: 'https://images.unsplash.com/photo-1585336261022-680e29527b4f?w=500&auto=format&fit=crop&q=80',
+    category: 'อุปกรณ์การเรียน'
+  },
+  {
+    reward_id: 'REW008',
+    reward_name: 'ขนมขบเคี้ยวสุขภาพ + น้ำดื่ม (ชุดเล็ก)',
+    points_required: 45,
+    reward_description: 'ชุดของว่างสำหรับกิจกรรมคัดแยกขยะ หรือพักระหว่างเรียนที่โรงอาหารกลาง',
+    reward_stock: 30,
+    reward_image: 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=500&auto=format&fit=crop&q=80',
+    category: 'เครื่องดื่มและอาหาร'
+  },
+  {
+    reward_id: 'REW009',
+    reward_name: 'ไม้บรรทัดไม้ไผ่ + ที่คั่นหนังสือรีไซเคิล',
+    points_required: 55,
+    reward_description: 'ชุดเครื่องเขียนรักษ์โลก จากวัสดุธรรมชาติและกระดาษรีไซเคิล',
+    reward_stock: 28,
+    reward_image: 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500&auto=format&fit=crop&q=80',
+    category: 'อุปกรณ์การเรียน'
   }
 ];
 

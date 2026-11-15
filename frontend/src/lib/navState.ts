@@ -2,10 +2,10 @@ const MAIN_TAB_KEY = 'ecobin_active_tab';
 const ADMIN_TAB_KEY = 'ecobin_admin_tab';
 const HISTORY_TAB_KEY = 'ecobin_history_tab';
 
-const MEMBER_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
-const ADMIN_TABS = ['admin', 'scan', 'settings', 'history', 'guide'];
-const GUEST_TABS = ['dashboard', 'scan', 'rewards', 'settings', 'history', 'guide'];
-const ADMIN_SUBTABS = ['overview', 'scans', 'users', 'rewards', 'redemptions', 'bins', 'rules', 'relations', 'activity'];
+const MEMBER_TABS = ['dashboard', 'scan', 'rewards', 'report', 'settings', 'history', 'guide'];
+const ADMIN_TABS = ['admin', 'scan', 'report', 'settings', 'history', 'guide'];
+const GUEST_TABS = ['dashboard', 'scan', 'rewards', 'report', 'settings', 'history', 'guide'];
+const ADMIN_SUBTABS = ['overview', 'scans', 'users', 'rewards', 'redemptions', 'rules', 'relations', 'activity'];
 const HISTORY_SUBTABS = ['waste', 'points', 'redeem', 'guest'];
 
 function read(key: string) {
@@ -49,8 +49,8 @@ export function persistMainTab(tab: string, userId?: string | null, role?: strin
 
 export function restoreAdminTab() {
   const saved = read(ADMIN_TAB_KEY);
-  // migrate old "verify" (human approve) → read-only "scans"
-  const normalized = saved === 'verify' ? 'scans' : saved;
+  // migrate old tabs that were removed from the product
+  const normalized = saved === 'verify' || saved === 'bins' ? 'scans' : saved;
   if (normalized && ADMIN_SUBTABS.includes(normalized)) {
     return normalized as (typeof ADMIN_SUBTABS)[number];
   }

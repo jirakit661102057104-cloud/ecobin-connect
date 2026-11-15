@@ -30,26 +30,30 @@ func seedIfEmpty(db *sql.DB) {
 	pass := string(hash)
 
 	users := [][]any{
-		{"USR001", "ศุภณัฐ ปลื้มบุญ", "661102057106", "st661102057106@gmail.com", pass, "Member", 180, 1.44, "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", "สาขาวิชาเทคโนโลยีสารสนเทศ"},
-		{"USR002", "จิรกิตติ์ ตันตระกูล", "661102057104", "st661102057104@gmail.com", pass, "Admin", 450, 3.60, "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", "คณะวิทยาศาสตร์และเทคโนโลยี (ผู้ดูแลระบบ)"},
-		{"USR003", "กิตติศักดิ์ พงษ์ศิริ", "661102057112", "st661102057112@gmail.com", pass, "Member", 90, 0.72, "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", "สาขาวิชาวิทยาการคอมพิวเตอร์"},
-		{"USR004", "นภาพร รักษาสิ่งแวดล้อม", "661102057120", "st661102057120@gmail.com", pass, "Member", 240, 1.92, "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80", "สาขาวิชาเทคโนโลยีสารสนเทศ"},
+		// user_id, full_name, first, last, username, student_id, email, pass, role, points, carbon, avatar, dept, phone
+		{"USR001", "ศุภณัฐ ปลื้มบุญ", "ศุภณัฐ", "ปลื้มบุญ", "suphanat", "661102057106", "st661102057106@gmail.com", pass, "Member", 180, 1.44, "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", "สาขาวิชาเทคโนโลยีสารสนเทศ", "0810000106"},
+		{"USR002", "จิรกิตติ์ ตันตระกูล", "จิรกิตติ์", "ตันตระกูล", "jirakit", "661102057104", "st661102057104@gmail.com", pass, "Admin", 450, 3.60, "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", "คณะวิทยาศาสตร์และเทคโนโลยี (ผู้ดูแลระบบ)", "0810000104"},
+		{"USR003", "กิตติศักดิ์ พงษ์ศิริ", "กิตติศักดิ์", "พงษ์ศิริ", "kittisak", "661102057112", "st661102057112@gmail.com", pass, "Member", 90, 0.72, "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", "สาขาวิชาวิทยาการคอมพิวเตอร์", "0810000112"},
+		{"USR004", "นภาพร รักษาสิ่งแวดล้อม", "นภาพร", "รักษาสิ่งแวดล้อม", "napaporn", "661102057120", "st661102057120@gmail.com", pass, "Member", 240, 1.92, "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80", "สาขาวิชาเทคโนโลยีสารสนเทศ", "0810000120"},
 	}
 	for _, u := range users {
-		_, err := db.Exec(`INSERT INTO users (user_id, full_name, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, created_by)
-			VALUES (?,?,?,?,?,?,?,?,?,?,?)`, append(u, actorSystem)...)
+		_, err := db.Exec(`INSERT INTO users (user_id, full_name, first_name, last_name, username, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, phone, auth_provider, created_by)
+			VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'username',?)`, append(u, actorSystem)...)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	rewards := [][]any{
-		{"REW001", "แก้วน้ำเก็บความเย็น Eco PCRU (500 ml)", 150, "แก้วสแตนเลสรักษ์โลก สกรีนโลโก้มหาวิทยาลัยราชภัฏเพชรบูรณ์ ลดการใช้แก้วพลาสติกแบบใช้ครั้งเดียวทิ้ง", 25, "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
-		{"REW002", "ถุงผ้าแคนวาส Green University", 80, "ถุงผ้าฝ้ายธรรมชาติ ทนทาน จุของได้เยอะ ทดแทนถุงพลาสติกหูหิ้วตามหลัก 3Rs", 40, "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
+		{"REW001", "แก้วน้ำเก็บความเย็น Eco PCRU (500 ml)", 2000, "แก้วสแตนเลสรักษ์โลก สกรีนโลโก้มหาวิทยาลัยราชภัฏเพชรบูรณ์ ลดการใช้แก้วพลาสติกแบบใช้ครั้งเดียวทิ้ง", 25, "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
+		{"REW002", "ถุงผ้าแคนวาส Green University", 1000, "ถุงผ้าฝ้ายธรรมชาติ ทนทาน จุของได้เยอะ ทดแทนถุงพลาสติกหูหิ้วตามหลัก 3Rs", 40, "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
 		{"REW003", "คูปองส่วนลดเครื่องดื่ม 20 บาท ร้านกาแฟ มรภ.พช.", 50, "ใช้เป็นส่วนลดเครื่องดื่มที่โรงอาหารกลางหรือร้านกาแฟคณะวิทยาศาสตร์และเทคโนโลยี", 99, "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&auto=format&fit=crop&q=80", "เครื่องดื่มและอาหาร"},
 		{"REW004", "สมุดบันทึกกระดาษรีไซเคิล Eco Note A5", 60, "สมุดโน้ตปกคราฟท์ ผลิตจากเยื่อกระดาษรีไซเคิล 100% เขียนลื่น ถนอมสายตา", 35, "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
 		{"REW005", "ชุดหลอดดูดน้ำสแตนเลสพร้อมแปรงทำความสะอาด", 40, "ชุดหลอดสแตนเลส Food Grade พกพาสะดวก พร้อมซองผ้าและแปรงล้าง", 50, "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
 		{"REW006", "บัตรกำนัลศูนย์หนังสือมหาวิทยาลัย 50 บาท", 100, "ใช้ซื้อเครื่องเขียน หนังสือเรียน หรืออุปกรณ์การศึกษา ณ ศูนย์หนังสือ มรภ.พช.", 20, "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
+		{"REW007", "ปากกาเจล Eco Ink (แพ็ก 3 ด้าม)", 35, "ปากกาเจลหมึกน้ำเงิน/ดำ/แดง เขียนลื่น เหมาะกับจดเลคเชอร์และรายงาน", 60, "https://images.unsplash.com/photo-1585336261022-680e29527b4f?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
+		{"REW008", "ขนมขบเคี้ยวสุขภาพ + น้ำดื่ม (ชุดเล็ก)", 45, "ชุดของว่างสำหรับกิจกรรมคัดแยกขยะ หรือพักระหว่างเรียนที่โรงอาหารกลาง", 30, "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=500&auto=format&fit=crop&q=80", "เครื่องดื่มและอาหาร"},
+		{"REW009", "ไม้บรรทัดไม้ไผ่ + ที่คั่นหนังสือรีไซเคิล", 55, "ชุดเครื่องเขียนรักษ์โลก จากวัสดุธรรมชาติและกระดาษรีไซเคิล", 28, "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
 	}
 	for _, r := range rewards {
 		if _, err := db.Exec(`INSERT INTO rewards (reward_id, reward_name, points_required, reward_description, reward_stock, reward_image, category, created_by)
@@ -94,23 +98,27 @@ func seedIfEmpty(db *sql.DB) {
 }
 
 func seedRewards(db *sql.DB) {
-	var n int
-	_ = db.QueryRow("SELECT COUNT(*) FROM rewards WHERE delete_at IS NULL").Scan(&n)
-	if n > 0 {
-		return
-	}
 	rewards := [][]any{
-		{"REW001", "แก้วน้ำเก็บความเย็น Eco PCRU (500 ml)", 150, "แก้วสแตนเลสรักษ์โลก สกรีนโลโก้มหาวิทยาลัยราชภัฏเพชรบูรณ์ ลดการใช้แก้วพลาสติกแบบใช้ครั้งเดียวทิ้ง", 25, "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
-		{"REW002", "ถุงผ้าแคนวาส Green University", 80, "ถุงผ้าฝ้ายธรรมชาติ ทนทาน จุของได้เยอะ ทดแทนถุงพลาสติกหูหิ้วตามหลัก 3Rs", 40, "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
+		{"REW001", "แก้วน้ำเก็บความเย็น Eco PCRU (500 ml)", 2000, "แก้วสแตนเลสรักษ์โลก สกรีนโลโก้มหาวิทยาลัยราชภัฏเพชรบูรณ์ ลดการใช้แก้วพลาสติกแบบใช้ครั้งเดียวทิ้ง", 25, "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
+		{"REW002", "ถุงผ้าแคนวาส Green University", 1000, "ถุงผ้าฝ้ายธรรมชาติ ทนทาน จุของได้เยอะ ทดแทนถุงพลาสติกหูหิ้วตามหลัก 3Rs", 40, "https://images.unsplash.com/photo-1597484661643-2f5fef640dd1?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
 		{"REW003", "คูปองส่วนลดเครื่องดื่ม 20 บาท ร้านกาแฟ มรภ.พช.", 50, "ใช้เป็นส่วนลดเครื่องดื่มที่โรงอาหารกลางหรือร้านกาแฟคณะวิทยาศาสตร์และเทคโนโลยี", 100, "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&auto=format&fit=crop&q=80", "เครื่องดื่มและอาหาร"},
 		{"REW004", "สมุดบันทึกกระดาษรีไซเคิล Eco Note A5", 60, "สมุดโน้ตปกคราฟท์ ผลิตจากเยื่อกระดาษรีไซเคิล 100% เขียนลื่น ถนอมสายตา", 35, "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
 		{"REW005", "ชุดหลอดดูดน้ำสแตนเลสพร้อมแปรงทำความสะอาด", 40, "ชุดหลอดสแตนเลส Food Grade พกพาสะดวก พร้อมซองผ้าและแปรงล้าง", 50, "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&auto=format&fit=crop&q=80", "ของใช้รักษ์โลก"},
 		{"REW006", "บัตรกำนัลศูนย์หนังสือมหาวิทยาลัย 50 บาท", 100, "ใช้ซื้อเครื่องเขียน หนังสือเรียน หรืออุปกรณ์การศึกษา ณ ศูนย์หนังสือ มรภ.พช.", 20, "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
+		{"REW007", "ปากกาเจล Eco Ink (แพ็ก 3 ด้าม)", 35, "ปากกาเจลหมึกน้ำเงิน/ดำ/แดง เขียนลื่น เหมาะกับจดเลคเชอร์และรายงาน", 60, "https://images.unsplash.com/photo-1585336261022-680e29527b4f?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
+		{"REW008", "ขนมขบเคี้ยวสุขภาพ + น้ำดื่ม (ชุดเล็ก)", 45, "ชุดของว่างสำหรับกิจกรรมคัดแยกขยะ หรือพักระหว่างเรียนที่โรงอาหารกลาง", 30, "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=500&auto=format&fit=crop&q=80", "เครื่องดื่มและอาหาร"},
+		{"REW009", "ไม้บรรทัดไม้ไผ่ + ที่คั่นหนังสือรีไซเคิล", 55, "ชุดเครื่องเขียนรักษ์โลก จากวัสดุธรรมชาติและกระดาษรีไซเคิล", 28, "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=500&auto=format&fit=crop&q=80", "อุปกรณ์การเรียน"},
 	}
 	for _, r := range rewards {
+		id := r[0].(string)
+		var exists int
+		_ = db.QueryRow(`SELECT COUNT(*) FROM rewards WHERE reward_id=? AND delete_at IS NULL`, id).Scan(&exists)
+		if exists > 0 {
+			continue
+		}
 		if _, err := db.Exec(`INSERT INTO rewards (reward_id, reward_name, points_required, reward_description, reward_stock, reward_image, category, created_by)
 			VALUES (?,?,?,?,?,?,?,?)`, append(r, actorSystem)...); err != nil {
-			log.Fatal(err)
+			log.Printf("seed reward %s: %v", id, err)
 		}
 	}
 }
@@ -124,7 +132,7 @@ func seedProduction(db *sql.DB) {
 		log.Fatal("production first run requires ADMIN_EMAIL and ADMIN_PASSWORD in backend.env")
 	}
 	if name == "" {
-		name = "ผู้ดูแลระบบ EcoBin"
+		name = "ผู้ดูแลระบบ PCRU CFO SAVEPOINT"
 	}
 	if studentID == "" {
 		studentID = "ADMIN001"
@@ -136,9 +144,9 @@ func seedProduction(db *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = db.Exec(`INSERT INTO users (user_id, full_name, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, created_by)
-		VALUES ('USRADMIN',?,?,?,?,'Admin',0,0,'','คณะวิทยาศาสตร์และเทคโนโลยี (ผู้ดูแลระบบ)',?)`,
-		name, studentID, email, string(hash), actorSystem)
+	_, err = db.Exec(`INSERT INTO users (user_id, full_name, first_name, last_name, username, student_id, email, password_hash, user_role, total_points, total_carbon_saved, avatar_url, department, phone, auth_provider, created_by)
+		VALUES ('USRADMIN',?,?,?,?,?,?,?,'Admin',0,0,'','คณะวิทยาศาสตร์และเทคโนโลยี (ผู้ดูแลระบบ)',NULL,'username',?)`,
+		name, name, "", studentID, studentID, email, string(hash), actorSystem)
 	if err != nil {
 		log.Fatal(err)
 	}

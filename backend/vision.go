@@ -36,7 +36,7 @@ func scanImage(imageData string) ScanResult {
 		"contents": []map[string]any{
 			{
 				"parts": []any{
-					map[string]string{"text": `You are EcoBin Connect vision. Analyze this photo of waste.
+					map[string]string{"text": `You are PCRU CFO SAVEPOINT vision. Analyze this photo of waste.
 Reply ONLY valid JSON with keys:
 valid (boolean: true only if it is a recyclable plastic bottle or aluminium beverage can),
 plastic_type_th, plastic_type_en, bottle_count (int), confidence (0-100), notes_th, notes_en.

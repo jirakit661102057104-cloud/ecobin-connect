@@ -53,26 +53,25 @@ func phoneMSISDN66(phone string) string {
 }
 
 func sendOTPEmail(to, code string) error {
+	subject := "รหัส OTP PCRU CFO SAVEPOINT"
+	body := fmt.Sprintf("รหัสยืนยัน PCRU CFO SAVEPOINT ของคุณคือ %s\n\nรหัสนี้หมดอายุใน 5 นาที หากไม่ได้ขอรหัสนี้ ให้เพิกเฉยต่ออีเมลฉบับนี้\n", code)
+	if err := sendPlainEmail(to, subject, body); err != nil {
+		return fmt.Errorf("ส่งอีเมล OTP ไม่สำเร็จ ตรวจสอบ SMTP ใน backend.env")
+	}
+	return nil
+}
+
+func sendPlainEmail(to, subject, body string) error {
 	if otpDebug() && !smtpReady() {
-		log.Printf("OTP_DEBUG: skip email send to %s", to)
+		log.Printf("OTP_DEBUG: skip email send to %s subject=%s", to, subject)
 		return nil
 	}
 	if !smtpReady() {
 		return fmt.Errorf("ยังไม่ได้ตั้งค่า SMTP ใน backend.env (SMTP_HOST, SMTP_USER, SMTP_PASS)")
 	}
-	host := strings.TrimSpace(os.Getenv("SMTP_HOST"))
-	port := getenv("SMTP_PORT", "587")
-	user := strings.TrimSpace(os.Getenv("SMTP_USER"))
-	pass := strings.TrimSpace(os.Getenv("SMTP_PASS"))
-	from := strings.TrimSpace(os.Getenv("SMTP_FROM"))
-	if from == "" {
-		from = user
-	}
-
-	subject := "รหัส OTP EcoBin Connect"
-	body := fmt.Sprintf("รหัสยืนยัน EcoBin Connect ของคุณคือ %s\n\nรหัสนี้หมดอายุใน 5 นาที หากไม่ได้ขอรหัสนี้ ให้เพิกเฉยต่ออีเมลฉบับนี้\n", code)
+	fromHeader, fromAddr, user, auth, addr, useTLS := smtpDialParams()
 	msg := strings.Join([]string{
-		"From: " + from,
+		"From: " + fromHeader,
 		"To: " + to,
 		"Subject: " + mimeUTF8(subject),
 		"MIME-Version: 1.0",
@@ -80,20 +79,74 @@ func sendOTPEmail(to, code string) error {
 		"",
 		body,
 	}, "\r\n")
+	return smtpSend(addr, auth, fromAddr, user, to, []byte(msg), useTLS)
+}
 
-	addr := net.JoinHostPort(host, port)
-	auth := smtp.PlainAuth("", user, pass, host)
+func sendHTMLEmail(to, subject, htmlBody, plainFallback string) error {
+	if otpDebug() && !smtpReady() {
+		log.Printf("OTP_DEBUG: skip HTML email to %s subject=%s", to, subject)
+		return nil
+	}
+	if !smtpReady() {
+		return fmt.Errorf("ยังไม่ได้ตั้งค่า SMTP ใน backend.env (SMTP_HOST, SMTP_USER, SMTP_PASS)")
+	}
+	fromHeader, fromAddr, user, auth, addr, useTLS := smtpDialParams()
+	boundary := "ecobin_cert_" + fmt.Sprintf("%d", time.Now().UnixNano())
+	if plainFallback == "" {
+		plainFallback = "ดูเกียรติบัตรได้ในอีเมลฉบับนี้ (เปิดในโปรแกรมที่รองรับ HTML)"
+	}
+	msg := strings.Join([]string{
+		"From: " + fromHeader,
+		"To: " + to,
+		"Subject: " + mimeUTF8(subject),
+		"MIME-Version: 1.0",
+		"Content-Type: multipart/alternative; boundary=" + boundary,
+		"",
+		"--" + boundary,
+		"Content-Type: text/plain; charset=UTF-8",
+		"",
+		plainFallback,
+		"",
+		"--" + boundary,
+		"Content-Type: text/html; charset=UTF-8",
+		"",
+		htmlBody,
+		"",
+		"--" + boundary + "--",
+		"",
+	}, "\r\n")
+	return smtpSend(addr, auth, fromAddr, user, to, []byte(msg), useTLS)
+}
+
+func smtpDialParams() (fromHeader, fromAddr, user string, auth smtp.Auth, addr string, useTLS bool) {
+	host := strings.TrimSpace(os.Getenv("SMTP_HOST"))
+	port := getenv("SMTP_PORT", "587")
+	user = strings.TrimSpace(os.Getenv("SMTP_USER"))
+	pass := strings.TrimSpace(os.Getenv("SMTP_PASS"))
+	fromHeader = strings.TrimSpace(os.Getenv("SMTP_FROM"))
+	if fromHeader == "" {
+		fromHeader = user
+	}
+	fromAddr = mailFrom(fromHeader, user)
+	auth = smtp.PlainAuth("", user, pass, host)
+	addr = net.JoinHostPort(host, port)
+	useTLS = port == "465"
+	return
+}
+
+func smtpSend(addr string, auth smtp.Auth, fromAddr, user, to string, msg []byte, useTLS bool) error {
+	host := strings.TrimSpace(os.Getenv("SMTP_HOST"))
 	var err error
-	if port == "465" {
-		err = sendSMTPS(addr, host, auth, mailFrom(from, user), []string{to}, []byte(msg))
+	if useTLS {
+		err = sendSMTPS(addr, host, auth, fromAddr, []string{to}, msg)
 	} else {
-		err = smtp.SendMail(addr, auth, mailFrom(from, user), []string{to}, []byte(msg))
+		err = smtp.SendMail(addr, auth, fromAddr, []string{to}, msg)
 	}
 	if err != nil {
 		log.Printf("smtp send failed: %v", err)
-		return fmt.Errorf("ส่งอีเมล OTP ไม่สำเร็จ ตรวจสอบ SMTP ใน backend.env")
+		return err
 	}
-	log.Printf("sent email OTP to %s", to)
+	log.Printf("sent email to %s", to)
 	return nil
 }
 
@@ -156,7 +209,7 @@ func sendOTPSMS(phone, code string) error {
 	if !smsReady() {
 		return fmt.Errorf("ยังไม่ได้ตั้งค่า SMS ใน backend.env (Twilio หรือ ThaiBulkSMS)")
 	}
-	text := fmt.Sprintf("รหัส OTP EcoBin Connect คือ %s หมดอายุใน 5 นาที", code)
+	text := fmt.Sprintf("รหัส OTP PCRU CFO SAVEPOINT คือ %s หมดอายุใน 5 นาที", code)
 	var err error
 	if strings.TrimSpace(os.Getenv("TWILIO_ACCOUNT_SID")) != "" {
 		err = sendTwilioSMS(phone, text)

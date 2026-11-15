@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Reward, WasteRecord, User, SmartBin, PlasticType } from '../types';
+import { Reward, WasteRecord, User, PlasticType } from '../types';
 import { api } from '../lib/api';
 import { persistAdminTab, restoreAdminTab } from '../lib/navState';
 import { AdminActivityLog } from './AdminActivityLog';
@@ -19,9 +19,9 @@ import {
   GitBranch,
   Ticket,
   Search,
-  MapPin,
   SlidersHorizontal,
-  Activity
+  Activity,
+  Award,
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -46,28 +46,26 @@ export const AdminPanel: React.FC = () => {
     updateReward, 
     deleteReward,
     redemptions,
-    bins,
     plasticTypes,
     settings,
     currentUser,
     claimRedeem,
     cancelRedeem,
-    saveBin,
-    deleteBin,
     savePlastic,
     deletePlastic,
     updateAppSettings,
     updateAdminUser,
     deactivateUser,
     addToast,
+    refreshState,
+    certificates,
   } = useApp();
 
-  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'scans' | 'users' | 'rewards' | 'redemptions' | 'bins' | 'rules' | 'relations' | 'activity'>('overview');
+  const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'scans' | 'users' | 'rewards' | 'redemptions' | 'rules' | 'relations' | 'activity'>('overview');
   const [adminTabReady, setAdminTabReady] = useState(false);
   const [userQuery, setUserQuery] = useState('');
   const [scanStatusFilter, setScanStatusFilter] = useState<'ทั้งหมด' | 'อนุมัติแล้ว' | 'รอการตรวจสอบ' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('ทั้งหมด');
   const [scanQuery, setScanQuery] = useState('');
-  const [scanBin, setScanBin] = useState('ทั้งหมด');
   const [scanPlastic, setScanPlastic] = useState('ทั้งหมด');
   const [relationData, setRelationData] = useState<{
     explanations: { parent: string; child: string; join: string; meaning: string }[];
@@ -101,9 +99,8 @@ export const AdminPanel: React.FC = () => {
   const [userRole, setUserRole] = useState<'Admin' | 'Member'>('Member');
   const [pointsDelta, setPointsDelta] = useState(0);
   const [pointsReason, setPointsReason] = useState('');
-  const [showBinModal, setShowBinModal] = useState(false);
-  const [editingBin, setEditingBin] = useState<SmartBin | null>(null);
-  const [binForm, setBinForm] = useState({ bin_name: '', status: 'พร้อมใช้งาน', capacity_note: '' });
+  const [certMessage, setCertMessage] = useState('');
+  const [certSending, setCertSending] = useState(false);
   const [showPlasticModal, setShowPlasticModal] = useState(false);
   const [editingPlastic, setEditingPlastic] = useState<PlasticType | null>(null);
   const [plasticForm, setPlasticForm] = useState({
@@ -181,6 +178,32 @@ export const AdminPanel: React.FC = () => {
     setUserRole(user.user_role === 'Admin' ? 'Admin' : 'Member');
     setPointsDelta(0);
     setPointsReason('');
+    setCertMessage('');
+  };
+
+  const handleIssueCertificate = async () => {
+    if (!editingUser) return;
+    setCertSending(true);
+    try {
+      const res = await api<{
+        ok: boolean;
+        certificate: { certificate_id: string; credits_tco2e: number; full_name_snapshot: string };
+      }>(`/api/admin/users/${editingUser.user_id}/certificate`, {
+        method: 'POST',
+        body: JSON.stringify({ message: certMessage }),
+      });
+      addToast(
+        'success',
+        'ออกเกียรติบัตรแล้ว',
+        `${res.certificate.full_name_snapshot} สามารถดาวน์โหลดได้ที่เมนูรายงาน · เครดิต ${res.certificate.credits_tco2e.toFixed(4)} tCO₂e`,
+      );
+      setCertMessage('');
+      await refreshState();
+    } catch (e) {
+      addToast('error', 'ออกเกียรติบัตรไม่สำเร็จ', e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');
+    } finally {
+      setCertSending(false);
+    }
   };
 
   const handleSaveUser = async (e: React.FormEvent) => {
@@ -193,27 +216,6 @@ export const AdminPanel: React.FC = () => {
       reason: pointsReason,
     });
     setEditingUser(null);
-  };
-
-  const openBinDialog = (bin?: SmartBin) => {
-    setEditingBin(bin || null);
-    setBinForm({
-      bin_name: bin?.bin_name || '',
-      status: bin?.status || 'พร้อมใช้งาน',
-      capacity_note: bin?.capacity_note || '',
-    });
-    setShowBinModal(true);
-  };
-
-  const handleSaveBin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await saveBin({
-      bin_id: editingBin?.bin_id,
-      bin_name: binForm.bin_name,
-      status: binForm.status,
-      capacity_note: binForm.capacity_note,
-    });
-    setShowBinModal(false);
   };
 
   const openPlasticDialog = (item?: PlasticType) => {
@@ -280,12 +282,6 @@ export const AdminPanel: React.FC = () => {
   const totalCampusBottles = approvedRecords.reduce((acc, r) => acc + r.bottle_count, 0);
   const totalCampusCarbon = approvedRecords.reduce((acc, r) => acc + (r.carbon_footprint || 0), 0);
   const memberCount = users.filter((u) => u.user_role === 'Member').length;
-  const scanBins = useMemo(() => {
-    const names = new Set<string>();
-    wasteRecords.forEach((r) => { if (r.bin_location) names.add(r.bin_location); });
-    bins.forEach((b) => names.add(b.bin_name));
-    return ['ทั้งหมด', ...[...names].sort()];
-  }, [wasteRecords, bins]);
   const scanPlastics = useMemo(() => {
     const names = new Set<string>();
     wasteRecords.forEach((r) => { if (r.plastic_type) names.add(r.plastic_type); });
@@ -295,15 +291,14 @@ export const AdminPanel: React.FC = () => {
     const q = scanQuery.trim().toLowerCase();
     return [...wasteRecords].sort((a, b) => String(b.upload_timestamp).localeCompare(String(a.upload_timestamp))).filter((r) => {
       if (scanStatusFilter !== 'ทั้งหมด' && r.verification_status !== scanStatusFilter) return false;
-      if (scanBin !== 'ทั้งหมด' && (r.bin_location || '') !== scanBin) return false;
       if (scanPlastic !== 'ทั้งหมด' && r.plastic_type !== scanPlastic) return false;
       if (!q) return true;
-      return [r.user_name, r.student_id, r.record_id, r.plastic_type, r.bin_location, r.admin_comment]
+      return [r.user_name, r.student_id, r.record_id, r.plastic_type, r.admin_comment]
         .join(' ')
         .toLowerCase()
         .includes(q);
     });
-  }, [wasteRecords, scanStatusFilter, scanQuery, scanBin, scanPlastic]);
+  }, [wasteRecords, scanStatusFilter, scanQuery, scanPlastic]);
   const filteredUsers = users.filter((u) => {
     const q = userQuery.trim().toLowerCase();
     if (!q) return true;
@@ -317,14 +312,12 @@ export const AdminPanel: React.FC = () => {
     return [...map.entries()].map(([name, value], i) => ({ name, value, color: colors[i % colors.length] }));
   }, [wasteRecords]);
 
-  const buildingStats = useMemo(() => {
-    const map = new Map<string, number>();
-    approvedRecords.forEach((r) => {
-      const loc = r.bin_location || 'ไม่ระบุจุด';
-      map.set(loc, (map.get(loc) || 0) + r.bottle_count);
-    });
-    return [...map.entries()].map(([name, bottles]) => ({ name, bottles })).sort((a, b) => b.bottles - a.bottles).slice(0, 8);
-  }, [wasteRecords]);
+  const plasticBarStats = useMemo(() => {
+    return plasticDistribution
+      .map((p) => ({ name: p.name, bottles: p.value }))
+      .sort((a, b) => b.bottles - a.bottles)
+      .slice(0, 8);
+  }, [plasticDistribution]);
 
   return (
     <div className="space-y-4">
@@ -342,7 +335,7 @@ export const AdminPanel: React.FC = () => {
             แผงควบคุมผู้ดูแลระบบ
           </h2>
           <p className="text-xs text-purple-200 mt-0.5 max-w-xl">
-            โมเดล AI ตรวจรูปและให้แต้มแล้ว — แอดมินจัดการสมาชิก จุดทิ้ง ของรางวัล คิวรับของ กฎแต้ม และดู Activity Log
+            โมเดล AI ตรวจรูปและให้แต้มแล้ว — แอดมินจัดการสมาชิก ของรางวัล คิวรับของ กฎแต้ม และดู Activity Log
           </p>
         </div>
 
@@ -366,7 +359,6 @@ export const AdminPanel: React.FC = () => {
           { id: 'users' as const, label: `สมาชิก (${memberCount})`, icon: Users },
           { id: 'rewards' as const, label: 'ของรางวัล', icon: Gift },
           { id: 'redemptions' as const, label: `คิวรับของ (${pendingPickups.length})`, icon: Ticket },
-          { id: 'bins' as const, label: `จุดทิ้ง (${bins.length})`, icon: MapPin },
           { id: 'rules' as const, label: 'กฎระบบ', icon: SlidersHorizontal },
           { id: 'activity' as const, label: 'Activity Log', icon: Activity },
           { id: 'relations' as const, label: 'ประวัติผู้ใช้', icon: GitBranch },
@@ -411,15 +403,11 @@ export const AdminPanel: React.FC = () => {
             </button>
             <button type="button" onClick={() => setActiveAdminTab('rewards')} className="text-left bg-purple-50 border border-purple-100 rounded-2xl p-4 hover:bg-purple-100/70">
               <p className="text-xs font-bold text-purple-900">จัดการของรางวัล</p>
-              <p className="text-[11px] text-purple-800/80 mt-1">เพิ่ม แก้ สต็อก และแต้มที่ใช้แลก</p>
+              <p className="text-[11px] text-purple-800/80 mt-1">เพิ่ม แก้ สต็อก และเช็คพอยต์แต้มสะสม</p>
             </button>
             <button type="button" onClick={() => setActiveAdminTab('redemptions')} className="text-left bg-sky-50 border border-sky-100 rounded-2xl p-4 hover:bg-sky-100/70">
               <p className="text-xs font-bold text-sky-900">คิวรับของ</p>
               <p className="text-[11px] text-sky-800/80 mt-1">จ่ายของหรือยกเลิกคืนแต้มได้จากตาราง</p>
-            </button>
-            <button type="button" onClick={() => setActiveAdminTab('bins')} className="text-left bg-teal-50 border border-teal-100 rounded-2xl p-4 hover:bg-teal-100/70">
-              <p className="text-xs font-bold text-teal-900">จุดทิ้งขยะ</p>
-              <p className="text-[11px] text-teal-800/80 mt-1">เพิ่ม/ปิดจุดที่สมาชิกเลือกตอนสแกน</p>
             </button>
             <button type="button" onClick={() => setActiveAdminTab('activity')} className="text-left bg-indigo-50 border border-indigo-100 rounded-2xl p-4 hover:bg-indigo-100/70">
               <p className="text-xs font-bold text-indigo-900">Activity Log</p>
@@ -442,13 +430,13 @@ export const AdminPanel: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div className="lg:col-span-7 bg-white rounded-2xl p-5 border border-slate-100 shadow-2xs space-y-3">
-              <h4 className="text-xs font-bold text-slate-900">ปริมาณขวดที่บันทึก แยกตามจุดทิ้ง</h4>
+              <h4 className="text-xs font-bold text-slate-900">ปริมาณขวดที่บันทึก แยกตามประเภท</h4>
               <div className="h-56">
-                {buildingStats.length === 0 ? (
+                {plasticBarStats.length === 0 ? (
                   <p className="text-xs text-slate-400 pt-8 text-center">ยังไม่มีรายการสแกน</p>
                 ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={buildingStats} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <BarChart data={plasticBarStats} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f8fafc" />
                     <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} angle={-10} textAnchor="end" />
                     <YAxis tick={{ fontSize: 10 }} />
@@ -486,7 +474,7 @@ export const AdminPanel: React.FC = () => {
       {activeAdminTab === 'scans' && (
         <div className="space-y-3">
           <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-3 text-[11px] text-emerald-900">
-            โมเดล AI (Teachable / EcoBin) ตรวจรูปและให้แต้มอัตโนมัติแล้ว — แท็บนี้สำหรับดูประวัติเท่านั้น ไม่ต้องอนุมัติ/ปฏิเสธมือ
+            โมเดล AI (Teachable) ตรวจรูปและให้แต้มอัตโนมัติแล้ว — แท็บนี้สำหรับดูประวัติเท่านั้น ไม่ต้องอนุมัติ/ปฏิเสธมือ
           </div>
           <div className="bg-white rounded-2xl border border-slate-100 p-3 space-y-2.5">
             <div className="flex flex-wrap gap-1.5">
@@ -509,7 +497,7 @@ export const AdminPanel: React.FC = () => {
                 </button>
               ))}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div className="relative">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                 <input
@@ -519,15 +507,6 @@ export const AdminPanel: React.FC = () => {
                   className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-purple-400"
                 />
               </div>
-              <select
-                value={scanBin}
-                onChange={(e) => setScanBin(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white"
-              >
-                {scanBins.map((name) => (
-                  <option key={name} value={name}>{name === 'ทั้งหมด' ? 'จุดทิ้งทั้งหมด' : name}</option>
-                ))}
-              </select>
               <select
                 value={scanPlastic}
                 onChange={(e) => setScanPlastic(e.target.value)}
@@ -567,7 +546,7 @@ export const AdminPanel: React.FC = () => {
                     <strong>{record.plastic_type}</strong> ({record.bottle_count} ชิ้น)
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    {record.bin_location || 'ไม่ระบุจุดทิ้ง'} · {record.upload_timestamp}
+                    {record.upload_timestamp}
                     {record.points_awarded ? ` · +${record.points_awarded} แต้ม` : ''}
                   </p>
                 </div>
@@ -760,40 +739,6 @@ export const AdminPanel: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeAdminTab === 'bins' && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-slate-800">จุดทิ้งขยะในวิทยาเขต</h3>
-              <p className="text-[11px] text-slate-500">รายการนี้ไปโผล่ในหน้าสแกนของสมาชิกทันที</p>
-            </div>
-            <button type="button" onClick={() => openBinDialog()} className="flex items-center gap-1 px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold">
-              <Plus className="w-3.5 h-3.5" />
-              เพิ่มจุดทิ้ง
-            </button>
-          </div>
-          {bins.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-100 p-8 text-center text-sm text-slate-500">ยังไม่มีจุดทิ้ง</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {bins.map((bin) => (
-                <div key={bin.bin_id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-2xs flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-mono text-slate-400">{bin.bin_id}</p>
-                    <h4 className="font-bold text-xs text-slate-900">{bin.bin_name}</h4>
-                    <p className="text-[11px] text-slate-500 mt-1">{bin.status}{bin.capacity_note ? ` · ความจุ ${bin.capacity_note}` : ''}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button type="button" onClick={() => openBinDialog(bin)} className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100"><Edit3 className="w-3.5 h-3.5 text-slate-600" /></button>
-                    <button type="button" onClick={() => deleteBin(bin.bin_id)} className="p-1.5 rounded-lg hover:bg-rose-50"><Trash2 className="w-3.5 h-3.5 text-rose-600" /></button>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
         </div>
@@ -1002,10 +947,6 @@ export const AdminPanel: React.FC = () => {
                 <p className="font-bold text-amber-700">+{selectedScan.points_awarded || 0}</p>
               </div>
               <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
-                <p className="text-[10px] text-slate-400">จุดทิ้ง</p>
-                <p className="font-bold text-slate-800">{selectedScan.bin_location || '-'}</p>
-              </div>
-              <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                 <p className="text-[10px] text-slate-400">CO₂e</p>
                 <p className="font-bold text-teal-700">{(selectedScan.carbon_footprint || 0).toFixed(2)} kg</p>
               </div>
@@ -1060,7 +1001,7 @@ export const AdminPanel: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-0.5">แต้มที่ใช้:</label>
+                  <label className="block font-semibold text-slate-700 mb-0.5">เช็คพอยต์ (แต้มสะสมที่ต้องถึง):</label>
                   <input
                     type="number"
                     required
@@ -1162,6 +1103,55 @@ export const AdminPanel: React.FC = () => {
             <label className="block text-xs font-semibold">เหตุผลปรับแต้ม
               <input value={pointsReason} onChange={(e) => setPointsReason(e.target.value)} placeholder="เช่น โบนัสกิจกรรมคณะ" className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
             </label>
+
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-3 space-y-2">
+              <p className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" aria-hidden />
+                ออกเกียรติบัตรในระบบ
+              </p>
+              <p className="text-[11px] text-emerald-800/80">
+                สมาชิกไปที่เมนู <span className="font-semibold">รายงาน → แท็บเกียรติบัตร</span> แล้วกดดาวน์โหลดเอง
+              </p>
+              {(() => {
+                const issued = certificates.filter((c) => c.user_id === editingUser.user_id);
+                if (issued.length === 0) {
+                  return (
+                    <p className="text-[11px] text-slate-500">ยังไม่เคยออกเกียรติบัตรให้สมาชิกคนนี้</p>
+                  );
+                }
+                return (
+                  <ul className="text-[11px] text-slate-700 space-y-1 max-h-24 overflow-y-auto">
+                    {issued.map((c) => (
+                      <li key={c.certificate_id} className="flex justify-between gap-2">
+                        <span className="truncate">{c.issued_at}</span>
+                        <span className="tabular-nums shrink-0 font-semibold text-emerald-800">
+                          {c.credits_tco2e.toFixed(4)} tCO₂e
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
+              <label className="block text-[11px] font-semibold text-slate-700">
+                ข้อความเพิ่มเติม (ไม่บังคับ)
+                <input
+                  value={certMessage}
+                  onChange={(e) => setCertMessage(e.target.value)}
+                  placeholder="เช่น ขอบคุณที่ร่วมคัดแยกขยะในเทอมนี้"
+                  className="mt-1 w-full p-2 rounded-xl border border-emerald-100 bg-white text-xs"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={() => void handleIssueCertificate()}
+                disabled={certSending}
+                className="w-full min-h-[44px] py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Award className="w-3.5 h-3.5" aria-hidden />
+                {certSending ? 'กำลังออกเกียรติบัตร...' : 'ออกเกียรติบัตรให้สมาชิก'}
+              </button>
+            </div>
+
             <div className="flex gap-2 pt-1">
               {currentUser?.user_id !== editingUser.user_id && (
                 <button
@@ -1177,34 +1167,6 @@ export const AdminPanel: React.FC = () => {
               )}
               <button type="button" onClick={() => setEditingUser(null)} className="flex-1 py-2 border rounded-xl text-xs font-semibold">ยกเลิก</button>
               <button type="submit" className="flex-1 py-2 bg-purple-700 text-white rounded-xl text-xs font-bold">บันทึก</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {showBinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <form onSubmit={handleSaveBin} className="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="text-sm font-bold">{editingBin ? 'แก้ไขจุดทิ้ง' : 'เพิ่มจุดทิ้ง'}</h3>
-              <button type="button" onClick={() => setShowBinModal(false)} className="text-slate-400"><X className="w-4 h-4" /></button>
-            </div>
-            <label className="block text-xs font-semibold">ชื่อจุดทิ้ง
-              <input required value={binForm.bin_name} onChange={(e) => setBinForm({ ...binForm, bin_name: e.target.value })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
-            </label>
-            <label className="block text-xs font-semibold">สถานะ
-              <select value={binForm.status} onChange={(e) => setBinForm({ ...binForm, status: e.target.value })} className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50">
-                <option value="พร้อมใช้งาน">พร้อมใช้งาน</option>
-                <option value="ปิดปรับปรุง">ปิดปรับปรุง</option>
-                <option value="เต็ม">เต็ม</option>
-              </select>
-            </label>
-            <label className="block text-xs font-semibold">ความจุโดยประมาณ
-              <input value={binForm.capacity_note} onChange={(e) => setBinForm({ ...binForm, capacity_note: e.target.value })} placeholder="เช่น 45%" className="mt-1 w-full p-2 rounded-xl border border-slate-200 bg-slate-50" />
-            </label>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setShowBinModal(false)} className="flex-1 py-2 border rounded-xl text-xs font-semibold">ยกเลิก</button>
-              <button type="submit" className="flex-1 py-2 bg-teal-700 text-white rounded-xl text-xs font-bold">บันทึก</button>
             </div>
           </form>
         </div>

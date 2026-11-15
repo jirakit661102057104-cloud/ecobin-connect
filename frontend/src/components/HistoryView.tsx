@@ -192,8 +192,6 @@ export const HistoryView: React.FC = () => {
                       </h4>
 
                       <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                        <span>{record.bin_location || 'จุดคัดแยกกลาง'}</span>
-                        <span>•</span>
                         <span>{record.upload_timestamp}</span>
                       </div>
                     </div>

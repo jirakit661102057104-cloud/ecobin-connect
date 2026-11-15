@@ -14,6 +14,7 @@ import {
   Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { APP_NAME } from '../lib/brand';
 
 interface ResearchInfoModalProps {
   isOpen: boolean;
@@ -49,10 +50,10 @@ export const ResearchInfoModal: React.FC<ResearchInfoModalProps> = ({ isOpen, on
           </span>
 
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
-            แอปพลิเคชั่นคัดแยกขยะ (EcoBin Connect)
+            แอปพลิเคชัน {APP_NAME}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 font-medium font-sans">
-            Recyclable Waste Separation Application with Smart Bin Tracking
+            PCRU Carbon Footprint Overview · Save Points · Campus Recycling
           </p>
         </div>
 

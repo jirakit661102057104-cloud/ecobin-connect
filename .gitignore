@@ -9,6 +9,10 @@ logs/
 !.env.example
 infra/.env.prod
 backend/backend.env
+backend/backend.env.*
+!backend/backend.env.example
+!backend/backend.env.production.example
+!backend/backend.env.tidb.example
 .next
 backend/uploads/*.jpg
 backend/uploads/*.png

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import { BrandLogo } from './BrandLogo';
+import { APP_NAME_LINE1, APP_NAME_LINE2 } from '../lib/brand';
 import type { User } from '../types';
 import { 
   Coins, 
@@ -21,8 +22,11 @@ import {
   ChevronDown,
   Settings as SettingsIcon,
   X,
-  Calendar
+  Calendar,
+  Smartphone,
+  FileBarChart2,
 } from 'lucide-react';
+import { useCanScanWaste } from '../hooks/useCanScanWaste';
 
 function displayName(user: User) {
   const first = (user.first_name || '').trim();
@@ -57,18 +61,37 @@ export const Header: React.FC<HeaderProps> = ({
   const { currentUser, currentRole, setGuestMode, logout, language } = useApp();
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showPointsInfo, setShowPointsInfo] = useState(false);
+  const [showGuestRegisterHint, setShowGuestRegisterHint] = useState(false);
+  const { canScan, ready: deviceReady } = useCanScanWaste();
+  const th = language === 'th';
+
+  const handleResearchClick = () => {
+    if (!currentUser) {
+      setShowGuestRegisterHint(true);
+      return;
+    }
+    openResearchModal();
+  };
 
   const navItems = currentRole === 'Admin'
     ? [
-        { id: 'admin', label: language === 'th' ? 'แผงควบคุม' : 'Admin', icon: ShieldCheck },
-        { id: 'scan', label: language === 'th' ? 'สแกน QR' : 'Scan QR', icon: QrCode, highlight: true },
-        { id: 'settings', label: language === 'th' ? 'ตั้งค่า' : 'Settings', icon: SettingsIcon },
+        { id: 'admin', label: th ? 'แผงควบคุม' : 'Admin', icon: ShieldCheck },
+        { id: 'scan', label: th ? 'สแกน QR' : 'Scan QR', icon: QrCode, highlight: true },
+        { id: 'report', label: th ? 'รายงาน' : 'Report', icon: FileBarChart2 },
+        { id: 'settings', label: th ? 'ตั้งค่า' : 'Settings', icon: SettingsIcon },
       ]
     : [
-        { id: 'dashboard', label: language === 'th' ? 'หน้าหลัก' : 'Home', icon: LayoutDashboard },
-        { id: 'scan', label: language === 'th' ? 'สแกนขยะ' : 'Scan', icon: Camera, highlight: true },
-        { id: 'rewards', label: language === 'th' ? 'ของรางวัล' : 'Rewards', icon: Gift },
-        { id: 'settings', label: language === 'th' ? 'ตั้งค่า' : 'Settings', icon: SettingsIcon },
+        { id: 'dashboard', label: th ? 'หน้าหลัก' : 'Home', icon: LayoutDashboard },
+        {
+          id: 'scan',
+          label: th ? 'สแกนขยะ' : 'Scan',
+          icon: Camera,
+          highlight: true,
+          phoneOnly: true as const,
+        },
+        { id: 'rewards', label: th ? 'ของรางวัล' : 'Rewards', icon: Gift },
+        { id: 'report', label: th ? 'รายงาน' : 'Report', icon: FileBarChart2 },
+        { id: 'settings', label: th ? 'ตั้งค่า' : 'Settings', icon: SettingsIcon },
       ];
 
   return (
@@ -78,32 +101,42 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between h-16 gap-4">
           
           {/* Logo & Brand */}
-          <div 
-            className="flex items-center gap-2.5 cursor-pointer group shrink-0"
+          <button
+            type="button"
+            className="flex items-center gap-2.5 cursor-pointer group shrink-0 min-h-[44px] text-left rounded-xl focus-visible:outline-none"
             onClick={() => setActiveTab(currentRole === 'Admin' ? 'admin' : 'dashboard')}
+            aria-label={`${APP_NAME_LINE1} ${APP_NAME_LINE2} — ${th ? 'หน้าหลัก' : 'Home'}`}
           >
             <BrandLogo className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-lg font-extrabold text-slate-900 tracking-tight">
-                  EcoBin
-                </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                  PCRU
-                </span>
-              </div>
+            <div className="leading-tight">
+              <span className="block text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
+                {APP_NAME_LINE1}
+              </span>
+              <span className="block text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.14em] text-emerald-700">
+                {APP_NAME_LINE2}
+              </span>
             </div>
-          </div>
+          </button>
 
           {/* Navigation Items (Desktop) */}
           <nav className="hidden lg:flex items-center gap-0.5 p-1 rounded-2xl bg-slate-100/70">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const phoneOnly = 'phoneOnly' in item && item.phoneOnly;
+              const desktopLocked = phoneOnly && deviceReady && !canScan;
               return (
                 <button
                   key={item.id}
                   id={`nav-btn-${item.id}`}
+                  type="button"
+                  title={
+                    desktopLocked
+                      ? th
+                        ? 'สแกนขยะใช้ได้บนสมาร์ทโฟนเท่านั้น'
+                        : 'Waste scan is smartphone-only'
+                      : undefined
+                  }
                   onClick={() => setActiveTab(item.id)}
                   className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     isActive
@@ -117,6 +150,9 @@ export const Header: React.FC<HeaderProps> = ({
                 >
                   <Icon className={`w-4 h-4 ${isActive ? (item.id === 'admin' ? 'text-white' : 'text-emerald-600') : item.highlight ? 'text-emerald-600' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
+                  {desktopLocked && (
+                    <Smartphone className="w-3.5 h-3.5 text-amber-600" aria-hidden />
+                  )}
                 </button>
               );
             })}
@@ -139,14 +175,32 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
 
-            {/* Research Info Button */}
+            {/* Research Info Button — Guest: register-to-earn-points hint */}
             <button
               id="header-research-info-btn"
-              onClick={openResearchModal}
-              title="ข้อมูลโครงการวิจัย"
+              type="button"
+              onClick={handleResearchClick}
+              title={
+                currentUser
+                  ? th
+                    ? 'ข้อมูลโครงการวิจัย'
+                    : 'Research project info'
+                  : th
+                    ? 'สมัครสมาชิกเพื่อสะสมแต้ม'
+                    : 'Register to earn points'
+              }
+              aria-label={
+                currentUser
+                  ? th
+                    ? 'ข้อมูลโครงการวิจัย'
+                    : 'Research project info'
+                  : th
+                    ? 'สมัครสมาชิกเพื่อสะสมแต้ม'
+                    : 'Register to earn points'
+              }
               className="p-2 rounded-xl text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer border border-transparent hover:border-emerald-100"
             >
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Sparkles className="w-4 h-4 text-amber-500" aria-hidden />
             </button>
 
             {/* User Dropdown */}
@@ -321,6 +375,73 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       </div>
+
+      {/* Guest: must register to earn points */}
+      {showGuestRegisterHint &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+            role="presentation"
+            onClick={() => setShowGuestRegisterHint(false)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="guest-register-hint-title"
+              className="bg-white w-full max-w-sm rounded-3xl shadow-xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5 space-y-4">
+                <div className="flex justify-between items-start gap-3">
+                  <div className="flex items-center gap-2 text-amber-600">
+                    <Sparkles className="w-5 h-5" aria-hidden />
+                    <h3
+                      id="guest-register-hint-title"
+                      className="text-base font-bold text-slate-900"
+                    >
+                      {th ? 'สะสมแต้มได้เมื่อเป็นสมาชิก' : 'Earn points as a member'}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuestRegisterHint(false)}
+                    aria-label={th ? 'ปิด' : 'Close'}
+                    className="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 p-1.5 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4" aria-hidden />
+                  </button>
+                </div>
+
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {th
+                    ? 'ต้องสมัครสมาชิกเพื่อสะสมแต้มจากการคัดแยกขยะ และใช้แต้มแลกรางวัลในระบบ'
+                    : 'You need to register as a member to earn points from sorting waste and redeem rewards.'}
+                </p>
+
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowGuestRegisterHint(false);
+                      openAuthModal();
+                    }}
+                    className="w-full min-h-[44px] py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-colors"
+                  >
+                    {th ? 'สมัครสมาชิก / เข้าสู่ระบบ' : 'Register / Log in'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuestRegisterHint(false)}
+                    className="w-full min-h-[44px] py-2.5 text-slate-600 hover:bg-slate-50 font-semibold text-sm rounded-xl transition-colors"
+                  >
+                    {th ? 'ดูต่อโดยไม่สมัคร' : 'Continue browsing'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Points Info Popup */}
       {showPointsInfo && createPortal(

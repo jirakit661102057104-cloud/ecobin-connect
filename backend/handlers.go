@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -127,14 +128,22 @@ func (s *Server) handleState(w http.ResponseWriter, r *http.Request) {
 	var txns []PointTransaction
 	var reds []Redemption
 	var guests []GuestLog
+	var certs []Certificate
 	if me != nil {
 		waste, _ = s.store.listWaste(uid, admin)
 		txns, _ = s.store.listTransactions(uid, admin)
 		reds, _ = s.store.listRedemptions(uid, admin)
+		certs, _ = s.store.listCertificates(uid, admin)
 	} else {
-		waste = []WasteRecord{}
+		// Public home (Guest): campus-wide waste overview, names anonymized
+		waste, _ = s.store.listWaste("", true)
+		for i := range waste {
+			waste[i].UserName = "สมาชิก"
+			waste[i].StudentID = ""
+		}
 		txns = []PointTransaction{}
 		reds = []Redemption{}
+		certs = []Certificate{}
 	}
 	if admin {
 		guests, _ = s.store.listGuestLogs()
@@ -149,6 +158,7 @@ func (s *Server) handleState(w http.ResponseWriter, r *http.Request) {
 		"rewards":       rewards,
 		"transactions":  txns,
 		"redemptions":   reds,
+		"certificates":  certs,
 		"guest_logs":    guests,
 		"bins":          bins,
 		"plastic_types": plastics,
@@ -160,6 +170,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Login     string `json:"login"`
 		Email     string `json:"email"`
+		Phone     string `json:"phone"`
 		Password  string `json:"password"`
 		Code      string `json:"code"`
 		FirstName string `json:"first_name"`
@@ -170,11 +181,22 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
 		return
 	}
-	login := strings.TrimSpace(body.Login)
-	if login == "" {
-		login = strings.TrimSpace(body.Email)
+	username := strings.TrimSpace(body.Login)
+	if username == "" {
+		writeJSON(w, 400, map[string]string{"error": "กรุณากรอกชื่อผู้ใช้"})
+		return
 	}
-	email, sid, provider, err := normalizeRegisterLogin(login)
+	if !usernameRE.MatchString(username) {
+		writeJSON(w, 400, map[string]string{"error": "ชื่อผู้ใช้ต้องมี 4–32 ตัว ใช้ได้เฉพาะ a-z 0-9 จุด และขีดล่าง"})
+		return
+	}
+	username = strings.ToLower(username)
+	email, err := normalizeEmail(body.Email)
+	if err != nil {
+		writeJSON(w, 400, map[string]string{"error": err.Error()})
+		return
+	}
+	phone, err := normalizePhone(body.Phone)
 	if err != nil {
 		writeJSON(w, 400, map[string]string{"error": err.Error()})
 		return
@@ -185,12 +207,16 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 	first := strings.TrimSpace(body.FirstName)
 	last := strings.TrimSpace(body.LastName)
-	if _, err := s.store.getUserByLogin(login); err == nil {
-		writeJSON(w, 409, map[string]string{"error": "ชื่อผู้ใช้หรืออีเมลนี้มีบัญชีอยู่แล้ว"})
+	if _, err := s.store.getUserByLogin(username); err == nil {
+		writeJSON(w, 409, map[string]string{"error": "ชื่อผู้ใช้นี้มีบัญชีอยู่แล้ว"})
 		return
 	}
 	if _, err := s.store.getUserByEmail(email); err == nil {
 		writeJSON(w, 409, map[string]string{"error": "อีเมลนี้มีบัญชีอยู่แล้ว"})
+		return
+	}
+	if _, err := s.store.getUserByPhone(phone); err == nil {
+		writeJSON(w, 409, map[string]string{"error": "เบอร์โทรนี้มีบัญชีอยู่แล้ว"})
 		return
 	}
 	if strings.TrimSpace(body.Code) != "" {
@@ -200,8 +226,8 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	hash, _ := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
-	fullName := first + " " + last
-	u, err := s.insertMember(fullName, sid, email, "", provider, "", strings.TrimSpace(body.AvatarURL), string(hash))
+	fullName := strings.TrimSpace(first + " " + last)
+	u, err := s.insertMember(fullName, username, email, phone, "username", "", strings.TrimSpace(body.AvatarURL), string(hash))
 	if err != nil {
 		writeJSON(w, 409, map[string]string{"error": "ไม่สามารถสร้างบัญชีได้"})
 		return
@@ -218,11 +244,17 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 400, map[string]string{"error": "ข้อมูลไม่ถูกต้อง"})
 		return
 	}
+	if locked, wait := loginGuard.blocked(body.Login); locked {
+		writeJSON(w, 429, map[string]string{"error": fmt.Sprintf("ใส่รหัสผ่านผิดหลายครั้ง กรุณาลองใหม่ในอีก %d นาที", int(wait.Minutes())+1)})
+		return
+	}
 	u, err := s.store.getUserByLogin(strings.TrimSpace(body.Login))
 	if err != nil || bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(body.Password)) != nil {
+		loginGuard.fail(body.Login)
 		writeJSON(w, 401, map[string]string{"error": "ไม่พบบัญชีผู้ใช้ หรือรหัสผ่านไม่ถูกต้อง"})
 		return
 	}
+	loginGuard.reset(body.Login)
 	token, _ := signToken(u.UserID, u.UserRole)
 	s.setAuthCookie(w, token)
 	writeJSON(w, 200, map[string]any{"user": u, "token": token})
@@ -373,6 +405,12 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	if !isPlasticWaterBottleType(body.PlasticType) {
+		writeJSON(w, 400, map[string]string{
+			"error": "ระบบรับเฉพาะขวดน้ำพลาสติกเท่านั้น (ไม่รับกระป๋องหรือขวดชนิดอื่น)",
+		})
+		return
+	}
 	if body.BottleCount < 1 {
 		body.BottleCount = 1
 	}
@@ -394,7 +432,7 @@ func (s *Server) handleCreateWaste(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Teachable Machine classifies on the client; EcoBin awards points immediately.
+	// Teachable Machine classifies on the client; PCRU CFO SAVEPOINT awards points immediately.
 	// Carbon uses CMH-style mass×EF with TGO factors (circularmaterialhub.com/Calculate.php).
 	carbonCalc := s.store.carbonForPlastic(body.PlasticType, body.BottleCount, body.WeightKg)
 	points := body.BottleCount * carbonCalc.PointsPerBottle
@@ -738,19 +776,24 @@ func (s *Server) handleRedeem(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, 500, map[string]string{"error": "ไม่พบบัญชี"})
 		return
 	}
+	// Checkpoint model: points are cumulative and never deducted.
+	// Reaching a reward's threshold unlocks it; each checkpoint can be claimed once.
 	if points < reward.PointsRequired {
-		writeJSON(w, 409, map[string]string{"error": "แต้มสะสมไม่เพียงพอ"})
+		writeJSON(w, 409, map[string]string{"error": fmt.Sprintf("ยังสะสมแต้มไม่ถึงเช็คพอยต์ (ต้องการ %d แต้ม)", reward.PointsRequired)})
+		return
+	}
+	var claimed int
+	_ = tx.QueryRow(`SELECT COUNT(*) FROM redemptions WHERE user_id=? AND reward_id=? AND redeem_status<>'ยกเลิก' AND delete_at IS NULL`, me.UserID, id).Scan(&claimed)
+	if claimed > 0 {
+		writeJSON(w, 409, map[string]string{"error": "รับของรางวัลเช็คพอยต์นี้ไปแล้ว"})
 		return
 	}
 	pickup := newID("PCRU-ECO-")
 	redeemID := newID("RDM")
 	now := time.Now()
-	_, _ = tx.Exec(`UPDATE users SET total_points = total_points - ? WHERE user_id=? AND delete_at IS NULL`, reward.PointsRequired, me.UserID)
 	_, _ = tx.Exec(`UPDATE rewards SET reward_stock = reward_stock - 1 WHERE reward_id=? AND delete_at IS NULL`, id)
 	_, _ = tx.Exec(`INSERT INTO redemptions (redeem_id, user_id, reward_id, points_used, redeem_date, redeem_status, pickup_code, created_by)
-		VALUES (?,?,?,?,?,'รอรับของรางวัล',?,?)`, redeemID, me.UserID, id, reward.PointsRequired, now, pickup, me.UserID)
-	_, _ = tx.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
-		VALUES (?,?,NULL,?,'redeem',?,?,?)`, newID("TXN"), me.UserID, -reward.PointsRequired, "แลกของรางวัล: "+reward.RewardName, now, me.UserID)
+		VALUES (?,?,?,0,?,'รอรับของรางวัล',?,?)`, redeemID, me.UserID, id, now, pickup, me.UserID)
 	if err := tx.Commit(); err != nil {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกไม่สำเร็จ"})
 		return
@@ -766,7 +809,7 @@ func (s *Server) handleRedeem(w http.ResponseWriter, r *http.Request) {
 			RewardID:     reward.RewardID,
 			RewardName:   reward.RewardName,
 			RewardImage:  reward.RewardImage,
-			PointsUsed:   reward.PointsRequired,
+			PointsUsed:   0,
 			RedeemDate:   fmtTime(now),
 			RedeemStatus: "รอรับของรางวัล",
 			PickupCode:   pickup,
@@ -961,7 +1004,6 @@ func (s *Server) handleAdminRelations(w http.ResponseWriter, r *http.Request) {
 			{"parent": "users", "child": "point_transactions", "join": "users.user_id = point_transactions.user_id", "meaning": "หนึ่งผู้ใช้มีหลายรายการแต้ม"},
 			{"parent": "users", "child": "redemptions", "join": "users.user_id = redemptions.user_id", "meaning": "หนึ่งผู้ใช้แลกของได้หลายครั้ง"},
 			{"parent": "rewards", "child": "redemptions", "join": "rewards.reward_id = redemptions.reward_id", "meaning": "หนึ่งของรางวัลถูกแลกได้หลายครั้ง"},
-			{"parent": "smart_bins", "child": "waste_records", "join": "smart_bins.bin_id = waste_records.bin_id", "meaning": "หนึ่งจุดทิ้งมีหลายรายการ"},
 			{"parent": "plastic_types", "child": "waste_records", "join": "plastic_types.plastic_code = waste_records.plastic_code", "meaning": "หนึ่งประเภทพลาสติกมีหลายรายการ"},
 		},
 		"users_1m":   users,
@@ -986,6 +1028,26 @@ func (s *Server) handleAdminUserChildren(w http.ResponseWriter, r *http.Request)
 		"point_transactions": txns,
 		"redemptions":        reds,
 	})
+}
+
+// isPlasticWaterBottleType accepts only PET / plastic water bottles (product rule).
+func isPlasticWaterBottleType(plasticType string) bool {
+	t := strings.ToLower(strings.TrimSpace(plasticType))
+	if t == "" {
+		return false
+	}
+	if strings.Contains(t, "can") ||
+		strings.Contains(t, "กระป๋อง") ||
+		strings.Contains(t, "hdpe") ||
+		strings.Contains(t, "ขวดนม") ||
+		strings.Contains(t, "aluminum") ||
+		strings.Contains(t, "aluminium") {
+		return false
+	}
+	return strings.Contains(t, "pet") ||
+		strings.Contains(t, "ขวดน้ำ") ||
+		strings.Contains(t, "ขวดพลาสติก") ||
+		strings.Contains(t, "plastic")
 }
 
 var _ = sql.ErrNoRows

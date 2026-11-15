@@ -44,43 +44,36 @@ export function classificationFromLabel(
   probability: number,
 ): RealtimeClassification {
   const normalized = className.trim().toLowerCase();
-  const isDirectBottle = normalized === 'plastic_bottle' || normalized === 'plastic bottle';
-  const isDirectCan = normalized === 'can';
   const isDirectInvalid = normalized === 'invalid' || INVALID_LABELS.some((label) => normalized.includes(label));
-  const isHDPE = normalized.includes('hdpe');
-  const isPET = normalized.includes('pet') && !normalized.includes('hdpe');
-  const isPlasticBottle =
-    isDirectBottle ||
-    isPET ||
-    isHDPE ||
-    normalized === 'plastic: recyclable' ||
-    normalized.includes('plastic_bottle') ||
-    normalized.includes('plastic bottle') ||
-    normalized.includes('ขวดพลาสติก');
+  const isHDPE = normalized.includes('hdpe') || normalized.includes('ขวดนม');
   const isCan =
-    isDirectCan ||
+    normalized === 'can' ||
     normalized === 'metal: recyclable' ||
     /(^|[\s_-])can(s)?($|[\s_-])/.test(normalized) ||
     normalized.includes('aluminium') ||
     normalized.includes('aluminum') ||
     normalized.includes('กระป๋อง');
-  const explicitlyInvalid = isDirectInvalid && !isPlasticBottle && !isCan;
-  const countMatch = normalized.match(/(\d+)\s*(?:ขวด|bottles?|กระป๋อง|cans?)/i);
+  const isPET = (normalized.includes('pet') || normalized.includes('ขวดน้ำ')) && !isHDPE;
+  const isPlasticWaterBottle =
+    !isCan &&
+    !isHDPE &&
+    (normalized === 'plastic_bottle' ||
+      normalized === 'plastic bottle' ||
+      isPET ||
+      normalized === 'plastic: recyclable' ||
+      normalized.includes('plastic_bottle') ||
+      normalized.includes('plastic bottle') ||
+      normalized.includes('ขวดพลาสติก') ||
+      normalized.includes('ขวดน้ำ'));
+  const explicitlyInvalid = isDirectInvalid || isCan || isHDPE || !isPlasticWaterBottle;
+  const countMatch = normalized.match(/(\d+)\s*(?:ขวด|bottles?)/i);
 
   return {
     className,
     confidence: Math.round(probability * 1000) / 10,
-    valid: !explicitlyInvalid && (isPlasticBottle || isCan),
-    plasticTypeTH: isCan
-      ? 'กระป๋องอะลูมิเนียม'
-      : isPlasticBottle
-        ? 'ขวดพลาสติก'
-        : 'ไม่ผ่าน',
-    plasticTypeEN: isCan
-      ? 'CAN'
-      : isPlasticBottle
-        ? 'PLASTIC_BOTTLE'
-        : 'INVALID',
+    valid: !explicitlyInvalid && isPlasticWaterBottle,
+    plasticTypeTH: isPlasticWaterBottle ? 'ขวดน้ำพลาสติก' : 'ไม่ผ่าน',
+    plasticTypeEN: isPlasticWaterBottle ? 'PET' : 'INVALID',
     bottleCount: countMatch ? Math.max(1, Number(countMatch[1])) : 1,
   };
 }

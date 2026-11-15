@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
 import { redeemQrImageUrl } from '../lib/redeemQr';
+import { APP_NAME } from '../lib/brand';
 import { 
   User as UserIcon, 
   Globe, 
@@ -173,7 +174,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     {
       id: 'docs3r' as const,
       title: 'Document 3Rs & คู่มือวิชาการ',
-      desc: language === 'th' ? 'เอกสารมาตรฐานการคัดแยก 3Rs ค่าสัมประสิทธิ์คาร์บอน และแผนผังตู้ขยะ' : '3Rs guidelines, emission factors, and smart bin map',
+      desc: language === 'th' ? 'เอกสารมาตรฐานการคัดแยก 3Rs และค่าสัมประสิทธิ์คาร์บอน' : '3Rs guidelines and emission factors',
       icon: BookOpen,
       badge: '3 เอกสาร',
       color: 'text-amber-600 bg-amber-50 border-amber-100'
@@ -275,7 +276,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Footer Info */}
       <div className="flex items-center justify-center sm:justify-start gap-2 px-2 text-xs text-slate-500">
         <GraduationCap className="w-4 h-4 text-emerald-700" />
-        <span>EcoBin Connect • {language === 'th' ? 'โครงการวิจัย มรภ.เพชรบูรณ์ 2568' : 'PCRU Research Project 2025'}</span>
+        <span>{APP_NAME} • {language === 'th' ? 'โครงการวิจัย มรภ.เพชรบูรณ์ 2568' : 'PCRU Research Project 2025'}</span>
       </div>
 
 
@@ -669,7 +670,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                       subtitle: language === 'th' ? 'องค์การบริหารจัดการก๊าซเรือนกระจก (องค์การมหาชน) - TGO' : 'Thailand Greenhouse Gas Management Organization - TGO',
                       content: (
                         <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
-                          <p>{language === 'th' ? 'สูตรการคำนวณการลดก๊าซเรือนกระจกในระบบ EcoBin PCRU:' : 'Calculation formula for EcoBin PCRU system:'}</p>
+                          <p>{language === 'th' ? `สูตรการคำนวณการลดก๊าซเรือนกระจกในระบบ ${APP_NAME}:` : `Calculation formula for ${APP_NAME}:`}</p>
                           <div className="p-3 bg-slate-100 rounded-xl font-mono text-slate-800 text-xs">
                             Carbon_Saved (kg CO₂e) = Bottle_Count × 0.08 kg CO₂e
                           </div>
@@ -868,7 +869,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">
                 <h4 className="font-bold text-slate-900 text-xs">{language === 'th' ? '1. ข้อมูลที่เราเก็บรวบรวม' : '1. Data We Collect'}</h4>
                 <p>• {language === 'th' ? 'ข้อมูลระบุตัวตน: ชื่อ-นามสกุล, รหัสนักศึกษา, อีเมลมหาวิทยาลัย และคณะ/สังกัด' : 'Identity: Name, Student ID, Email, Department'}</p>
-                <p>• {language === 'th' ? 'ข้อมูลกิจกรรม: ภาพถ่ายขวดพลาสติกเพื่อตรวจสอบ, จุดทิ้งขยะ (Bin Location), และแต้มสะสม' : 'Activity: Photos of sorted waste, Bin Location, Points'}</p>
+                <p>• {language === 'th' ? 'ข้อมูลกิจกรรม: ภาพถ่ายขวดพลาสติกเพื่อตรวจสอบ และแต้มสะสม' : 'Activity: Photos of sorted waste and points'}</p>
               </div>
 
               <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-1">

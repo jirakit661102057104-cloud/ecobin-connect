@@ -1,4 +1,4 @@
-// Package domain holds EcoBin domain entities (DB-facing).
+// Package domain holds PCRU CFO SAVEPOINT domain entities (DB-facing).
 // Keep JSON/API concerns in dto + mapping packages.
 package domain
 

@@ -1,6 +1,6 @@
 # `internal/` — Layered Architecture (กำลัง migrate)
 
-โครงสร้างเป้าหมายของ Backend EcoBin Connect  
+โครงสร้างเป้าหมายของ Backend PCRU CFO SAVEPOINT Connect  
 **Entry จริงยังอยู่ที่** `backend/main.go` (Cloud Run / `go run .`)
 
 ดูคู่มือเต็ม: [`docs/guides/08-go-layered-architecture.md`](../../docs/guides/08-go-layered-architecture.md)

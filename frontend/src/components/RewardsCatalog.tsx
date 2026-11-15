@@ -22,7 +22,7 @@ interface RewardsCatalogProps {
 }
 
 export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, setActiveTab }) => {
-  const { currentUser, rewards, redeemReward, language } = useApp();
+  const { currentUser, rewards, redemptions, redeemReward, language } = useApp();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('ทั้งหมด');
   const [selectedRewardToRedeem, setSelectedRewardToRedeem] = useState<Reward | null>(null);
@@ -49,9 +49,24 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
 
   const currentThCat = language === 'th' ? selectedCategory : enToThCatMap[selectedCategory] || 'ทั้งหมด';
 
-  const filteredRewards = currentThCat === 'ทั้งหมด' 
-    ? rewards 
-    : rewards.filter(r => r.category === currentThCat);
+  // Checkpoint model: points accumulate and are never deducted.
+  // Each reward is a checkpoint at `points_required`; it can be claimed once.
+  const userPoints = currentUser ? currentUser.total_points : 0;
+  const claimedRewardIds = new Set(
+    currentUser
+      ? redemptions
+          .filter(r => r.user_id === currentUser.user_id && r.redeem_status !== 'ยกเลิก')
+          .map(r => r.reward_id)
+      : []
+  );
+  const checkpoints = [...rewards].sort((a, b) => a.points_required - b.points_required);
+  const maxCheckpoint = checkpoints.length ? checkpoints[checkpoints.length - 1].points_required : 0;
+  const nextCheckpoint = checkpoints.find(r => r.points_required > userPoints);
+  const progressPct = maxCheckpoint > 0 ? Math.min(100, (userPoints / maxCheckpoint) * 100) : 0;
+
+  const filteredRewards = currentThCat === 'ทั้งหมด'
+    ? checkpoints
+    : checkpoints.filter(r => r.category === currentThCat);
 
   const handleOpenRedeemModal = (reward: Reward) => {
     if (!currentUser) {
@@ -75,19 +90,68 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
 
   return (
     <div className="space-y-5">
-      {/* Guest Notice */}
+      {/* Guest: browse catalog only — no redeem / PR certificate */}
       {!currentUser && (
-        <div className="bg-amber-50/80 border border-amber-200/70 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs text-amber-950">
-          <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>{language === 'th' ? 'เข้าสู่ระบบเพื่อแลกของรางวัล' : 'Login to redeem rewards'}</span>
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs text-slate-700">
+          <div className="flex items-center gap-2 min-w-0">
+            <Lock className="w-4 h-4 text-slate-500 shrink-0" />
+            <span>
+              {language === 'th'
+                ? 'Guest ดูรายการของรางวัลได้เท่านั้น — ไม่แลกของ และไม่มีเกียรติบัตร/จุด PR'
+                : 'Guests can browse rewards only — no redeem and no certificate/PR'}
+            </span>
           </div>
           <button
             onClick={openAuthModal}
-            className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition-colors shrink-0 cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shrink-0 cursor-pointer"
           >
             {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
           </button>
+        </div>
+      )}
+
+      {/* Checkpoint progress */}
+      {checkpoints.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-emerald-800">
+              <Sparkles className="w-4 h-4" />
+              <h3 className="text-sm font-bold">{language === 'th' ? 'เส้นทางสะสมแต้ม' : 'Points Journey'}</h3>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-bold text-amber-700">
+              <Coins className="w-3.5 h-3.5 fill-amber-400" />
+              <span>{userPoints.toLocaleString()} {language === 'th' ? 'แต้มสะสม' : 'pts'}</span>
+            </div>
+          </div>
+          <div className="relative h-2.5 bg-slate-100 rounded-full mx-2">
+            <div className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+            {checkpoints.map((cp) => {
+              const reached = userPoints >= cp.points_required;
+              const left = maxCheckpoint > 0 ? (cp.points_required / maxCheckpoint) * 100 : 0;
+              return (
+                <div
+                  key={cp.reward_id}
+                  title={`${cp.points_required} · ${cp.reward_name}`}
+                  className={`absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow ${
+                    claimedRewardIds.has(cp.reward_id) ? 'bg-slate-400' : reached ? 'bg-emerald-600' : 'bg-slate-300'
+                  }`}
+                  style={{ left: `${left}%` }}
+                />
+              );
+            })}
+          </div>
+          <p className="text-xs text-slate-600">
+            {!currentUser
+              ? (language === 'th' ? 'เข้าสู่ระบบเพื่อเริ่มสะสมแต้มและรับของรางวัลตามเช็คพอยต์' : 'Log in to collect points and unlock checkpoint rewards')
+              : nextCheckpoint
+              ? (language === 'th'
+                  ? `อีก ${(nextCheckpoint.points_required - userPoints).toLocaleString()} แต้ม ถึงเช็คพอยต์ถัดไป: ${nextCheckpoint.reward_name}`
+                  : `${(nextCheckpoint.points_required - userPoints).toLocaleString()} pts to next checkpoint: ${nextCheckpoint.reward_name}`)
+              : (language === 'th' ? 'ยินดีด้วย! คุณผ่านทุกเช็คพอยต์แล้ว' : 'Congrats! You reached every checkpoint')}
+            <span className="block text-[11px] text-slate-400 mt-0.5">
+              {language === 'th' ? 'รับของรางวัลแล้วแต้มไม่ถูกหัก — สะสมต่อเพื่อปลดล็อกเช็คพอยต์ถัดไป' : 'Claiming does not deduct points — keep collecting to unlock the next checkpoint'}
+            </span>
+          </p>
         </div>
       )}
 
@@ -112,8 +176,8 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
       {/* Rewards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {filteredRewards.map((reward) => {
-          const userPoints = currentUser ? currentUser.total_points : 0;
           const canAfford = userPoints >= reward.points_required;
+          const isClaimed = claimedRewardIds.has(reward.reward_id);
           const isOutOfStock = reward.reward_stock <= 0;
 
           return (
@@ -155,8 +219,8 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                     {/* Points Pill */}
                     <div className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md text-xs">
                       <Coins className="w-3 h-3 text-amber-500 fill-amber-400" />
-                      <span>{reward.points_required}</span>
-                      <span className="text-[10px] font-normal">{language === 'th' ? 'แต้ม' : 'pts'}</span>
+                      <span className="text-[10px] font-normal">{language === 'th' ? 'เช็คพอยต์' : 'Checkpoint'}</span>
+                      <span>{reward.points_required.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -174,22 +238,30 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                   <button
                     id={`redeem-btn-${reward.reward_id}`}
                     onClick={() => handleOpenRedeemModal(reward)}
-                    disabled={isOutOfStock}
+                    disabled={isOutOfStock || isClaimed || (!!currentUser && !canAfford)}
                     className={`w-full py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      isOutOfStock
+                      isClaimed
+                        ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
+                        : isOutOfStock
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : !currentUser
+                        ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                         : canAfford
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        : 'bg-slate-100 text-slate-500 cursor-not-allowed'
                     }`}
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
+                    {isClaimed ? <CheckCircle2 className="w-3.5 h-3.5" /> : !currentUser || !canAfford ? <Lock className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
                     <span>
-                      {isOutOfStock 
+                      {isClaimed
+                        ? (language === 'th' ? 'รับของรางวัลแล้ว' : 'Claimed')
+                        : isOutOfStock
                         ? (language === 'th' ? 'สินค้าหมด' : 'Out of Stock')
-                        : canAfford 
-                        ? (language === 'th' ? 'แลกของรางวัล' : 'Redeem Reward')
-                        : (language === 'th' ? `ขาดอีก ${reward.points_required - userPoints} แต้ม` : `Need ${reward.points_required - userPoints} more pts`)}
+                        : !currentUser
+                        ? (language === 'th' ? 'ดูอย่างเดียว · เข้าสู่ระบบเพื่อแลก' : 'Browse only · login to redeem')
+                        : canAfford
+                        ? (language === 'th' ? 'ถึงเช็คพอยต์แล้ว · รับของรางวัล' : 'Checkpoint reached · Claim')
+                        : (language === 'th' ? `สะสมอีก ${(reward.points_required - userPoints).toLocaleString()} แต้ม` : `Collect ${(reward.points_required - userPoints).toLocaleString()} more pts`)}
                     </span>
                   </button>
                 </div>
@@ -223,7 +295,7 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 text-emerald-800">
                     <Gift className="w-5 h-5" />
-                    <h3 className="text-base font-bold">{language === 'th' ? 'ยืนยันการแลกของรางวัล' : 'Confirm Redemption'}</h3>
+                    <h3 className="text-base font-bold">{language === 'th' ? 'ยืนยันรับของรางวัลเช็คพอยต์' : 'Claim Checkpoint Reward'}</h3>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
@@ -238,7 +310,7 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                       </h4>
                       <div className="flex items-center gap-1 mt-1 text-xs font-bold text-amber-700">
                         <Coins className="w-3.5 h-3.5 fill-amber-400" />
-                        <span>{language === 'th' ? `ใช้ ${selectedRewardToRedeem.points_required} แต้ม` : `${selectedRewardToRedeem.points_required} pts`}</span>
+                        <span>{language === 'th' ? `เช็คพอยต์ ${selectedRewardToRedeem.points_required.toLocaleString()} แต้ม` : `Checkpoint ${selectedRewardToRedeem.points_required.toLocaleString()} pts`}</span>
                       </div>
                     </div>
                   </div>
@@ -246,16 +318,13 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                   {/* Points breakdown */}
                   <div className="bg-emerald-50/60 p-3.5 rounded-2xl border border-emerald-100 text-xs space-y-1.5">
                     <div className="flex justify-between text-slate-600">
-                      <span>{language === 'th' ? 'แต้มปัจจุบัน:' : 'Current balance:'}</span>
-                      <strong className="text-slate-900">{currentUser?.total_points} {language === 'th' ? 'แต้ม' : 'pts'}</strong>
+                      <span>{language === 'th' ? 'แต้มสะสม:' : 'Collected points:'}</span>
+                      <strong className="text-slate-900">{userPoints.toLocaleString()} {language === 'th' ? 'แต้ม' : 'pts'}</strong>
                     </div>
-                    <div className="flex justify-between text-rose-600">
-                      <span>{language === 'th' ? 'ใช้แต้ม:' : 'Points to use:'}</span>
-                      <strong>-{selectedRewardToRedeem.points_required} {language === 'th' ? 'แต้ม' : 'pts'}</strong>
-                    </div>
-                    <div className="pt-1.5 border-t border-emerald-100 flex justify-between font-bold text-emerald-900">
-                      <span>{language === 'th' ? 'คงเหลือ:' : 'Remaining:'}</span>
-                      <span>{(currentUser?.total_points || 0) - selectedRewardToRedeem.points_required} {language === 'th' ? 'แต้ม' : 'pts'}</span>
+                    <div className="pt-1.5 border-t border-emerald-100 text-emerald-900 font-semibold">
+                      {language === 'th'
+                        ? 'แต้มไม่ถูกหัก — รับได้ 1 ครั้งต่อเช็คพอยต์'
+                        : 'Points are not deducted — one claim per checkpoint'}
                     </div>
                   </div>
 
@@ -277,7 +346,7 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                       ) : (
                         <>
                           <Check className="w-4 h-4" />
-                          <span>{language === 'th' ? 'ยืนยันการแลก' : 'Confirm Redeem'}</span>
+                          <span>{language === 'th' ? 'ยืนยันรับของรางวัล' : 'Confirm Claim'}</span>
                         </>
                       )}
                     </button>
@@ -291,7 +360,7 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                   </div>
 
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">{language === 'th' ? 'แลกของรางวัลสำเร็จ' : 'Redemption Successful'}</h3>
+                    <h3 className="text-base font-bold text-slate-900">{language === 'th' ? 'รับของรางวัลเช็คพอยต์สำเร็จ' : 'Checkpoint Reward Claimed'}</h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {language === 'th' ? 'แสดง QR นี้ให้แอดมินสแกนที่จุดรับของ' : 'Show this QR to admin at the pickup point.'}
                     </p>
@@ -300,7 +369,7 @@ export const RewardsCatalog: React.FC<RewardsCatalogProps> = ({ openAuthModal, s
                   {/* Voucher Card */}
                   <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 text-left space-y-2.5">
                     <div className="flex items-center justify-between border-b border-emerald-200/60 pb-1.5">
-                      <span className="text-[11px] text-emerald-800 font-semibold">PCRU Eco Voucher</span>
+                      <span className="text-[11px] text-emerald-800 font-semibold">PCRU CFO SAVEPOINT Voucher</span>
                       <span className="text-[10px] font-mono text-emerald-900 font-bold">
                         {redemptionResult.redeem_id}
                       </span>

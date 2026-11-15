@@ -46,6 +46,9 @@ func migrateSoftDelete(db *sql.DB) error {
 	if err := migrateNameFields(db); err != nil {
 		return err
 	}
+	if err := migrateUsernameAuth(db); err != nil {
+		return err
+	}
 	if err := migrateAppSettings(db); err != nil {
 		return err
 	}
@@ -64,6 +67,59 @@ func migrateSoftDelete(db *sql.DB) error {
 	if err := migrateImageProvenance(db); err != nil {
 		return err
 	}
+	if err := migrateCertificates(db); err != nil {
+		return err
+	}
+	if err := migrateStoredFiles(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+// migrateStoredFiles keeps uploaded images in the database so they survive
+// container restarts/redeploys on hosts with ephemeral disks.
+func migrateStoredFiles(db *sql.DB) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS stored_files (
+		file_name VARCHAR(128) PRIMARY KEY COMMENT 'ชื่อไฟล์ที่ใช้ใน URL /uploads/<file_name>',
+		content_type VARCHAR(40) NOT NULL DEFAULT 'image/jpeg',
+		data MEDIUMBLOB NOT NULL COMMENT 'เนื้อไฟล์รูป',
+		size_bytes INT NOT NULL DEFAULT 0,
+		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ไฟล์รูปที่อัปโหลด (เก็บในฐานข้อมูล)'`)
+	if err != nil {
+		return fmt.Errorf("migrateStoredFiles: %w", err)
+	}
+	log.Println("stored_files table ready")
+	return nil
+}
+
+func migrateCertificates(db *sql.DB) error {
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS certificates (
+		certificate_id VARCHAR(40) PRIMARY KEY,
+		user_id VARCHAR(32) NOT NULL,
+		issued_by VARCHAR(32) NOT NULL,
+		issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		admin_message VARCHAR(500) NOT NULL DEFAULT '',
+		full_name_snapshot VARCHAR(120) NOT NULL,
+		department_snapshot VARCHAR(200) NOT NULL DEFAULT '',
+		credits_tco2e DECIMAL(12,6) NOT NULL DEFAULT 0,
+		avoided_kg DECIMAL(12,4) NOT NULL DEFAULT 0,
+		footprint_kg DECIMAL(12,4) NOT NULL DEFAULT 0,
+		bottles INT NOT NULL DEFAULT 0,
+		approved_count INT NOT NULL DEFAULT 0,
+		points INT NOT NULL DEFAULT 0,
+		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		created_by VARCHAR(32) NULL,
+		delete_at DATETIME NULL,
+		delete_by VARCHAR(32) NULL,
+		KEY idx_cert_user (user_id),
+		KEY idx_cert_deleted (delete_at)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+	  COMMENT='เกียรติบัตรคาร์บอนที่แอดมินออกให้สมาชิกในระบบ'`)
+	if err != nil {
+		return fmt.Errorf("migrateCertificates: %w", err)
+	}
+	log.Println("certificates table ready")
 	return nil
 }
 
@@ -347,15 +403,15 @@ func migrateNameFields(db *sql.DB) error {
 
 func migrateAuthProviders(db *sql.DB) error {
 	if err := addColumnIfMissing(db, "users", "phone",
-		"VARCHAR(20) NULL COMMENT 'เบอร์โทรศัพท์'"); err != nil {
+		"VARCHAR(20) NULL COMMENT 'เบอร์โทร 10 หลัก'"); err != nil {
 		return err
 	}
 	if err := addColumnIfMissing(db, "users", "auth_provider",
-		"VARCHAR(20) NOT NULL DEFAULT 'email' COMMENT 'email / phone / google'"); err != nil {
+		"VARCHAR(20) NOT NULL DEFAULT 'username' COMMENT 'username | email | phone | google(legacy)'"); err != nil {
 		return err
 	}
 	if err := addColumnIfMissing(db, "users", "google_sub",
-		"VARCHAR(64) NULL COMMENT 'Google subject'"); err != nil {
+		"VARCHAR(64) NULL COMMENT 'Google subject (legacy)'"); err != nil {
 		return err
 	}
 	// Google avatar URLs can exceed 500 chars with query params.
@@ -366,8 +422,44 @@ func migrateAuthProviders(db *sql.DB) error {
 		expires_at DATETIME NOT NULL,
 		created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
-	log.Println("auth provider columns ready (phone, google)")
+	log.Println("auth provider columns ready (phone, username/email)")
 	return nil
+}
+
+func migrateUsernameAuth(db *sql.DB) error {
+	if err := addColumnIfMissing(db, "users", "username",
+		"VARCHAR(32) NULL COMMENT 'ชื่อผู้ใช้เข้าสู่ระบบ (a-z 0-9 ._ )'"); err != nil {
+		return err
+	}
+	ensureUniqueIndex(db, "users", "uq_users_username", "username")
+	ensureUniqueIndex(db, "users", "uq_users_phone", "phone")
+	_, _ = db.Exec(`ALTER TABLE users MODIFY COLUMN auth_provider VARCHAR(20) NOT NULL DEFAULT 'username' COMMENT 'username | email | phone | google(legacy)'`)
+	// Backfill username from prior username-style accounts
+	_, _ = db.Exec(`UPDATE users SET username = LOWER(student_id)
+		WHERE username IS NULL AND (
+			auth_provider = 'username'
+			OR email LIKE '%@users.ecobin.local'
+			OR student_id REGEXP '^[A-Za-z][A-Za-z0-9._]{3,31}$'
+		)`)
+	log.Println("username auth column ready")
+	return nil
+}
+
+func ensureUniqueIndex(db *sql.DB, table, indexName, column string) {
+	var n int
+	err := db.QueryRow(`
+		SELECT COUNT(*) FROM information_schema.statistics
+		WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?`,
+		table, indexName).Scan(&n)
+	if err != nil || n > 0 {
+		return
+	}
+	_, err = db.Exec(fmt.Sprintf("CREATE UNIQUE INDEX `%s` ON `%s` (`%s`)", indexName, table, column))
+	if err != nil {
+		log.Printf("ensure unique index %s: %v", indexName, err)
+		return
+	}
+	log.Printf("added unique index %s.%s", table, indexName)
 }
 
 func addColumnIfMissing(db *sql.DB, table, column, definition string) error {

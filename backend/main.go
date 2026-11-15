@@ -15,7 +15,7 @@ import (
 func main() {
 	loadBackendEnv()
 	requireSecureSecrets()
-	log.Println("starting EcoBin API…")
+	log.Println("starting PCRU CFO SAVEPOINT API…")
 	db, err := openDB()
 	if err != nil {
 		log.Fatal(err)
@@ -50,7 +50,7 @@ func main() {
 	}))
 
 	r.Get("/health", s.handleHealth)
-	r.Handle("/uploads/*", http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir))))
+	r.Get("/uploads/*", s.handleUpload(http.StripPrefix("/uploads/", http.FileServer(http.Dir(uploadDir)))))
 
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/state", s.handleState)
@@ -101,6 +101,7 @@ func main() {
 			r.Put("/admin/bins/{id}", s.handleAdminUpdateBin)
 			r.Delete("/admin/bins/{id}", s.handleAdminDeleteBin)
 			r.Patch("/admin/users/{id}", s.handleAdminPatchUser)
+			r.Post("/admin/users/{id}/certificate", s.handleAdminSendCertificate)
 			r.Delete("/admin/users/{id}", s.handleAdminDeleteUser)
 			r.Post("/admin/plastics", s.handleAdminCreatePlastic)
 			r.Put("/admin/plastics/{id}", s.handleAdminUpdatePlastic)
@@ -112,6 +113,6 @@ func main() {
 	if addr == "" {
 		addr = ":8080"
 	}
-	log.Printf("EcoBin API listening on %s (%s)", addr, os.Getenv("APP_ENV"))
+	log.Printf("PCRU CFO SAVEPOINT API listening on %s (%s)", addr, os.Getenv("APP_ENV"))
 	log.Fatal(http.ListenAndServe(addr, http.MaxBytesHandler(r, 12<<20)))
 }

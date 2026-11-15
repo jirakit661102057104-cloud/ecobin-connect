@@ -1,10 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, WasteRecord, PointTransaction, Reward, RedemptionSimulation, LocalStorageLog, UserRole, SmartBin, AppSettings, PlasticType } from '../types';
+import { User, WasteRecord, PointTransaction, Reward, RedemptionSimulation, LocalStorageLog, UserRole, SmartBin, AppSettings, PlasticType, Certificate } from '../types';
 import confetti from 'canvas-confetti';
 import { api, mediaUrl } from '../lib/api';
 import { DEMO_LOGIN, allowGuestBrowse, clearGuestBrowse } from '../lib/config';
+import { INITIAL_REWARDS } from '../data/mockData';
+import { APP_NAME } from '../lib/brand';
 
 interface Toast {
   id: string;
@@ -20,6 +22,7 @@ interface AppStatePayload {
   rewards: Reward[];
   transactions: PointTransaction[];
   redemptions: RedemptionSimulation[];
+  certificates?: Certificate[];
   guest_logs: LocalStorageLog[];
   bins?: SmartBin[];
   plastic_types?: PlasticType[];
@@ -35,12 +38,14 @@ interface AppContextType {
   rewards: Reward[];
   transactions: PointTransaction[];
   redemptions: RedemptionSimulation[];
+  certificates: Certificate[];
   guestLogs: LocalStorageLog[];
   bins: SmartBin[];
   plasticTypes: PlasticType[];
   settings: AppSettings;
   toasts: Toast[];
   language: 'th' | 'en';
+  refreshState: () => Promise<void>;
   setLanguage: (lang: 'th' | 'en') => void;
   setCurrentUser: (user: User | null) => void;
   switchUser: (userId: string) => Promise<void>;
@@ -49,8 +54,10 @@ interface AppContextType {
   registerUser: (payload: {
     login: string;
     password: string;
-    first_name: string;
-    last_name: string;
+    email: string;
+    phone: string;
+    first_name?: string;
+    last_name?: string;
     avatar_url?: string;
   }) => Promise<boolean>;
   loginUser: (emailOrStudentId: string, pass: string) => Promise<boolean>;
@@ -60,7 +67,7 @@ interface AppContextType {
   checkPhoneOTP: (phone: string, code: string) => Promise<boolean>;
   checkEmailOTP: (email: string, code: string) => Promise<boolean>;
   verifyPhone: (data: { phone: string; code: string; password?: string }) => Promise<'ok' | 'error'>;
-  updateUserProfile: (data: Partial<User>) => Promise<boolean>;
+  updateUserProfile: (data: Partial<User>, opts?: { silent?: boolean }) => Promise<boolean>;
   uploadAvatar: (imageData: string) => Promise<string | null>;
   logout: () => Promise<void>;
   addWasteRecord: (data: {
@@ -140,9 +147,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguageState] = useState<'th' | 'en'>('th');
   const [users, setUsers] = useState<User[]>([]);
   const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>(INITIAL_REWARDS);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
   const [redemptions, setRedemptions] = useState<RedemptionSimulation[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [guestLogs, setGuestLogs] = useState<LocalStorageLog[]>([]);
   const [bins, setBins] = useState<SmartBin[]>([]);
   const [plasticTypes, setPlasticTypes] = useState<PlasticType[]>([]);
@@ -161,9 +169,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentUserState(mapUser(data.user));
     setUsers(mapUsers(data.users));
     setWasteRecords(mapWaste(data.waste_records));
-    setRewards(data.rewards || []);
+    setRewards(data.rewards?.length ? data.rewards : INITIAL_REWARDS);
     setTransactions(data.transactions || []);
     setRedemptions(data.redemptions || []);
+    setCertificates(data.certificates || []);
     setGuestLogs(mapGuests(data.guest_logs));
     setBins(data.bins || []);
     setPlasticTypes(data.plastic_types || []);
@@ -174,10 +183,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const data = await api<AppStatePayload>('/api/state');
       applyState(data);
-      // Stale cookie after JWT rotate / expired session: clear so login is usable.
+      // Stale JWT: clear session cookie only — keep Guest browse so `/` stays the public home
       if (!data.user) {
         await api('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
-        clearGuestBrowse();
       }
     } catch {
       // API offline — keep empty guest view
@@ -227,7 +235,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (data.user?.needs_profile) {
         addToast('info', 'สมัครด้วย Google สำเร็จ', 'กรุณากรอกชื่อและนามสกุลเพื่อเข้าใช้งาน');
       } else {
-        addToast('success', 'เข้าสู่ระบบด้วย Google', 'ยินดีต้อนรับสู่ EcoBin Connect');
+        addToast('success', 'เข้าสู่ระบบด้วย Google', `ยินดีต้อนรับสู่ ${APP_NAME}`);
       }
       return true;
     } catch (e) {
@@ -303,7 +311,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (res.user?.needs_profile) {
         addToast('info', 'ยืนยันเบอร์สำเร็จ', 'กรุณากรอกชื่อและนามสกุลเพื่อเข้าใช้งาน');
       } else {
-        addToast('success', 'เข้าสู่ระบบด้วยเบอร์โทร', 'ยินดีต้อนรับสู่ EcoBin Connect');
+        addToast('success', 'เข้าสู่ระบบด้วยเบอร์โทร', `ยินดีต้อนรับสู่ ${APP_NAME}`);
       }
       return 'ok';
     } catch (e) {
@@ -320,7 +328,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       await refreshState();
       clearGuestBrowse();
-      addToast('success', 'เข้าสู่ระบบสำเร็จ', 'ยินดีต้อนรับกลับสู่ EcoBin Connect');
+      addToast('success', 'เข้าสู่ระบบสำเร็จ', `ยินดีต้อนรับกลับสู่ ${APP_NAME}`);
       return true;
     } catch (e) {
       addToast('error', 'เข้าสู่ระบบไม่สำเร็จ', e instanceof Error ? e.message : 'ไม่พบบัญชีผู้ใช้ หรือรหัสผ่านไม่ถูกต้อง');
@@ -331,8 +339,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const registerUser = async (payload: {
     login: string;
     password: string;
-    first_name: string;
-    last_name: string;
+    email: string;
+    phone: string;
+    first_name?: string;
+    last_name?: string;
     avatar_url?: string;
   }): Promise<boolean> => {
     try {
@@ -341,15 +351,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         body: JSON.stringify({
           login: payload.login,
           password: payload.password,
-          first_name: payload.first_name,
-          last_name: payload.last_name,
+          email: payload.email,
+          phone: payload.phone,
+          first_name: payload.first_name || '',
+          last_name: payload.last_name || '',
           avatar_url: payload.avatar_url || '',
         }),
       });
       await refreshState();
       clearGuestBrowse();
       triggerConfetti();
-      addToast('success', 'สมัครสมาชิกสำเร็จ', 'กรอกชื่อและเลือกโปรไฟล์ในหน้าหลักเพื่อเริ่มใช้งาน');
+      addToast('success', 'สมัครสมาชิกสำเร็จ', 'ตั้งชื่อและโปรไฟล์ได้เลย หรือข้ามไปก่อนก็ได้');
       return true;
     } catch (e) {
       addToast('error', 'สมัครไม่สำเร็จ', e instanceof Error ? e.message : 'ลองใหม่อีกครั้ง');
@@ -380,11 +392,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const logout = async () => {
-    clearGuestBrowse();
     await api('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
+    allowGuestBrowse();
     await refreshState();
-    addToast('info', 'ออกจากระบบแล้ว', 'กรุณาเข้าสู่ระบบอีกครั้ง');
-    if (typeof window !== 'undefined') window.location.assign('/login');
+    addToast('info', 'ออกจากระบบแล้ว', 'กลับสู่หน้าหลักแบบผู้เยี่ยมชม');
+    if (typeof window !== 'undefined') window.location.assign('/');
   };
 
   const loginAs = async (role: UserRole) => {
@@ -407,7 +419,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await loginUser(user.email, DEMO_PASSWORD);
   };
 
-  const updateUserProfile = async (data: Partial<User>): Promise<boolean> => {
+  const updateUserProfile = async (data: Partial<User>, opts?: { silent?: boolean }): Promise<boolean> => {
     try {
       await api('/api/me', {
         method: 'PATCH',
@@ -422,7 +434,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }),
       });
       await refreshState();
-      addToast('success', 'บันทึกโปรไฟล์สำเร็จ', 'ข้อมูลส่วนตัวของคุณได้รับการอัปเดตแล้ว');
+      if (!opts?.silent) {
+        addToast('success', 'บันทึกโปรไฟล์สำเร็จ', 'ข้อมูลส่วนตัวของคุณได้รับการอัปเดตแล้ว');
+      }
       return true;
     } catch (e) {
       addToast('error', 'ไม่สามารถแก้ไขได้', e instanceof Error ? e.message : 'กรุณาเข้าสู่ระบบก่อน');
@@ -543,7 +557,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const res = await api<{ redemption: RedemptionSimulation }>(`/api/rewards/${rewardId}/redeem`, { method: 'POST' });
       await refreshState();
       triggerConfetti();
-      addToast('success', 'ทำรายการแลกรางวัลสำเร็จ!', 'แสดง QR ให้แอดมินสแกนที่จุดรับของ');
+      addToast('success', 'รับของรางวัลเช็คพอยต์สำเร็จ!', 'แสดง QR ให้แอดมินสแกนที่จุดรับของ (แต้มสะสมไม่ถูกหัก)');
       return { success: true, message: 'ทำรายการแลกรางวัลสำเร็จ', redemption: res.redemption };
     } catch (e) {
       const message = e instanceof Error ? e.message : 'แลกไม่สำเร็จ';
@@ -669,12 +683,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         rewards,
         transactions,
         redemptions,
+        certificates,
         guestLogs,
         bins,
         plasticTypes,
         settings,
         toasts,
         language,
+        refreshState,
         setLanguage,
         setCurrentUser,
         switchUser,

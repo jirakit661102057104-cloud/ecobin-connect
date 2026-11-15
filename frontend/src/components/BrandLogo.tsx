@@ -7,7 +7,7 @@ interface BrandLogoProps {
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = 'w-9 h-9',
-  alt = 'EcoBin Connect',
+  alt = 'PCRU CFO SAVEPOINT',
 }) => (
   <img
     src="/ecobin-logo.png"

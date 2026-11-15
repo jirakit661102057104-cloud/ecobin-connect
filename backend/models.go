@@ -9,6 +9,7 @@ type User struct {
 	LastName         string  `json:"last_name"`
 	NeedsProfile     bool    `json:"needs_profile"`
 	StudentID        string  `json:"student_id"`
+	Username         string  `json:"username,omitempty"`
 	Email            string  `json:"email"`
 	PasswordHash     string  `json:"-"`
 	UserRole         string  `json:"user_role"`
@@ -38,6 +39,23 @@ type WasteRecord struct {
 	PointsAwarded         int     `json:"points_awarded"`
 	AdminComment          string  `json:"admin_comment"`
 	BinLocation           string  `json:"bin_location,omitempty"`
+}
+
+// Certificate is an in-app carbon certificate issued by an admin for a member to download.
+type Certificate struct {
+	CertificateID      string  `json:"certificate_id"`
+	UserID             string  `json:"user_id"`
+	IssuedBy           string  `json:"issued_by"`
+	IssuedAt           string  `json:"issued_at"`
+	AdminMessage       string  `json:"admin_message,omitempty"`
+	FullNameSnapshot   string  `json:"full_name_snapshot"`
+	DepartmentSnapshot string  `json:"department_snapshot,omitempty"`
+	CreditsTCO2e       float64 `json:"credits_tco2e"`
+	AvoidedKg          float64 `json:"avoided_kg"`
+	FootprintKg        float64 `json:"footprint_kg"`
+	Bottles            int     `json:"bottles"`
+	ApprovedCount      int     `json:"approved_count"`
+	Points             int     `json:"points"`
 }
 
 type PointTransaction struct {

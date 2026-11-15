@@ -1,5 +1,8 @@
 export const DEMO_LOGIN = process.env.NEXT_PUBLIC_DEMO_LOGIN !== 'false';
 
+/** Google Sign-In ปิดถาวรใน UI — ค่านี้ต้องเป็น false */
+export const GOOGLE_AUTH_ENABLED = false;
+
 export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
 function isBrowserRemoteHost() {

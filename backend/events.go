@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Event types used across EcoBin for audit / recovery trails.
+// Event types used across PCRU CFO SAVEPOINT for audit / recovery trails.
 const (
 	EventModelClassify       = "MODEL_CLASSIFY"
 	EventWasteSubmitted      = "WASTE_SUBMITTED"
@@ -16,6 +16,7 @@ const (
 	EventGuestScan           = "GUEST_SCAN"
 	EventTrainingSampleSaved = "TRAINING_SAMPLE_SAVED"
 	EventModelRegistered     = "MODEL_VERSION_REGISTERED"
+	EventCertificateSent     = "CERTIFICATE_SENT"
 )
 
 type SystemEvent struct {
@@ -240,7 +241,7 @@ func (s *Store) ensureDefaultModelVersion() {
 	_, err := s.db.Exec(`INSERT INTO model_versions
 		(version_id, provider, display_name, model_url, labels_json, is_active, notes, created_at, created_by)
 		VALUES (?,?,?,?,?,1,?,?,?)`,
-		id, "ecobin_local", "EcoBin bottle/can (MobileNet head)",
+		id, "ecobin_local", "PCRU CFO SAVEPOINT bottle (MobileNet head)",
 		"/models/ecobin-bottle-can/", labels, "โมเดลใน frontend/public — สำรองตัวอย่างใน model_training_samples เพื่อเทรน Teachable ใหม่ได้",
 		time.Now(), actorSystem)
 	if err != nil {

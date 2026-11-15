@@ -15,11 +15,7 @@ import {
   UserCheck,
   Eye,
   EyeOff,
-  Leaf,
   Camera,
-  Gift,
-  Loader2,
-  ArrowRight,
   Coins,
   MapPin,
   Sparkles,
@@ -28,13 +24,15 @@ import {
   QrCode,
   Users,
   Code2,
+  ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { DEMO_LOGIN, GOOGLE_CLIENT_ID } from '../lib/config';
+import { DEMO_LOGIN } from '../lib/config';
 import { BrandLogo } from './BrandLogo';
-import { GoogleSignInButton } from './GoogleSignInButton';
 import { StrongPasswordFields } from './StrongPasswordFields';
 import { isStrongPassword } from '../lib/password';
+import { APP_NAME } from '../lib/brand';
 
 const PLASTICS = [
   { n: 1, name: 'PET' },
@@ -55,13 +53,14 @@ const STEPS = [
 export const LoginScreen: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { loginUser, loginAs, setGuestMode, loginGoogle, registerUser, currentUser, authReady } = useApp();
+  const { loginUser, loginAs, setGuestMode, registerUser, currentUser, authReady } = useApp();
 
   const [isLoginMode, setIsLoginMode] = useState(searchParams.get('mode') !== 'register');
-  const [authMethod, setAuthMethod] = useState<'account' | 'phone' | 'email'>('account');
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [regLogin, setRegLogin] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regPasswordConfirm, setRegPasswordConfirm] = useState('');
 
@@ -69,38 +68,11 @@ export const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [developerMode, setDeveloperMode] = useState(false);
 
-  const googleHandled = React.useRef(false);
-  const googleError = searchParams.get('google_error');
-
   useEffect(() => {
     if (authReady && currentUser) {
       router.replace('/');
     }
   }, [authReady, currentUser, router]);
-
-  useEffect(() => {
-    if (searchParams.get('google_error')) {
-      return;
-    }
-    if (searchParams.get('google') !== '1' || googleHandled.current) return;
-    const raw = document.cookie.split('; ').find((c) => c.startsWith('ecobin_google_credential='));
-    if (!raw) {
-      // Redirect came back without credential (often Secure-cookie / CSRF). Surface error.
-      googleHandled.current = true;
-      router.replace('/login?google_error=1');
-      return;
-    }
-    googleHandled.current = true;
-    const token = decodeURIComponent(raw.slice('ecobin_google_credential='.length));
-    document.cookie = 'ecobin_google_credential=; Max-Age=0; path=/';
-    (async () => {
-      setBusy(true);
-      const ok = await loginGoogle({ idToken: token });
-      setBusy(false);
-      if (ok) router.replace('/');
-      else router.replace('/login?google_error=1');
-    })();
-  }, [searchParams, loginGoogle, router]);
 
   const enterAsGuest = async () => {
     setBusy(true);
@@ -124,22 +96,22 @@ export const LoginScreen: React.FC = () => {
     router.push('/');
   };
 
-  const handleGoogleToken = async (idToken: string) => {
-    setBusy(true);
-    const ok = await loginGoogle({ idToken });
-    setBusy(false);
-    if (ok) router.push('/');
-  };
+  const canRegister =
+    regLogin.trim().length >= 4 &&
+    regEmail.trim().includes('@') &&
+    regPhone.replace(/\D/g, '').length >= 9 &&
+    isStrongPassword(regPassword) &&
+    regPassword === regPasswordConfirm;
 
   const handleRegisterNext = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regLogin.trim() || !isStrongPassword(regPassword) || regPassword !== regPasswordConfirm) return;
+    if (!canRegister) return;
     setBusy(true);
     const ok = await registerUser({
       login: regLogin.trim(),
       password: regPassword,
-      first_name: '',
-      last_name: '',
+      email: regEmail.trim(),
+      phone: regPhone.trim(),
     });
     setBusy(false);
     if (ok) router.push('/');
@@ -165,8 +137,8 @@ export const LoginScreen: React.FC = () => {
             <div className="flex items-center gap-3">
               <BrandLogo className="w-14 h-14 rounded-2xl shadow-lg shadow-emerald-950/30" />
               <div>
-                <p className="text-lg font-black tracking-tight">EcoBin Connect</p>
-                <p className="text-emerald-200 text-[11px] font-medium">Green Campus · Smart Recycling</p>
+                <p className="text-lg font-black tracking-tight">{APP_NAME}</p>
+                <p className="text-emerald-200 text-[11px] font-medium">Green Campus · Carbon CFO</p>
               </div>
             </div>
             <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/10 border border-white/15">
@@ -267,7 +239,7 @@ export const LoginScreen: React.FC = () => {
             <div className="lg:hidden flex items-center gap-2.5">
               <BrandLogo className="w-11 h-11 rounded-xl" />
               <div>
-                <p className="font-bold text-slate-900">EcoBin Connect</p>
+                <p className="font-bold text-slate-900">{APP_NAME}</p>
                 <p className="text-[11px] text-slate-500">มรภ.เพชรบูรณ์</p>
               </div>
             </div>
@@ -313,7 +285,7 @@ export const LoginScreen: React.FC = () => {
                   <p className="text-sm text-slate-500">
                     {isLoginMode
                       ? 'เข้าสู่ระบบเพื่อสแกนขวด สะสมแต้ม และแลกรางวัล'
-                      : 'สมัครสมาชิก รับโบนัสต้อนรับ +50 แต้มทันที'}
+                      : 'กรอกชื่อผู้ใช้ รหัสผ่าน เบอร์โทร และอีเมล — จากนั้นตั้งชื่อกับโปรไฟล์'}
                   </p>
                 </div>
                 <BrandLogo className="w-12 h-12 rounded-2xl shrink-0" />
@@ -341,7 +313,6 @@ export const LoginScreen: React.FC = () => {
               </div>
 
               {isLoginMode ? (
-                <div className="space-y-4">
                 <form onSubmit={handleLoginSubmit} className="space-y-3.5">
                   <p className="text-xs text-slate-500">กรอกชื่อผู้ใช้ เบอร์โทร หรืออีเมล และรหัสผ่านเพื่อเข้าสู่ระบบ</p>
                   <div>
@@ -388,72 +359,16 @@ export const LoginScreen: React.FC = () => {
                     className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-2xl font-bold text-sm shadow-lg shadow-emerald-600/25 transition-colors flex items-center justify-center gap-2"
                   >
                     {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
-                    เข้าสู่ระบบ EcoBin
+                    เข้าสู่ระบบ
                   </button>
                 </form>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-slate-200" />
-                  </div>
-                  <p className="relative text-center text-[11px] font-semibold text-slate-400 bg-white w-fit mx-auto px-2">หรือ</p>
-                </div>
-                <GoogleSignInButton
-                  mode="login"
-                  busy={busy}
-                  onCredential={handleGoogleToken}
-                />
-                {googleError && (
-                  <p className="text-[11px] text-rose-600 text-center leading-relaxed">
-                    เข้าสู่ระบบด้วย Google ไม่สำเร็จ — ลองกดปุ่มอีกครั้ง
-                    หรือตรวจว่าใน Google Console มี origin เป็น http://localhost:3000 และโดเมน Vercel แล้ว
-                  </p>
-                )}
-                {!GOOGLE_CLIENT_ID && (
-                  <p className="text-[11px] text-amber-800 text-center">ยังไม่ได้ตั้งค่า Google Client ID</p>
-                )}
-                </div>
               ) : (
-                <>
-              <div className="grid grid-cols-3 gap-2">
-                {([
-                  { id: 'account' as const, label: 'บัญชี', icon: User, disabled: false },
-                  { id: 'phone' as const, label: 'เบอร์โทร', icon: Phone, disabled: true },
-                  { id: 'email' as const, label: 'อีเมล', icon: Mail, disabled: true },
-                ]).map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    disabled={m.disabled}
-                    title={m.disabled ? 'ยังไม่เปิดให้ใช้งาน' : undefined}
-                    onClick={() => {
-                      if (!m.disabled) setAuthMethod(m.id);
-                    }}
-                    className={`py-2.5 rounded-xl text-[11px] font-bold border flex items-center justify-center gap-1.5 ${
-                      m.disabled
-                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-70'
-                        : authMethod === m.id
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
-                    }`}
-                  >
-                    {m.icon && <m.icon className="w-3.5 h-3.5" />}
-                    {m.label}
-                    {m.disabled && (
-                      <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-slate-200 text-slate-500">
-                        Soon
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {authMethod === 'account' && (
                 <form onSubmit={handleRegisterNext} className="space-y-3">
                   <p className="text-xs text-slate-500">
-                    ตั้งชื่อผู้ใช้และรหัสผ่านที่แข็งแรง หลังสมัครจะไปกรอกชื่อและเลือกโปรไฟล์ที่หน้าหลัก
+                    กรอกชื่อผู้ใช้ อีเมล เบอร์โทร และรหัสผ่าน — หลังสมัครจะมีหน้าต่างให้ตั้งชื่อและรูปโปรไฟล์ (ข้ามได้)
                   </p>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">ชื่อผู้ใช้ หรือ อีเมล</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">ชื่อผู้ใช้</label>
                     <div className="relative">
                       <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                       <input
@@ -462,7 +377,37 @@ export const LoginScreen: React.FC = () => {
                         autoComplete="username"
                         value={regLogin}
                         onChange={(e) => setRegLogin(e.target.value)}
-                        placeholder="เช่น ecobin01 หรือ you@gmail.com"
+                        placeholder="เช่น ecobin01 (a-z 0-9 ._ )"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">อีเมล</label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <input
+                        type="email"
+                        required
+                        autoComplete="email"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="you@gmail.com"
+                        className={inputClass}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">เบอร์โทร</label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                      <input
+                        type="tel"
+                        required
+                        autoComplete="tel"
+                        value={regPhone}
+                        onChange={(e) => setRegPhone(e.target.value)}
+                        placeholder="08xxxxxxxx"
                         className={inputClass}
                       />
                     </div>
@@ -476,15 +421,13 @@ export const LoginScreen: React.FC = () => {
                   />
                   <button
                     type="submit"
-                    disabled={busy || !regLogin.trim() || !isStrongPassword(regPassword) || regPassword !== regPasswordConfirm}
+                    disabled={busy || !canRegister}
                     className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white rounded-2xl font-bold text-sm shadow-lg shadow-emerald-600/25 transition-colors flex items-center justify-center gap-2"
                   >
                     {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    สมัครแล้วไปตั้งโปรไฟล์
+                    สมัครใช้งาน
                   </button>
                 </form>
-              )}
-                </>
               )}
 
               {DEMO_LOGIN && (
@@ -565,7 +508,7 @@ export const LoginScreen: React.FC = () => {
           </motion.div>
 
           <p className="mt-auto pt-6 text-center text-[11px] text-slate-400">
-            โครงงานวิจัย EcoBin Connect · มหาวิทยาลัยราชภัฏเพชรบูรณ์
+            โครงงานวิจัย {APP_NAME} · มหาวิทยาลัยราชภัฏเพชรบูรณ์
           </p>
         </div>
       </div>

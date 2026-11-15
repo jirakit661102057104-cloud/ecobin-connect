@@ -7,6 +7,7 @@ export interface User {
   last_name?: string;
   needs_profile?: boolean;
   student_id: string;
+  username?: string;
   email: string;
   password?: string;
   user_role: UserRole;
@@ -38,6 +39,23 @@ export interface WasteRecord {
   points_awarded: number;
   admin_comment: string;
   bin_location?: string;
+}
+
+/** In-app carbon certificate issued by admin for member download */
+export interface Certificate {
+  certificate_id: string;
+  user_id: string;
+  issued_by: string;
+  issued_at: string;
+  admin_message?: string;
+  full_name_snapshot: string;
+  department_snapshot?: string;
+  credits_tco2e: number;
+  avoided_kg: number;
+  footprint_kg: number;
+  bottles: number;
+  approved_count: number;
+  points: number;
 }
 
 export interface PointTransaction {
@@ -74,6 +92,7 @@ export interface RedemptionSimulation {
   pickup_code: string;
 }
 
+/** Legacy campus location catalog — not used in product (no Smart Bin hardware link). */
 export interface SmartBin {
   bin_id: string;
   bin_name: string;

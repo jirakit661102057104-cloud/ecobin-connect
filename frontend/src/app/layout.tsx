@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Noto_Sans_Thai, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from '../components/Providers';
+import { APP_NAME } from '../lib/brand';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -17,8 +18,8 @@ const thai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: 'EcoBin Connect | PCRU',
-  description: 'เว็บแอปพลิเคชันคัดแยกขยะขวดพลาสติก มหาวิทยาลัยราชภัฏเพชรบูรณ์',
+  title: APP_NAME,
+  description: 'PCRU CFO SAVEPOINT — เว็บแอปคัดแยกขยะ คำนวณคาร์บอน และแลกรางวัล มหาวิทยาลัยราชภัฏเพชรบูรณ์',
   icons: {
     icon: '/ecobin-logo.png',
     apple: '/ecobin-logo.png',

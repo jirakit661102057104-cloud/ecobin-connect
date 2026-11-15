@@ -10,6 +10,15 @@ import (
 )
 
 func loadBackendEnv() {
+	// ECOBIN_ENV_FILE picks a specific env file (e.g. backend.env.tidb) instead of backend.env.
+	if f := strings.TrimSpace(os.Getenv("ECOBIN_ENV_FILE")); f != "" {
+		if err := godotenv.Overload(f); err != nil {
+			log.Fatalf("cannot load ECOBIN_ENV_FILE %s: %v", f, err)
+		}
+		log.Printf("loaded config %s", f)
+		applyPortDefaults()
+		return
+	}
 	var candidates []string
 	if root := os.Getenv("ECOBIN_ROOT"); root != "" {
 		candidates = append(candidates,

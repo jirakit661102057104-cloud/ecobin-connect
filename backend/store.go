@@ -6,11 +6,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"os"
-	"path/filepath"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Store struct {
@@ -18,7 +19,7 @@ type Store struct {
 	uploadDir string
 }
 
-const userSelectCols = `user_id, full_name, IFNULL(first_name,''), IFNULL(last_name,''), student_id, email, password_hash, user_role, total_points, total_carbon_saved, IFNULL(avatar_url,''), IFNULL(department,''), IFNULL(phone,''), IFNULL(auth_provider,'email')`
+const userSelectCols = `user_id, full_name, IFNULL(first_name,''), IFNULL(last_name,''), student_id, IFNULL(username,''), email, password_hash, user_role, total_points, total_carbon_saved, IFNULL(avatar_url,''), IFNULL(department,''), IFNULL(phone,''), IFNULL(auth_provider,'username')`
 
 func hydrateUser(u *User) *User {
 	u.FirstName = strings.TrimSpace(u.FirstName)
@@ -29,7 +30,7 @@ func hydrateUser(u *User) *User {
 
 func (s *Store) scanUserRow(row *sql.Row) (*User, error) {
 	u := &User{}
-	err := row.Scan(&u.UserID, &u.FullName, &u.FirstName, &u.LastName, &u.StudentID, &u.Email, &u.PasswordHash, &u.UserRole, &u.TotalPoints, &u.TotalCarbonSaved, &u.AvatarURL, &u.Department, &u.Phone, &u.AuthProvider)
+	err := row.Scan(&u.UserID, &u.FullName, &u.FirstName, &u.LastName, &u.StudentID, &u.Username, &u.Email, &u.PasswordHash, &u.UserRole, &u.TotalPoints, &u.TotalCarbonSaved, &u.AvatarURL, &u.Department, &u.Phone, &u.AuthProvider)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (s *Store) scanUserRow(row *sql.Row) (*User, error) {
 }
 
 func (s *Store) getUserByLogin(q string) (*User, error) {
-	return s.scanUserRow(s.db.QueryRow(`SELECT `+userSelectCols+` FROM users WHERE (email = ? OR student_id = ? OR phone = ?) AND delete_at IS NULL`, q, q, q))
+	return s.scanUserRow(s.db.QueryRow(`SELECT `+userSelectCols+` FROM users WHERE (email = ? OR student_id = ? OR phone = ? OR username = ?) AND delete_at IS NULL`, q, q, q, q))
 }
 
 func (s *Store) getUserByID(id string) (*User, error) {
@@ -45,7 +46,7 @@ func (s *Store) getUserByID(id string) (*User, error) {
 }
 
 func (s *Store) listUsers() ([]User, error) {
-	rows, err := s.db.Query(`SELECT user_id, full_name, IFNULL(first_name,''), IFNULL(last_name,''), student_id, email, user_role, total_points, total_carbon_saved, IFNULL(avatar_url,''), IFNULL(department,'') FROM users WHERE delete_at IS NULL ORDER BY user_id`)
+	rows, err := s.db.Query(`SELECT user_id, full_name, IFNULL(first_name,''), IFNULL(last_name,''), student_id, IFNULL(username,''), email, user_role, total_points, total_carbon_saved, IFNULL(avatar_url,''), IFNULL(department,''), IFNULL(phone,'') FROM users WHERE delete_at IS NULL ORDER BY user_id`)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +54,7 @@ func (s *Store) listUsers() ([]User, error) {
 	var out []User
 	for rows.Next() {
 		var u User
-		if err := rows.Scan(&u.UserID, &u.FullName, &u.FirstName, &u.LastName, &u.StudentID, &u.Email, &u.UserRole, &u.TotalPoints, &u.TotalCarbonSaved, &u.AvatarURL, &u.Department); err != nil {
+		if err := rows.Scan(&u.UserID, &u.FullName, &u.FirstName, &u.LastName, &u.StudentID, &u.Username, &u.Email, &u.UserRole, &u.TotalPoints, &u.TotalCarbonSaved, &u.AvatarURL, &u.Department, &u.Phone); err != nil {
 			return nil, err
 		}
 		out = append(out, *hydrateUser(&u))
@@ -224,20 +225,49 @@ func (s *Store) saveImage(imageData, id string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := os.MkdirAll(s.uploadDir, 0755); err != nil {
-		return "", err
-	}
-	name := id + ".jpg"
-	if strings.Contains(strings.ToLower(imageData), "image/png") {
-		name = id + ".png"
-	} else if strings.Contains(strings.ToLower(imageData), "image/webp") {
-		name = id + ".webp"
-	}
-	path := filepath.Join(s.uploadDir, name)
-	if err := os.WriteFile(path, b, 0644); err != nil {
+	name, ct := imageFileName(imageData, id)
+	if err := s.putFile(name, ct, b); err != nil {
 		return "", err
 	}
 	return "/uploads/" + name, nil
+}
+
+// maxStoredFileBytes stays under TiDB's 6 MB per-row transaction limit.
+const maxStoredFileBytes = 4 << 20
+
+func imageFileName(imageData, id string) (name, contentType string) {
+	lower := strings.ToLower(imageData)
+	switch {
+	case strings.Contains(lower, "image/png"):
+		return id + ".png", "image/png"
+	case strings.Contains(lower, "image/webp"):
+		return id + ".webp", "image/webp"
+	default:
+		return id + ".jpg", "image/jpeg"
+	}
+}
+
+// putFile stores an uploaded file in the database (stored_files), served at /uploads/<name>.
+func (s *Store) putFile(name, contentType string, b []byte) error {
+	if len(b) > maxStoredFileBytes {
+		return fmt.Errorf("ไฟล์รูปใหญ่เกินไป (สูงสุด 4 MB)")
+	}
+	_, err := s.db.Exec(`INSERT INTO stored_files (file_name, content_type, data, size_bytes) VALUES (?,?,?,?)
+		ON DUPLICATE KEY UPDATE content_type=VALUES(content_type), data=VALUES(data), size_bytes=VALUES(size_bytes), created_at=CURRENT_TIMESTAMP`,
+		name, contentType, b, len(b))
+	return err
+}
+
+// getFile loads a stored upload; ok=false when it is not in the database.
+func (s *Store) getFile(name string) (contentType string, b []byte, ok bool, err error) {
+	err = s.db.QueryRow(`SELECT content_type, data FROM stored_files WHERE file_name=?`, name).Scan(&contentType, &b)
+	if err == sql.ErrNoRows {
+		return "", nil, false, nil
+	}
+	if err != nil {
+		return "", nil, false, err
+	}
+	return contentType, b, true, nil
 }
 
 // decodeImagePayload returns raw bytes for a data: URL (or bare base64). Rejects remote http(s) URLs.
@@ -302,17 +332,8 @@ func (s *Store) saveWasteImage(imageData, id string) (url string, hash string, e
 		return "", "", fmt.Errorf("พบร่องรอยว่าเป็นรูปจากแหล่งดาวน์โหลด/แก้ภาพ (%s) — กรุณาถ่ายจากกล้องใหม่", hint)
 	}
 	hash = hashImageBytes(b)
-	if err := os.MkdirAll(s.uploadDir, 0755); err != nil {
-		return "", "", err
-	}
-	name := id + ".jpg"
-	if strings.Contains(strings.ToLower(imageData), "image/png") {
-		name = id + ".png"
-	} else if strings.Contains(strings.ToLower(imageData), "image/webp") {
-		name = id + ".webp"
-	}
-	path := filepath.Join(s.uploadDir, name)
-	if err := os.WriteFile(path, b, 0644); err != nil {
+	name, ct := imageFileName(imageData, id)
+	if err := s.putFile(name, ct, b); err != nil {
 		return "", "", err
 	}
 	return "/uploads/" + name, hash, nil
@@ -419,6 +440,71 @@ func (s *Store) setSetting(key, value, by string) error {
 	return err
 }
 
+func (s *Store) listCertificates(userID string, admin bool) ([]Certificate, error) {
+	q := `SELECT certificate_id, user_id, issued_by, issued_at, IFNULL(admin_message,''),
+		full_name_snapshot, IFNULL(department_snapshot,''), credits_tco2e, avoided_kg, footprint_kg,
+		bottles, approved_count, points
+		FROM certificates WHERE delete_at IS NULL`
+	args := []any{}
+	if !admin {
+		q += ` AND user_id=?`
+		args = append(args, userID)
+	}
+	q += ` ORDER BY issued_at DESC`
+	rows, err := s.db.Query(q, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []Certificate{}
+	for rows.Next() {
+		var c Certificate
+		var issued time.Time
+		if err := rows.Scan(&c.CertificateID, &c.UserID, &c.IssuedBy, &issued, &c.AdminMessage,
+			&c.FullNameSnapshot, &c.DepartmentSnapshot, &c.CreditsTCO2e, &c.AvoidedKg, &c.FootprintKg,
+			&c.Bottles, &c.ApprovedCount, &c.Points); err != nil {
+			return nil, err
+		}
+		c.IssuedAt = fmtTime(issued)
+		out = append(out, c)
+	}
+	return out, rows.Err()
+}
+
+func (s *Store) insertCertificate(c *Certificate) error {
+	_, err := s.db.Exec(`INSERT INTO certificates
+		(certificate_id, user_id, issued_by, issued_at, admin_message, full_name_snapshot, department_snapshot,
+		 credits_tco2e, avoided_kg, footprint_kg, bottles, approved_count, points, created_by)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		c.CertificateID, c.UserID, c.IssuedBy, time.Now(), c.AdminMessage, c.FullNameSnapshot, c.DepartmentSnapshot,
+		c.CreditsTCO2e, c.AvoidedKg, c.FootprintKg, c.Bottles, c.ApprovedCount, c.Points, c.IssuedBy)
+	return err
+}
+
 func newID(prefix string) string {
 	return fmt.Sprintf("%s%d", prefix, time.Now().UnixNano()%1_000_000_000_000)
+}
+
+// handleUpload serves /uploads/<name> from stored_files, falling back to the
+// legacy on-disk uploads folder for files saved before images moved to the DB.
+func (s *Server) handleUpload(disk http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "*")
+		if name == "" || strings.Contains(name, "/") || strings.Contains(name, "..") {
+			http.NotFound(w, r)
+			return
+		}
+		ct, b, ok, err := s.store.getFile(name)
+		if err != nil {
+			http.Error(w, "file lookup failed", http.StatusInternalServerError)
+			return
+		}
+		if !ok {
+			disk.ServeHTTP(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Header().Set("Cache-Control", "public, max-age=86400")
+		_, _ = w.Write(b)
+	}
 }

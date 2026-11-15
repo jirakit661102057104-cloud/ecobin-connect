@@ -196,6 +196,80 @@ func (s *Server) handleAdminDeleteUser(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]string{"ok": "true"})
 }
 
+// handleAdminSendCertificate issues an in-app carbon certificate the member can download.
+func (s *Server) handleAdminSendCertificate(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	me := s.currentUser(r)
+	target, err := s.store.getUserByID(id)
+	if err != nil || target == nil {
+		writeJSON(w, 404, map[string]string{"error": "ไม่พบผู้ใช้"})
+		return
+	}
+
+	var body struct {
+		Message string `json:"message"`
+	}
+	_ = readJSON(r, &body)
+	note := strings.TrimSpace(body.Message)
+
+	records, _ := s.store.listWaste(id, false)
+	var bottles int
+	var footprint, avoided float64
+	approved := 0
+	for _, rec := range records {
+		if rec.VerificationStatus != "อนุมัติแล้ว" {
+			continue
+		}
+		approved++
+		bottles += rec.BottleCount
+		footprint += rec.CarbonFootprint
+		if rec.CarbonAvoided > 0 {
+			avoided += rec.CarbonAvoided
+		} else {
+			avoided += rec.CarbonSaved
+		}
+	}
+	credits := avoided / 1000.0
+	dept := strings.TrimSpace(target.Department)
+
+	cert := &Certificate{
+		CertificateID:      newID("CERT"),
+		UserID:             id,
+		IssuedBy:           me.UserID,
+		AdminMessage:       note,
+		FullNameSnapshot:   target.FullName,
+		DepartmentSnapshot: dept,
+		CreditsTCO2e:       credits,
+		AvoidedKg:          avoided,
+		FootprintKg:        footprint,
+		Bottles:            bottles,
+		ApprovedCount:      approved,
+		Points:             target.TotalPoints,
+	}
+	if err := s.store.insertCertificate(cert); err != nil {
+		writeJSON(w, 500, map[string]string{"error": "ออกเกียรติบัตรไม่สำเร็จ"})
+		return
+	}
+	list, _ := s.store.listCertificates(id, false)
+	for i := range list {
+		if list[i].CertificateID == cert.CertificateID {
+			cert = &list[i]
+			break
+		}
+	}
+
+	s.store.logEvent(EventCertificateSent, "admin", me.UserID, "", "certificate", cert.CertificateID,
+		"แอดมินออกเกียรติบัตรในระบบให้สมาชิกดาวน์โหลด", map[string]any{
+			"user_id": id, "credits_tco2e": credits, "avoided_kg": avoided, "footprint_kg": footprint,
+			"bottles": bottles, "points": target.TotalPoints,
+		})
+
+	writeJSON(w, 201, map[string]any{
+		"ok":          true,
+		"certificate": cert,
+	})
+}
+
 func (s *Server) handleAdminRedeemCancel(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Code string `json:"code"`
@@ -237,10 +311,13 @@ func (s *Server) handleAdminRedeemCancel(w http.ResponseWriter, r *http.Request)
 		writeJSON(w, 500, map[string]string{"error": "บันทึกไม่สำเร็จ"})
 		return
 	}
-	_, _ = tx.Exec(`UPDATE users SET total_points = total_points + ? WHERE user_id=? AND delete_at IS NULL`, pointsUsed, userID)
 	_, _ = tx.Exec(`UPDATE rewards SET reward_stock = reward_stock + 1 WHERE reward_id=? AND delete_at IS NULL`, rewardID)
-	_, _ = tx.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
-		VALUES (?,?,NULL,?,'bonus',?,?,?)`, newID("TXN"), userID, pointsUsed, fmt.Sprintf("คืนแต้มจากยกเลิกแลกรางวัล %s", code), time.Now(), me.UserID)
+	// Legacy redemptions deducted points; checkpoint claims (points_used=0) have nothing to refund.
+	if pointsUsed > 0 {
+		_, _ = tx.Exec(`UPDATE users SET total_points = total_points + ? WHERE user_id=? AND delete_at IS NULL`, pointsUsed, userID)
+		_, _ = tx.Exec(`INSERT INTO point_transactions (transaction_id, user_id, record_id, points_earned, transaction_type, description, transaction_date, created_by)
+			VALUES (?,?,NULL,?,'bonus',?,?,?)`, newID("TXN"), userID, pointsUsed, fmt.Sprintf("คืนแต้มจากยกเลิกแลกรางวัล %s", code), time.Now(), me.UserID)
+	}
 	if err := tx.Commit(); err != nil {
 		writeJSON(w, 500, map[string]string{"error": "บันทึกไม่สำเร็จ"})
 		return

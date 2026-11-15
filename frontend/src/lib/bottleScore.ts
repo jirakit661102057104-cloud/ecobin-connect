@@ -14,7 +14,14 @@ export function matchBottleScore(
     const can = types.find((t) => t.plastic_code === 8 || t.short_name.toLowerCase().includes('can'));
     if (can) return { points: can.points_per_bottle, carbon: can.carbon_factor, matched: can };
   }
-  if (n.includes('ขวดพลาสติก') || n.includes('plastic_bottle') || n.includes('plastic bottle') || n === 'plastic_bottle') {
+  if (
+    n.includes('ขวดน้ำ') ||
+    n.includes('pet') ||
+    n.includes('ขวดพลาสติก') ||
+    n.includes('plastic_bottle') ||
+    n.includes('plastic bottle') ||
+    n === 'plastic_bottle'
+  ) {
     const pet = types.find((t) => t.plastic_code === 1);
     if (pet) return { points: pet.points_per_bottle, carbon: pet.carbon_factor, matched: pet };
   }

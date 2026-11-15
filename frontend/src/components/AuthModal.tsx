@@ -73,7 +73,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             <GraduationCap className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold text-slate-900">
-            {isLoginMode ? 'เข้าสู่ระบบ EcoBin Connect' : 'สมัครสมาชิกใหม่'}
+            {isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิกใหม่'}
           </h3>
           <p className="text-xs text-slate-500">
             ระบบบริหารจัดการข้อมูลการคัดแยกขยะ มรภ.เพชรบูรณ์
@@ -150,7 +150,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         ) : (
           <div className="space-y-3 text-center">
             <p className="text-xs text-slate-500 leading-relaxed">
-              สมัครด้วยชื่อผู้ใช้และรหัสผ่าน จากนั้นกรอกชื่อและเลือกโปรไฟล์ที่หน้าหลัก
+              สมัครด้วยชื่อผู้ใช้ รหัสผ่าน เบอร์โทร และอีเมล จากนั้นตั้งชื่อกับโปรไฟล์ก่อนเข้าใช้งาน
             </p>
             <button
               type="button"
