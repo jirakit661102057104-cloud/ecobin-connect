@@ -207,6 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button
                 id="user-menu-button"
+              aria-label={th ? 'เมนูผู้ใช้' : 'User menu'}
                 onClick={() => setShowRoleMenu(!showRoleMenu)}
                 className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-colors"
               >

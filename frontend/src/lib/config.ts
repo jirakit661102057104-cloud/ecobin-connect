@@ -1,4 +1,5 @@
-export const DEMO_LOGIN = process.env.NEXT_PUBLIC_DEMO_LOGIN !== 'false';
+/** Demo quick-login is opt-in: only when NEXT_PUBLIC_DEMO_LOGIN is exactly "true" (run.bat sets it locally). */
+export const DEMO_LOGIN = process.env.NEXT_PUBLIC_DEMO_LOGIN === 'true';
 
 /** Google Sign-In ปิดถาวรใน UI — ค่านี้ต้องเป็น false */
 export const GOOGLE_AUTH_ENABLED = false;

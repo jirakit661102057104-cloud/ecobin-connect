@@ -18,7 +18,6 @@ import {
   Camera,
   Coins,
   MapPin,
-  Sparkles,
   TreePine,
   CheckCircle2,
   QrCode,
@@ -32,22 +31,13 @@ import { DEMO_LOGIN } from '../lib/config';
 import { BrandLogo } from './BrandLogo';
 import { StrongPasswordFields } from './StrongPasswordFields';
 import { isStrongPassword } from '../lib/password';
-import { APP_NAME } from '../lib/brand';
-
-const PLASTICS = [
-  { n: 1, name: 'PET' },
-  { n: 2, name: 'HDPE' },
-  { n: 3, name: 'PVC' },
-  { n: 4, name: 'LDPE' },
-  { n: 5, name: 'PP' },
-  { n: 6, name: 'PS' },
-  { n: 7, name: 'OTHER' },
-];
+import { APP_NAME, APP_VERSION } from '../lib/brand';
+import { SCAN_DROP_SITES } from '../lib/scanCheckpoint';
 
 const STEPS = [
-  { icon: Camera, title: 'ถ่ายรูปขวด', desc: 'วางขวดให้เห็นสัญลักษณ์รีไซเคิล' },
-  { icon: Sparkles, title: 'AI ตรวจประเภท', desc: 'ระบบอ่านเบอร์ 1–7 และนับขวด' },
-  { icon: Coins, title: 'ได้แต้มทันที', desc: 'สะสมแต้ม แลกของรางวัลใน มรภ.พช.' },
+  { icon: QrCode, title: 'สแกน QR จุดทิ้ง', desc: 'เลือก 1 ใน 3 จุดทิ้งขวดในมหาวิทยาลัย' },
+  { icon: Camera, title: 'ส่องป้าย SAVE CFO', desc: 'ระบบอ่านคำบนป้ายหลังถังอัตโนมัติ' },
+  { icon: Coins, title: 'ได้แต้มทันที', desc: 'สะสมแต้ม รับของรางวัลตามเช็คพอยต์' },
 ];
 
 export const LoginScreen: React.FC = () => {
@@ -153,18 +143,18 @@ export const LoginScreen: React.FC = () => {
             </p>
             <h1 className="text-4xl xl:text-[2.75rem] font-black leading-[1.15]">
               คัดแยกขวดพลาสติก
-              <span className="block text-emerald-300">ได้แต้มจริง แลกของรักษ์โลก</span>
+              <span className="block text-emerald-300">สะสมแต้ม รับของรักษ์โลกตามเช็คพอยต์</span>
             </h1>
             <p className="text-emerald-50/85 text-sm leading-relaxed max-w-lg">
-              เว็บแอปสำหรับนักศึกษาและบุคลากร ถ่ายภาพขวดแล้วให้ AI ช่วยอ่านประเภทพลาสติก
-              บันทึกแต้มและปริมาณคาร์บอนที่ลดได้เข้าบัญชีสมาชิก
+              เว็บแอปสำหรับนักศึกษาและบุคลากร ทิ้งขวดน้ำพลาสติกที่จุดทิ้ง สแกน QR และป้าย SAVE CFO
+              ระบบบันทึกแต้มและปริมาณคาร์บอนที่ลดได้เข้าบัญชีสมาชิกทันที
             </p>
           </div>
 
           <div className="mt-8 grid grid-cols-3 gap-3">
             {[
-              { icon: Recycle, value: '7', label: 'ประเภทพลาสติก' },
-              { icon: MapPin, value: 'Soon', label: 'จุดคัดแยกใน มรภ.พช.' },
+              { icon: Recycle, value: '10', label: 'แต้มต่อขวด' },
+              { icon: MapPin, value: String(SCAN_DROP_SITES.length), label: 'จุดทิ้งใน มรภ.พช.' },
               { icon: Coins, value: '+50', label: 'แต้มโบนัสสมาชิกใหม่' },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl bg-white/8 border border-white/12 p-3.5 backdrop-blur-sm">
@@ -196,33 +186,37 @@ export const LoginScreen: React.FC = () => {
               <div className="relative flex-1 rounded-3xl overflow-hidden border border-white/15 min-h-[100px]">
                 <img
                   src="https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?w=600&auto=format&fit=crop&q=70"
-                  alt="ขวด HDPE"
+                  alt="ขวดน้ำพลาสติก"
                   className="absolute inset-0 w-full h-full object-cover"
                 />
               </div>
               <div className="rounded-3xl bg-white/10 border border-white/12 p-3.5 backdrop-blur-sm flex-1 flex flex-col justify-center">
                 <div className="flex items-center gap-2 text-emerald-200 text-[11px] font-semibold mb-2">
                   <TreePine className="w-3.5 h-3.5" />
-                  จุดคัดแยกใกล้คุณ
+                  จุดทิ้งขวดใน มรภ.พช.
                 </div>
-                <p className="text-lg font-black text-white tracking-tight">Coming soon</p>
-                <p className="text-[11px] text-emerald-100/75 mt-1 leading-relaxed">
-                  แผนที่จุดคัดแยกใน มรภ.พช. กำลังจะเปิดให้ใช้งานเร็วๆ นี้
-                </p>
+                <ul className="space-y-1.5">
+                  {SCAN_DROP_SITES.map((s) => (
+                    <li key={s.id} className="flex items-center gap-2 text-[12px] font-semibold text-white">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                      {s.labelTh}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            {PLASTICS.map((p) => (
+            {STEPS.map((step, i) => (
               <span
-                key={p.n}
+                key={step.title}
                 className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-white/10 border border-white/15 rounded-full px-2.5 py-1"
               >
                 <span className="w-5 h-5 rounded-full bg-emerald-400 text-emerald-950 flex items-center justify-center text-[10px]">
-                  {p.n}
+                  {i + 1}
                 </span>
-                {p.name}
+                {step.title}
               </span>
             ))}
           </div>
@@ -260,8 +254,8 @@ export const LoginScreen: React.FC = () => {
 
           <div className="lg:hidden grid grid-cols-3 gap-2 mb-5">
             {[
-              { v: '7 ชนิด', l: 'พลาสติก' },
-              { v: 'Soon', l: 'จุดคัดแยก' },
+              { v: '10 แต้ม', l: 'ต่อขวด' },
+              { v: `${SCAN_DROP_SITES.length} จุด`, l: 'จุดทิ้งขวด' },
               { v: '+50', l: 'แต้มแรกเข้า' },
             ].map((x) => (
               <div key={x.l} className="rounded-2xl bg-white border border-slate-200 p-2.5 text-center">
@@ -284,7 +278,7 @@ export const LoginScreen: React.FC = () => {
                   </h2>
                   <p className="text-sm text-slate-500">
                     {isLoginMode
-                      ? 'เข้าสู่ระบบเพื่อสแกนขวด สะสมแต้ม และแลกรางวัล'
+                      ? 'เข้าสู่ระบบเพื่อสแกนขวด สะสมแต้ม และรับรางวัลตามเช็คพอยต์'
                       : 'กรอกชื่อผู้ใช้ รหัสผ่าน เบอร์โทร และอีเมล — จากนั้นตั้งชื่อกับโปรไฟล์'}
                   </p>
                 </div>
@@ -494,7 +488,7 @@ export const LoginScreen: React.FC = () => {
             <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] text-slate-500">
               <span className="inline-flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                ตรวจภาพด้วย AI Vision
+                ยืนยันด้วย QR + ป้าย SAVE CFO
               </span>
               <span className="inline-flex items-center gap-1">
                 <QrCode className="w-3.5 h-3.5 text-emerald-600" />
@@ -508,7 +502,7 @@ export const LoginScreen: React.FC = () => {
           </motion.div>
 
           <p className="mt-auto pt-6 text-center text-[11px] text-slate-400">
-            โครงงานวิจัย {APP_NAME} · มหาวิทยาลัยราชภัฏเพชรบูรณ์
+            โครงงานวิจัย {APP_NAME} · มหาวิทยาลัยราชภัฏเพชรบูรณ์ · {APP_VERSION}
           </p>
         </div>
       </div>

@@ -30,7 +30,7 @@ popd
   echo cd /d "%ECOBIN_ROOT%\backend"
   echo :loop
   echo "%API_EXE%" ^>^> "%BACKEND_LOG%" 2^>^&1
-  echo timeout /t 2 /nobreak ^>nul
+  echo ping -n 3 127.0.0.1 ^>nul
   echo goto loop
 ) > "%ECOBIN_ROOT%\logs\_start_api.bat"
 
@@ -42,7 +42,7 @@ for /L %%i in (1,1,30) do (
     echo Backend READY: http://127.0.0.1:%API_PORT%/health
     exit /b 0
   )
-  timeout /t 1 /nobreak >nul
+  ping -n 2 127.0.0.1 >nul
 )
 echo Backend failed — see logs\backend.log
 pause

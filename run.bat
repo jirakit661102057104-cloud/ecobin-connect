@@ -49,7 +49,7 @@ if errorlevel 1 (
 echo [1/6] Free ports %FRONTEND_PORT% and %API_PORT% ...
 call :killport %FRONTEND_PORT%
 call :killport %API_PORT%
-timeout /t 2 /nobreak >nul
+ping -n 3 127.0.0.1 >nul
 
 if "%DB_MODE%"=="tidb" (
   echo [2/6] Using TiDB Cloud - skip local MariaDB
@@ -117,7 +117,7 @@ REM Separate console + restart loop so Ctrl+C on Next.js does not kill the API f
   echo echo [%%DATE%% %%TIME%%] starting API...^>^> "%BACKEND_LOG%"
   echo "%API_EXE%" ^>^> "%BACKEND_LOG%" 2^>^&1
   echo echo [%%DATE%% %%TIME%%] API exited ^^!ERRORLEVEL^^! — restart in 2s^>^> "%BACKEND_LOG%"
-  echo timeout /t 2 /nobreak ^>nul
+  echo ping -n 3 127.0.0.1 ^>nul
   echo goto loop
 ) > "%ECOBIN_ROOT%\logs\_start_api.bat"
 
@@ -132,7 +132,7 @@ for /L %%i in (1,1,90) do (
     echo       Backend READY.
     goto after_wait_api
   )
-  timeout /t 1 /nobreak >nul
+  ping -n 3 127.0.0.1 >nul
 )
 
 :after_wait_api
@@ -228,7 +228,7 @@ for /L %%i in (1,1,25) do (
     echo       MariaDB READY
     exit /b 0
   )
-  timeout /t 1 /nobreak >nul
+  ping -n 3 127.0.0.1 >nul
 )
 echo       MariaDB failed to listen on 3306
 exit /b 1

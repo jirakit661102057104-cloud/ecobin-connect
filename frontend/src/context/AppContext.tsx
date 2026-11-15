@@ -5,7 +5,6 @@ import { User, WasteRecord, PointTransaction, Reward, RedemptionSimulation, Loca
 import confetti from 'canvas-confetti';
 import { api, mediaUrl } from '../lib/api';
 import { DEMO_LOGIN, allowGuestBrowse, clearGuestBrowse } from '../lib/config';
-import { INITIAL_REWARDS } from '../data/mockData';
 import { APP_NAME } from '../lib/brand';
 
 interface Toast {
@@ -147,7 +146,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguageState] = useState<'th' | 'en'>('th');
   const [users, setUsers] = useState<User[]>([]);
   const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>([]);
-  const [rewards, setRewards] = useState<Reward[]>(INITIAL_REWARDS);
+  const [rewards, setRewards] = useState<Reward[]>([]);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
   const [redemptions, setRedemptions] = useState<RedemptionSimulation[]>([]);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -169,7 +168,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentUserState(mapUser(data.user));
     setUsers(mapUsers(data.users));
     setWasteRecords(mapWaste(data.waste_records));
-    setRewards(data.rewards?.length ? data.rewards : INITIAL_REWARDS);
+    setRewards(data.rewards || []);
     setTransactions(data.transactions || []);
     setRedemptions(data.redemptions || []);
     setCertificates(data.certificates || []);

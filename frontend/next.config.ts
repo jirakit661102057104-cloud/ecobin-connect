@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   env: {
-    NEXT_PUBLIC_DEMO_LOGIN: process.env.NEXT_PUBLIC_DEMO_LOGIN || 'true',
+    NEXT_PUBLIC_DEMO_LOGIN: process.env.NEXT_PUBLIC_DEMO_LOGIN || 'false',
     // SIT default: local EcoBin bottle/can model under /public/models
     NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL:
       process.env.NEXT_PUBLIC_TEACHABLE_MACHINE_MODEL_URL || '/models/ecobin-bottle-can/',
