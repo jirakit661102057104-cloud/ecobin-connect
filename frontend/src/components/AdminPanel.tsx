@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Reward, WasteRecord, User, PlasticType } from '../types';
 import { api } from '../lib/api';
+import { apiBase } from '../lib/config';
 import { persistAdminTab, restoreAdminTab } from '../lib/navState';
 import { AdminActivityLog } from './AdminActivityLog';
 import { 
@@ -22,7 +23,18 @@ import {
   SlidersHorizontal,
   Activity,
   Award,
+  KeyRound,
+  Download,
+  Copy,
 } from 'lucide-react';
+
+/** Research datasets the backend can export as CSV (see backend/admin_tools.go). */
+const EXPORT_DATASETS = [
+  { id: 'waste', label: 'รายการสแกนขวด', hint: 'ขวด แต้ม คาร์บอน จุดทิ้ง เวลา' },
+  { id: 'users', label: 'ผู้ใช้งาน', hint: 'แต้มรวม จำนวนสแกน จำนวนขวด' },
+  { id: 'points', label: 'ธุรกรรมแต้ม', hint: 'ได้แต้ม/โบนัส ทุกรายการ' },
+  { id: 'redemptions', label: 'การรับรางวัล', hint: 'เช็คพอยต์ สถานะรับของ' },
+] as const;
 import { 
   BarChart, 
   Bar, 
@@ -64,6 +76,25 @@ export const AdminPanel: React.FC = () => {
   const [activeAdminTab, setActiveAdminTabState] = useState<'overview' | 'scans' | 'users' | 'rewards' | 'redemptions' | 'rules' | 'relations' | 'activity'>('overview');
   const [adminTabReady, setAdminTabReady] = useState(false);
   const [userQuery, setUserQuery] = useState('');
+  const [resetResult, setResetResult] = useState<{ full_name: string; login: string; temp_password: string } | null>(null);
+  const [resettingUserId, setResettingUserId] = useState<string | null>(null);
+
+  const handleResetPassword = async (user: User) => {
+    if (!window.confirm(`รีเซ็ตรหัสผ่านของ "${user.full_name}" ?\nรหัสเดิมจะใช้ไม่ได้ทันที และระบบจะสร้างรหัสชั่วคราวให้นำไปแจ้งผู้ใช้`)) return;
+    setResettingUserId(user.user_id);
+    try {
+      const res = await api<{ full_name: string; login: string; temp_password: string }>(
+        `/api/admin/users/${encodeURIComponent(user.user_id)}/reset-password`,
+        { method: 'POST' },
+      );
+      setResetResult(res);
+      addToast('success', 'รีเซ็ตรหัสผ่านแล้ว', `แจ้งรหัสชั่วคราวให้ ${res.full_name}`);
+    } catch (e) {
+      addToast('error', 'รีเซ็ตรหัสผ่านไม่สำเร็จ', e instanceof Error ? e.message : '');
+    } finally {
+      setResettingUserId(null);
+    }
+  };
   const [scanStatusFilter, setScanStatusFilter] = useState<'ทั้งหมด' | 'อนุมัติแล้ว' | 'รอการตรวจสอบ' | 'ไม่อนุมัติ' | 'กรุณาส่งภาพมาใหม่'>('ทั้งหมด');
   const [scanQuery, setScanQuery] = useState('');
   const [scanPlastic, setScanPlastic] = useState('ทั้งหมด');
@@ -567,6 +598,57 @@ export const AdminPanel: React.FC = () => {
       {/* Admin Tab 2: User Account Management */}
       {activeAdminTab === 'users' && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-2xs overflow-hidden p-4 space-y-3">
+          {/* Research data export */}
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 space-y-2">
+            <div className="flex items-center gap-2 text-emerald-900">
+              <Download className="w-4 h-4" />
+              <h3 className="text-xs font-bold">ดาวน์โหลดข้อมูลวิจัย (CSV เปิดด้วย Excel ได้)</h3>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+              {EXPORT_DATASETS.map((d) => (
+                <a
+                  key={d.id}
+                  href={`${apiBase()}/api/admin/export/${d.id}`}
+                  className="rounded-lg bg-white border border-emerald-200 px-3 py-2 hover:bg-emerald-50 transition-colors"
+                >
+                  <span className="flex items-center gap-1.5 text-[12px] font-bold text-emerald-800">
+                    <Download className="w-3.5 h-3.5" /> {d.label}
+                  </span>
+                  <span className="block text-[10px] text-slate-500 mt-0.5">{d.hint}</span>
+                </a>
+              ))}
+            </div>
+            <p className="text-[10px] text-slate-500">แนะนำให้ดาวน์โหลดเก็บไว้เป็นระยะเพื่อสำรองข้อมูล</p>
+          </div>
+
+          {resetResult && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 font-bold text-amber-900">
+                  <KeyRound className="w-4 h-4" /> รหัสผ่านชั่วคราวของ {resetResult.full_name}
+                </div>
+                <button type="button" onClick={() => setResetResult(null)} className="text-amber-700 hover:text-amber-900" aria-label="ปิด">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {resetResult.login && <span className="text-slate-600">ชื่อผู้ใช้: <b className="font-mono">{resetResult.login}</b></span>}
+                <span className="text-slate-600">รหัสชั่วคราว:</span>
+                <code className="px-2 py-1 rounded-lg bg-white border border-amber-200 font-mono text-sm font-bold tracking-wider select-all">
+                  {resetResult.temp_password}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => void navigator.clipboard?.writeText(resetResult.temp_password).then(() => addToast('success', 'คัดลอกแล้ว', ''))}
+                  className="px-2 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold hover:bg-amber-200 inline-flex items-center gap-1"
+                >
+                  <Copy className="w-3 h-3" /> คัดลอก
+                </button>
+              </div>
+              <p className="text-[11px] text-amber-800">รหัสนี้แสดงครั้งเดียว — แจ้งผู้ใช้โดยตรง แล้วให้ผู้ใช้ล็อกอินด้วยรหัสนี้</p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-xs font-bold text-slate-800">รายชื่อผู้ใช้งานในระบบ</h3>
             <div className="relative">
@@ -612,7 +694,17 @@ export const AdminPanel: React.FC = () => {
                     </td>
                     <td className="p-2.5 text-right font-bold text-amber-700">{user.total_points}</td>
                     <td className="p-2.5 text-right font-bold text-emerald-700">{user.total_carbon_saved.toFixed(2)} kg</td>
-                    <td className="p-2.5 text-right">
+                    <td className="p-2.5 text-right whitespace-nowrap space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => void handleResetPassword(user)}
+                        disabled={resettingUserId === user.user_id}
+                        title="สร้างรหัสผ่านชั่วคราวให้ผู้ใช้ที่ลืมรหัส"
+                        className="px-2 py-1 rounded-lg bg-amber-50 text-amber-800 text-[11px] font-bold hover:bg-amber-100 disabled:opacity-50 inline-flex items-center gap-1"
+                      >
+                        <KeyRound className="w-3 h-3" />
+                        {resettingUserId === user.user_id ? 'กำลังรีเซ็ต…' : 'รีเซ็ตรหัส'}
+                      </button>
                       <button
                         type="button"
                         onClick={() => openUserEditor(user)}

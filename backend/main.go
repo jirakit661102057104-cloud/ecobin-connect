@@ -103,6 +103,8 @@ func main() {
 			r.Patch("/admin/users/{id}", s.handleAdminPatchUser)
 			r.Post("/admin/users/{id}/certificate", s.handleAdminSendCertificate)
 			r.Delete("/admin/users/{id}", s.handleAdminDeleteUser)
+			r.Post("/admin/users/{id}/reset-password", s.handleAdminResetPassword)
+			r.Get("/admin/export/{dataset}", s.handleAdminExport)
 			r.Post("/admin/plastics", s.handleAdminCreatePlastic)
 			r.Put("/admin/plastics/{id}", s.handleAdminUpdatePlastic)
 			r.Delete("/admin/plastics/{id}", s.handleAdminDeletePlastic)

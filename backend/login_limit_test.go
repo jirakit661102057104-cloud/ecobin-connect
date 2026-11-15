@@ -34,3 +34,17 @@ func TestLoginLimiterExpiresOldFailures(t *testing.T) {
 		t.Fatal("expired failures should not lock")
 	}
 }
+
+func TestNewTempPasswordIsStrong(t *testing.T) {
+	seen := map[string]bool{}
+	for i := 0; i < 200; i++ {
+		p := newTempPassword()
+		if err := validateStrongPassword(p); err != nil {
+			t.Fatalf("temp password %q rejected: %v", p, err)
+		}
+		seen[p] = true
+	}
+	if len(seen) < 195 {
+		t.Fatalf("temp passwords not random enough: %d unique of 200", len(seen))
+	}
+}
