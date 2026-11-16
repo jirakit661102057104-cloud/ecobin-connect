@@ -408,8 +408,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await api('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
     allowGuestBrowse();
     await refreshState();
-    addToast('info', 'ออกจากระบบแล้ว', 'กลับสู่หน้าหลักแบบผู้เยี่ยมชม');
-    if (typeof window !== 'undefined') window.location.assign('/');
+    // Full reload onto the login page (a toast here would be lost by the navigation)
+    if (typeof window !== 'undefined') window.location.assign('/login');
   };
 
   const loginAs = async (role: UserRole) => {
