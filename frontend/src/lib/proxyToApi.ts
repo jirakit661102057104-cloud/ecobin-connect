@@ -11,6 +11,10 @@ const HOP_BY_HOP = new Set([
   'upgrade',
   'host',
   'content-length',
+  // Node's fetch already decompressed the upstream body (Render serves br/gzip).
+  // Forwarding Content-Encoding would make the browser decode it a second time and
+  // fail ("Failed to fetch" / unreadable JSON → bare "HTTP 400" in the UI).
+  'content-encoding',
 ]);
 
 const FORWARDED_REQUEST_HEADERS = [
