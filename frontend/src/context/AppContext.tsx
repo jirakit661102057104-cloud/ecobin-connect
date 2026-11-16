@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User, WasteRecord, PointTransaction, Reward, RedemptionSimulation, LocalStorageLog, UserRole, SmartBin, AppSettings, PlasticType, Certificate } from '../types';
 import confetti from 'canvas-confetti';
-import { api, mediaUrl } from '../lib/api';
+import { api, mediaUrl, API_WAKING_EVENT } from '../lib/api';
 import { DEMO_LOGIN, allowGuestBrowse, clearGuestBrowse } from '../lib/config';
 import { APP_NAME } from '../lib/brand';
 
@@ -208,6 +208,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
+
+  // Free-plan API host waking from sleep: tell the user once per minute instead of failing silently.
+  const lastWakingNoticeRef = useRef(0);
+  useEffect(() => {
+    const onWaking = () => {
+      const now = Date.now();
+      if (now - lastWakingNoticeRef.current < 60_000) return;
+      lastWakingNoticeRef.current = now;
+      addToast('info', 'กำลังเชื่อมต่อเซิร์ฟเวอร์…', 'ครั้งแรกหลังไม่มีผู้ใช้สักพักอาจใช้เวลาถึง 1 นาที กรุณารอสักครู่');
+    };
+    window.addEventListener(API_WAKING_EVENT, onWaking);
+    return () => window.removeEventListener(API_WAKING_EVENT, onWaking);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const triggerConfetti = () => {
     try {
