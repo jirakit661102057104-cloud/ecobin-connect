@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
+import { LogoutConfirmModal } from './LogoutConfirmModal';
 import { redeemQrImageUrl } from '../lib/redeemQr';
 import { APP_NAME } from '../lib/brand';
 import { SCAN_DROP_SITES, DROP_BUILDING_TH, DROP_BUILDING_EN } from '../lib/scanCheckpoint';
@@ -85,6 +86,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [selectedRedemption, setSelectedRedemption] = useState<any | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [viewingDoc, setViewingDoc] = useState<{ title: string; subtitle: string; content: React.ReactNode } | null>(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   // Predefined Avatars
   const avatarOptions = [
@@ -243,9 +245,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="my-1.5 border-t border-slate-100" />
             <button
               id="settings-tab-logout"
-              onClick={() => {
-                logout();
-              }}
+              onClick={() => setConfirmLogout(true)}
               className="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl hover:bg-rose-50/70 transition-all border border-transparent hover:border-rose-100/80 cursor-pointer group text-left"
             >
               <div className="flex items-center gap-3.5">
@@ -270,6 +270,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 </div>
               </div>
             </button>
+            <LogoutConfirmModal open={confirmLogout} onClose={() => setConfirmLogout(false)} />
           </>
         )}
       </div>

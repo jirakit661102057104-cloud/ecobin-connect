@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useApp } from '../context/AppContext';
+import { LogoutConfirmModal } from './LogoutConfirmModal';
 import { BrandLogo } from './BrandLogo';
 import { APP_NAME_LINE1, APP_NAME_LINE2 } from '../lib/brand';
 import type { User } from '../types';
@@ -60,6 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { currentUser, currentRole, setGuestMode, logout, language } = useApp();
   const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [showPointsInfo, setShowPointsInfo] = useState(false);
   const [showGuestRegisterHint, setShowGuestRegisterHint] = useState(false);
   const { canScan, ready: deviceReady } = useCanScanWaste();
@@ -322,8 +324,8 @@ export const Header: React.FC<HeaderProps> = ({
                       <button
                         id="header-logout-btn"
                         onClick={() => {
-                          logout();
                           setShowRoleMenu(false);
+                          setConfirmLogout(true);
                         }}
                         className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl hover:bg-rose-50 text-rose-600 text-xs font-medium transition-colors cursor-pointer"
                       >
@@ -502,6 +504,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>,
         document.body
       )}
+      <LogoutConfirmModal open={confirmLogout} onClose={() => setConfirmLogout(false)} />
     </header>
   );
 };
